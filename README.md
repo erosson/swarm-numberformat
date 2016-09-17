@@ -17,3 +17,7 @@ Basic ES6 usage:
     import numberformat from  'swarm-numberformat'
     numberformat.format(1234567)
     >>> '1.23 million'
+
+npm should work:
+
+    npm install swarm-numberformat
