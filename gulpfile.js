@@ -64,6 +64,7 @@ function build() {
       externals: {},
       module: {
         loaders: [
+          {test: /\.json$/, exclude: /node_modules/, loader: 'json-loader'},
           {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
         ]
       },
