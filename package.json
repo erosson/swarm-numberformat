@@ -1,7 +1,7 @@
 {
-  "name": "workspace",
+  "name": "swarm-numberformat",
   "version": "0.0.1",
-  "description": "",
+  "description": "Format numbers as strings like Swarm Simulator does",
   "main": "dist/workspace.js",
   "scripts": {
     "test": "gulp",
@@ -17,7 +17,7 @@
   },
   "keywords": [],
   "author": "Evan <github@erosson.org>",
-  "license": "MIT",
+  "license": "GPLv3",
   "bugs": {
     "url": "https://github.com/erosson/swarm-numberformat/issues"
   },
