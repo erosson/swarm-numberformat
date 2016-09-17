@@ -4,7 +4,9 @@
 [![Dependency Status](https://david-dm.org/erosson/swarm-numberformat.svg)](https://david-dm.org/erosson/swarm-numberformat)
 [![devDependency Status](https://david-dm.org/erosson/swarm-numberformat/dev-status.svg)](https://david-dm.org/erosson/swarm-numberformat#info=devDependencies)
 
-Based on https://github.com/swarmsim/swarm/blob/master/app/scripts/filters/bignum.coffee , but rewritten from scratch in ES6.
+Based on swarmsim's bignum, but rewritten from scratch in ES6.
+* https://github.com/swarmsim/swarm/blob/master/app/scripts/filters/bignum.coffee
+* https://github.com/swarmsim/swarm/blob/master/test/spec/filters/bignum.coffee
 
 Project template: https://github.com/babel/generator-babel-boilerplate
 
