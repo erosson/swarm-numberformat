@@ -49,4 +49,10 @@ describe('numberformat', () => {
     expect(formatter.format(1.11e7)).to.equal('11.1E6')
     expect(formatter.format(1e8)).to.equal('100E6')
   })
+  
+  it('formats bigger numbers', () => {
+    const formatter = numberformat
+    expect(formatter.format(1e18)).to.equal('1.00 quintillion')
+    expect(formatter.format(1e21)).to.equal('1.00 sextillion')
+  })
 });
