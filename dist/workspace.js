@@ -73,7 +73,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _index(val) {
 	  // http://stackoverflow.com/a/23416775/2782048
-	  return Math.floor((('' + val).length - 1) / 3);
+	  // oops, fails for e >= 20
+	  //return Math.floor(((''+val).length-1) / 3)
+	  return Math.max(0, Math.floor(Math.log10(val) / 3));
 	}
 	function _suffix(val, suffixes) {
 	  return suffixes[_index(val)];

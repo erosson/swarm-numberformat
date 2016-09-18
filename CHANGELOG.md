@@ -1,3 +1,8 @@
+### [0.0.4](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.4)
+
+- publish script
+- dist files for 0.0.3
+
 ### [0.0.3](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.3)
 
 - Fix numbers bigger than 1e20
