@@ -8,7 +8,10 @@
     "lint": "gulp lint",
     "test-browser": "gulp test-browser",
     "watch": "gulp watch",
+    "watch-build": "gulp watch-build",
     "build": "gulp build",
+    "preversion": "npm test",
+    "version": "npm run build && git add -A dist",
     "coverage": "gulp coverage"
   },
   "repository": {
