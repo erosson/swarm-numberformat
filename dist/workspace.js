@@ -132,7 +132,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var Formatter = exports.Formatter = function () {
 	  function Formatter() {
-	    var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	    var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	
 	    _classCallCheck(this, Formatter);
 	
@@ -141,8 +141,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  _createClass(Formatter, [{
 	    key: 'format',
-	    value: function format(val) {
-	      return Formats[this.opts.format](val, this.opts);
+	    value: function format(val, opts) {
+	      opts = opts ? Object.assign({}, this.opts, opts) : this.opts;
+	      return Formats[this.opts.format](val, opts);
 	    }
 	  }]);
 	
