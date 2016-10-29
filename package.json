@@ -56,5 +56,8 @@
   "babelBoilerplateOptions": {
     "entryFileName": "workspace.js",
     "mainVarName": "numberformat"
+  },
+  "dependencies": {
+    "lodash": "^4.16.4"
   }
 }

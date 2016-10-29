@@ -1,4 +1,5 @@
-import suffixes from "./suffixes.json"
+import suffixes from './suffixes.json'
+import _ from 'lodash'
 
 function _index(val) {
   // http://stackoverflow.com/a/23416775/2782048
@@ -63,7 +64,7 @@ export class Formatter {
   }
   
   format(val, opts) {
-    opts = opts ? Object.defaults({}, opts, this.opts) : this.opts
+    opts = opts ? _.defaults({}, opts, this.opts) : this.opts
     return Formats[opts.format](val, opts);
   }
 }
