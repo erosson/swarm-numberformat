@@ -62,8 +62,9 @@ export class Formatter {
     this.opts = Object.assign({}, defaultOptions, opts)
   }
   
-  format(val) {
-    return Formats[this.opts.format](val, this.opts);
+  format(val, opts) {
+    opts = opts ? Object.assign({}, this.opts, opts) : this.opts
+    return Formats[this.opts.format](val, opts);
   }
 }
 
