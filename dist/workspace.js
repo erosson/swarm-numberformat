@@ -103,7 +103,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    opts.suffixes = opts.suffixes.slice(0, 12);
 	    return this.standard(val, opts);
 	  },
-	  scientificE: function scientificE(val, opts) {
+	  scientific: function scientific(val, opts) {
 	    opts.suffixes = [];
 	    return this.standard(val, opts);
 	  },

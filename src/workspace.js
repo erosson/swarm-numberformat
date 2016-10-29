@@ -29,7 +29,7 @@ const Formats = {
     opts.suffixes = opts.suffixes.slice(0, 12)
     return this.standard(val, opts)
   },
-  scientificE(val, opts) {
+  scientific(val, opts) {
     opts.suffixes = []
     return this.standard(val, opts)
   },

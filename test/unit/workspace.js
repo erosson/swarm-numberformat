@@ -27,7 +27,7 @@ describe('numberformat', () => {
     // TODO differences
   })
   it('formats scientificE', () => {
-    const formatter = new numberformat.Formatter({format: 'scientificE'})
+    const formatter = new numberformat.Formatter({format: 'scientific'})
     expect(formatter.format(1)).not.to.equal(1)
     expect(formatter.format(1)).to.equal('1')
     expect(formatter.format(8/9)).to.equal('0.889')
