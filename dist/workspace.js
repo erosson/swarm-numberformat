@@ -142,8 +142,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _createClass(Formatter, [{
 	    key: 'format',
 	    value: function format(val, opts) {
-	      opts = opts ? Object.assign({}, this.opts, opts) : this.opts;
-	      return Formats[this.opts.format](val, opts);
+	      opts = opts ? Object.defaults({}, opts, this.opts) : this.opts;
+	      return Formats[opts.format](val, opts);
 	    }
 	  }]);
 	
