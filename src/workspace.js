@@ -16,7 +16,7 @@ const Formats = {
   standard(val, opts) {
     const index = _index(val)
     if (val < opts.minSuffix) {
-      return val.toLocaleString()
+      return Math.floor(val).toLocaleString()
     }
     const suffix = opts.suffixFn(index)
     if (!suffix && suffix !== '') {
