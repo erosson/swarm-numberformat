@@ -74,7 +74,7 @@ const Formats = {
   // like standard formatting, with a different set of suffixes
   longScale: {suffixGroups: longScaleSuffixes},
   // like standard formatting, with no suffixes at all
-  scientific: {suffixGroups: {long: [], short: []}},
+  scientific: {suffixGroups: {full: [], short: []}},
   // like standard formatting, with a smaller set of suffixes
   hybrid: {
     suffixGroups: {
