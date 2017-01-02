@@ -14,24 +14,43 @@ function validate(condition, message) {
   return condition
 }
 
-// Suffixes are a list - which index of the list do we want? 
-// _index(999) === 0
-// _index(1000) === 1
-// _index(1000000) === 2
-function _index(val) {
-  // string length is faster but fails for length >= 20, where JS starts
-  // formatting with e
-  return Math.max(0, Math.floor(Math.log10(Math.abs(val))/3))
+const backends = {
+  'native': {
+    // Suffixes are a list - which index of the list do we want? 
+    // _index(999) === 0
+    // _index(1000) === 1
+    // _index(1000000) === 2
+    index(val) {
+      // string length is faster but fails for length >= 20, where JS starts
+      // formatting with e
+      return Math.max(0, Math.floor(Math.log10(Math.abs(val))/3))
+    },
+    prefix(val, sigfigs, index) {
+      return (val / Math.pow(1000, index)).toPrecision(sigfigs)
+    },
+  },
+  'decimal.js': {
+    index(val) {
+      // we assume the *exponent* is small enough to be a native js number
+      return Math.max(0, val.abs().logarithm(10).dividedBy(3).floor().toNumber())
+    },
+    prefix(val, sigfigs, index) {
+      var div = new val.constructor(1000).pow(index)
+      return val.dividedBy(div).toPrecision(sigfigs)
+    },
+  },
 }
 
 // The formatting function.
 function _format(val, opts) {
-  const index = _index(val)
+  const backend = validate(backends[opts.backend], `not a backend: ${opts.backend}`)
+  const index = backend.index(val)
   const suffix = opts.suffixFn(index)
   // opts.minSuffix: Use JS native formatting for smallish numbers, because
   // '99,999' is prettier than '99.9k'
-  // TODO: handle 0 < val < 1 here
+  // it's safe to let Math coerce Decimal.js to infinity here, gt/lt still work
   if (Math.abs(val) < opts.minSuffix) {
+    // decimal.js minSuffix/minRound aren't supported, we must be native to get here
     if (Math.abs(val) >= opts.minRound) {
       val = Math.floor(val)
     }
@@ -42,11 +61,12 @@ function _format(val, opts) {
     return val.toExponential(opts.sigfigs-1).replace('e+', 'e')
   }
   // Found a suffix. Calculate the prefix, the number before the suffix.
-  const prefix = (val / Math.pow(1000, index)).toPrecision(opts.sigfigs)
+  const prefix = backend.prefix(val, opts.sigfigs, index)
   return `${prefix}${suffix}`
 }
 
 export const defaultOptions = {
+  backend: 'native',
   // Flavor is a shortcut to modify any number of other options, like sigfigs.
   // It's much more commonly used by callers than suffixGroup, which only controls
   // suffixes. The two share the same possible names by default.
@@ -115,12 +135,14 @@ export class Formatter {
     // finally, add the implied options: defaults and format-derived
     return Object.assign({}, defaultOptions, formatOptions, flavorOptions, opts)
   }
-  index(val) {
-    return _index(val)
+  index(val, opts) {
+    opts = this._normalizeOpts(opts)
+    return backends[opts.backend].index(val)
   }
   suffix(val, opts) {
     opts = this._normalizeOpts(opts)
-    return opts.suffixFn(_index(val))
+    var index = backends[opts.backend].index(val)
+    return opts.suffixFn(index)
   }
   format(val, opts) {
     opts = this._normalizeOpts(opts)

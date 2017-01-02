@@ -1,4 +1,5 @@
 import numberformat from '../../src/main'
+import Decimal from 'decimal.js'
 
 describe('numberformat', () => {
   it('builds formatters', () => {
@@ -125,5 +126,19 @@ describe('numberformat', () => {
     // from '123,456' to '1.23e21'
     expect(formatter.format(1e21)).to.equal('1.0000 sextillion')
     expect(formatter.format(1e21, {flavor: 'short'})).to.equal('1.00Sx')
+  })
+  it('supports decimal.js', () => {
+    const formatter = new numberformat.Formatter({backend: 'decimal.js'})
+    //console.log(new Decimal('1e999').toString())
+    expect(formatter.format(new Decimal('1e9999'), {format: 'engineering'})).to.equal('1.0000E9999')
+    expect(formatter.format(new Decimal('1e9999'))).to.equal('1.0000e9999')
+    expect(formatter.format(new Decimal('1'))).to.equal('1')
+    expect(formatter.format(new Decimal('1e3'))).to.equal('1,000')
+    expect(formatter.format(new Decimal('1e6'))).to.equal('1.0000 million')
+    expect(formatter.format(new Decimal('1.1111e6'))).to.equal('1.1111 million')
+    expect(formatter.format(new Decimal('1.1111e9'))).to.equal('1.1111 billion')
+    expect(formatter.format(new Decimal('1.1111e12'))).to.equal('1.1111 trillion')
+    expect(formatter.format(new Decimal('1e21'))).to.equal('1.0000 sextillion')
+    expect(formatter.format(new Decimal('1e36'))).to.equal('1.0000 undecillion')
   })
 });
