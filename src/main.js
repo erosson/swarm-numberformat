@@ -30,6 +30,9 @@ const backends = {
     },
   },
   'decimal.js': {
+    // Note that decimal.js is never imported by this library!
+    // We're using its methods passed in by the caller. This keeps the library
+    // much smaller for the common case: no decimal.js.
     index(val) {
       // we assume the *exponent* is small enough to be a native js number
       return Math.max(0, val.abs().logarithm(10).dividedBy(3).floor().toNumber())
