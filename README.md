@@ -27,8 +27,6 @@ Use `formatShort()` or `format({flavor:'short'})` to easily abbreviate suffixes 
 
      numberformat.formatShort(1e10)
      // => "10.0B"
-     numberformat.formatFull(1e10)
-     // => "10.0 billion"
 
 Of course, you can override significant figures.
 
