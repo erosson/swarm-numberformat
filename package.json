@@ -2,7 +2,7 @@
   "name": "swarm-numberformat",
   "version": "0.0.4",
   "description": "Format numbers as strings like Swarm Simulator does",
-  "main": "dist/workspace.js",
+  "main": "dist/main.js",
   "scripts": {
     "test": "gulp",
     "lint": "gulp lint",
@@ -54,7 +54,7 @@
     "webpack-stream": "3.2.0"
   },
   "babelBoilerplateOptions": {
-    "entryFileName": "workspace.js",
+    "entryFileName": "main.js",
     "mainVarName": "numberformat"
   },
   "dependencies": {

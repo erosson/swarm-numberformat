@@ -1,4 +1,4 @@
-import numberformat from '../../src/workspace';
+import numberformat from '../../src/main'
 
 // TODO fill in all tests from swarm1
 describe('numberformat', () => {
