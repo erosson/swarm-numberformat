@@ -1,3 +1,11 @@
+### [0.0.9](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.9)
+
+- long-scale number formatting (milliard, billiard, etc)
+
+### [0.0.8](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.8)
+
+- improved browser api
+
 ### [0.0.6](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.6)
 
 - flavors: long vs short
@@ -6,10 +14,6 @@
 - many things are more caller-configurable
 - suffix() fetches just the suffix, no number
 - renamed main file from workspace.js to main.js
-
-### [0.0.5](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.5)
-
-- Oops!
 
 ### [0.0.4](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.4)
 
