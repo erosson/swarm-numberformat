@@ -45,6 +45,8 @@ or
 
 TODO: better api documentation. For now, see its features in [the demo](https://jsbin.com/zadepad/edit?html,output).
 
+## Related work
+
 Based on swarmsim's bignum:
 * https://github.com/swarmsim/swarm/blob/master/app/scripts/filters/bignum.coffee
 * https://github.com/swarmsim/swarm/blob/master/test/spec/filters/bignum.coffee
