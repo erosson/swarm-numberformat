@@ -50,8 +50,8 @@ export const defaultOptions = {
   // Flavor is a shortcut to modify any number of other options, like sigfigs.
   // It's much more commonly used by callers than suffixGroup, which only controls
   // suffixes. The two share the same possible names by default.
-  flavor: 'long',
-  suffixGroup: 'long',
+  flavor: 'full',
+  suffixGroup: 'full',
   suffixFn(index) {
     var suffixes = this.suffixes || this.suffixGroups[this.suffixGroup]
     validate(suffixes, `no such suffixgroup: ${this.suffixGroup}`)
@@ -78,7 +78,7 @@ const Formats = {
   // like standard formatting, with a smaller set of suffixes
   hybrid: {
     suffixGroups: {
-      long: standardSuffixes.long.slice(0, 12),
+      full: standardSuffixes.full.slice(0, 12),
       short: standardSuffixes.short.slice(0, 12),
     },
   },
@@ -88,7 +88,7 @@ const Formats = {
 // A convenient way for the developer to modify formatters.
 // These are different from formats - not user-visible.
 const Flavors = {
-  long: {suffixGroup: 'long', sigfigs: 5},
+  full: {suffixGroup: 'full', sigfigs: 5},
   short: {suffixGroup: 'short', sigfigs: 3},
 }
 // Allow callers to extend formats and flavors.

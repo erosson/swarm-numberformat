@@ -10,7 +10,7 @@
         "St", "USt", "DSt", "TSt", "QaSt", "QiSt", "SxSt", "SpSt", "OSt", "NSt",
         "Og", "UOg", "DOg", "TOg", "QaOg", "QiOg", "SxOg", "SpOg", "OOg", "NOg"
     ],
-    "long": [
+    "full": [
         "",
         " thousand",
         " million",
