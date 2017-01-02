@@ -1,6 +1,6 @@
 {
   "name": "swarm-numberformat",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Format numbers as strings like Swarm Simulator does",
   "main": "dist/main.js",
   "scripts": {
