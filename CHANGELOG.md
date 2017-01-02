@@ -1,3 +1,15 @@
+### [0.0.6](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.6)
+
+- flavors: long vs short
+- negative number support
+- small decimal support
+- many things are more caller-configurable
+- suffix() fetches just the suffix, no number
+
+### [0.0.5](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.5)
+
+- Oops!
+
 ### [0.0.4](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.4)
 
 - publish script
