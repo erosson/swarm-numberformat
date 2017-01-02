@@ -23,7 +23,7 @@ Several built-in formats to choose from. Let your users pick their favorite in a
 
 At 1e249, 'standard' and 'longScale' fall back to scientific notation.
      
-Write `{flavor:'short'}` in places you need to abbreviate suffixes and sigfigs. Plays nice with all the formats above.
+Write `{flavor:'short'}` to easily abbreviate suffixes and sigfigs. Plays nice with all the formats above.
 
      numberformat.format(1e10, {flavor: 'short'})
      // => "10.0B"
@@ -33,18 +33,18 @@ Of course, you can override significant figures.
      numberformat.format(1e10, {flavor: 'short', sigfigs: 7})
      // => "10.00000B"
      
-Use a formatter object instead of `numberformat.format`/`numberformat.default` to set your own default parameters.
+Use a formatter object instead of `numberformat.format` / `numberformat.default` to set your own default parameters. 
 
      var f = new numberformat.Formatter({format: 'engineering', sigfigs: 2})
      f.format(1.2345e10)
      // => "12E9"
      
-There's support for [decimal.js](https://github.com/MikeMcl/decimal.js/) when you need numbers beyond 1e308/`Number.MAX_VALUE`.
+There's support for [decimal.js](https://github.com/MikeMcl/decimal.js/) when you need numbers bigger than `Number.MAX_VALUE` (1e308).
 
      numberformat.format(new Decimal(1e10000), {backend: 'decimal.js', format: 'engineering'})
      // => "10e9999"
 
-swarm-numberformat has no third-party dependencies, and is less than 20k minified.
+swarm-numberformat includes no third-party dependencies, and is less than 20k minified.
 
 ## Getting started
 
@@ -56,7 +56,7 @@ or
 
     const numberformat = require('swarm-numberformat')
 
-TODO: better api documentation. For now, see its features in [the demo](https://jsbin.com/zadepad/edit?html,output).
+TODO: full api docs. For now, use the source, the examples above, or [the demo](https://jsbin.com/zadepad/edit?html,output).
 
 ## Related work
 
