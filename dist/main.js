@@ -59,6 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.format = exports.Formatter = exports.defaultOptions = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -111,7 +112,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return '' + prefix + suffix;
 	}
 	
-	var defaultOptions = {
+	var defaultOptions = exports.defaultOptions = {
 	  suffixGroups: _suffixes2.default,
 	  // Flavor is a shortcut to modify any number of other options, like sigfigs.
 	  // It's much more commonly used by callers than suffixGroup, which only controls
@@ -162,7 +163,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	defaultOptions.formats = Formats;
 	defaultOptions.flavors = Flavors;
 	
-	var Formatter = function () {
+	var Formatter = exports.Formatter = function () {
 	  function Formatter() {
 	    var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	
@@ -216,6 +217,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	numberformat.defaultOptions = defaultOptions;
 	numberformat.Formatter = Formatter;
 	exports.default = numberformat;
+	
+	// this is just to make the browser api nicer
+	
+	var format = exports.format = function format(val, opts) {
+	  return numberformat.format(val, opts);
+	};
 
 /***/ },
 /* 1 */
