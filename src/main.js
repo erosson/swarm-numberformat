@@ -1,5 +1,10 @@
+// Can't comment a .json file, but the suffixes come from these pages:
+// http://home.kpn.nl/vanadovv/BignumbyN.html
 import suffixes from './suffixes.json'
-// import _ from 'lodash'
+// TODO: use this page to generate names dynamically, for even larger numbers:
+//   http://mathforum.org/library/drmath/view/59154.html
+// TODO: decimal.js support
+// TODO: rounding control
 
 function validate(condition, message) {
   if (!condition) {
@@ -118,6 +123,11 @@ export class Formatter {
   format(val, opts) {
     opts = this._normalizeOpts(opts)
     return _format(val, opts)
+  }
+  // Use this in your options UI
+  listFormats(opts) {
+    opts = this._normalizeOpts(opts)
+    return Object.keys(opts.formats)
   }
 }
 

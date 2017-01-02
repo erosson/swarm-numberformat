@@ -101,8 +101,6 @@ describe('numberformat', () => {
     expect(formatter.format(8/9, {sigfigs: 1, minRound: 1}, {})).to.equal('0.9')
     expect(formatter.format(8/9, {flavor: 'short', minRound: 1}, {})).to.equal('0.889')
   })
-  // TODO: rounding control1
-  // TODO: decimal.js
 
   it('formats bigger numbers', () => {
     const formatter = numberformat
