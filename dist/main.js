@@ -89,24 +89,46 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return condition;
 	}
 	
-	// Suffixes are a list - which index of the list do we want? 
-	// _index(999) === 0
-	// _index(1000) === 1
-	// _index(1000000) === 2
-	function _index(val) {
-	  // string length is faster but fails for length >= 20, where JS starts
-	  // formatting with e
-	  return Math.max(0, Math.floor(Math.log10(Math.abs(val)) / 3));
-	}
+	var backends = {
+	  'native': {
+	    // Suffixes are a list - which index of the list do we want? 
+	    // _index(999) === 0
+	    // _index(1000) === 1
+	    // _index(1000000) === 2
+	    index: function index(val) {
+	      // string length is faster but fails for length >= 20, where JS starts
+	      // formatting with e
+	      return Math.max(0, Math.floor(Math.log10(Math.abs(val)) / 3));
+	    },
+	    prefix: function prefix(val, sigfigs, index) {
+	      return (val / Math.pow(1000, index)).toPrecision(sigfigs);
+	    }
+	  },
+	  'decimal.js': {
+	    // Note that decimal.js is never imported by this library!
+	    // We're using its methods passed in by the caller. This keeps the library
+	    // much smaller for the common case: no decimal.js.
+	    index: function index(val) {
+	      // we assume the *exponent* is small enough to be a native js number
+	      return Math.max(0, val.abs().logarithm(10).dividedBy(3).floor().toNumber());
+	    },
+	    prefix: function prefix(val, sigfigs, index) {
+	      var div = new val.constructor(1000).pow(index);
+	      return val.dividedBy(div).toPrecision(sigfigs);
+	    }
+	  }
+	};
 	
 	// The formatting function.
 	function _format(val, opts) {
-	  var index = _index(val);
+	  var backend = validate(backends[opts.backend], 'not a backend: ' + opts.backend);
+	  var index = backend.index(val);
 	  var suffix = opts.suffixFn(index);
 	  // opts.minSuffix: Use JS native formatting for smallish numbers, because
 	  // '99,999' is prettier than '99.9k'
-	  // TODO: handle 0 < val < 1 here
+	  // it's safe to let Math coerce Decimal.js to infinity here, gt/lt still work
 	  if (Math.abs(val) < opts.minSuffix) {
+	    // decimal.js minSuffix/minRound aren't supported, we must be native to get here
 	    if (Math.abs(val) >= opts.minRound) {
 	      val = Math.floor(val);
 	    }
@@ -117,11 +139,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return val.toExponential(opts.sigfigs - 1).replace('e+', 'e');
 	  }
 	  // Found a suffix. Calculate the prefix, the number before the suffix.
-	  var prefix = (val / Math.pow(1000, index)).toPrecision(opts.sigfigs);
+	  var prefix = backend.prefix(val, opts.sigfigs, index);
 	  return '' + prefix + suffix;
 	}
 	
 	var defaultOptions = exports.defaultOptions = {
+	  backend: 'native',
 	  // Flavor is a shortcut to modify any number of other options, like sigfigs.
 	  // It's much more commonly used by callers than suffixGroup, which only controls
 	  // suffixes. The two share the same possible names by default.
@@ -203,14 +226,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'index',
-	    value: function index(val) {
-	      return _index(val);
+	    value: function index(val, opts) {
+	      opts = this._normalizeOpts(opts);
+	      return backends[opts.backend].index(val);
 	    }
 	  }, {
 	    key: 'suffix',
 	    value: function suffix(val, opts) {
 	      opts = this._normalizeOpts(opts);
-	      return opts.suffixFn(_index(val));
+	      var index = backends[opts.backend].index(val);
+	      return opts.suffixFn(index);
 	    }
 	  }, {
 	    key: 'format',
