@@ -1,3 +1,7 @@
+### [0.0.13](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.13)
+
+- formatShort, formatFull
+
 ### [0.0.12](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.12)
 
 - docs

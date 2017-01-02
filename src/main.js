@@ -121,6 +121,15 @@ defaultOptions.flavors = Flavors
 export class Formatter {
   constructor(opts = {}) {
     this.opts = opts
+    // create convenience methods for each flavor
+    var flavors = Object.keys(this._normalizeOpts().flavors)
+    // the fn(i) is for stupid binding tricks with the looped fn(val, opts)
+    for (var i=0; i < flavors.length; i++) (i => {
+      var flavor = flavors[i]
+      // capitalize the first letter to camel-case method name, like formatShort
+      var key = 'format' + flavor.charAt(0).toUpperCase() + flavor.substr(1)
+      this[key] = (val, opts) => this.formatFlavor(val, flavor, opts)
+    })(i)
   }
   
   _normalizeOpts(opts={}) {
@@ -151,6 +160,9 @@ export class Formatter {
     opts = this._normalizeOpts(opts)
     return _format(val, opts)
   }
+  formatFlavor(val, flavor, opts) {
+    return this.format(val, Object.assign({}, opts, {flavor}))
+  }
   // Use this in your options UI
   listFormats(opts) {
     opts = this._normalizeOpts(opts)
@@ -165,4 +177,5 @@ export default numberformat
 
 // this is just to make the browser api nicer
 export const format = (val, opts) => numberformat.format(val, opts)
-
+export const formatFull = (val, opts) => numberformat.formatFlavor(val, 'full', opts)
+export const formatShort = (val, opts) => numberformat.formatFlavor(val, 'short', opts)

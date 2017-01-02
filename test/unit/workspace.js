@@ -141,4 +141,11 @@ describe('numberformat', () => {
     expect(formatter.format(new Decimal('1e21'))).to.equal('1.0000 sextillion')
     expect(formatter.format(new Decimal('1e36'))).to.equal('1.0000 undecillion')
   })
+  it('has shortcuts for each flavor', () => {
+    const formatter = numberformat
+    expect(!!formatter.formatFull).to.equal(true)
+    expect(!!formatter.formatShort).to.equal(true)
+    expect(formatter.formatFull(1e6)).to.equal('1.0000 million')
+    expect(formatter.formatShort(1e6)).to.equal('1.00M')
+  })
 });
