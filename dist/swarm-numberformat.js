@@ -79,7 +79,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	// TODO: use this page to generate names dynamically, for even larger numbers:
 	//   http://mathforum.org/library/drmath/view/59154.html
-	// TODO: decimal.js support
 	// TODO: rounding control
 	
 	function validate(condition, message) {
@@ -108,6 +107,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // Note that decimal.js is never imported by this library!
 	    // We're using its methods passed in by the caller. This keeps the library
 	    // much smaller for the common case: no decimal.js.
+	    // api docs: https://mikemcl.github.io/decimal.js/
 	    index: function index(val) {
 	      // we assume the *exponent* is small enough to be a native js number
 	      return Math.max(0, val.abs().logarithm(10).dividedBy(3).floor().toNumber());
@@ -551,4 +551,4 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ ])
 });
 ;
-//# sourceMappingURL=main.js.map
+//# sourceMappingURL=swarm-numberformat.js.map
