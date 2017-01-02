@@ -65,9 +65,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	// http://home.kpn.nl/vanadovv/BignumbyN.html
 	
 	
-	var _suffixes = __webpack_require__(1);
+	var _standardSuffixes = __webpack_require__(1);
 	
-	var _suffixes2 = _interopRequireDefault(_suffixes);
+	var _standardSuffixes2 = _interopRequireDefault(_standardSuffixes);
+	
+	var _longscaleSuffixes = __webpack_require__(2);
+	
+	var _longscaleSuffixes2 = _interopRequireDefault(_longscaleSuffixes);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -118,12 +122,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	var defaultOptions = exports.defaultOptions = {
-	  suffixGroups: _suffixes2.default,
 	  // Flavor is a shortcut to modify any number of other options, like sigfigs.
 	  // It's much more commonly used by callers than suffixGroup, which only controls
 	  // suffixes. The two share the same possible names by default.
-	  flavor: 'long',
-	  suffixGroup: 'long',
+	  flavor: 'full',
+	  suffixGroup: 'full',
 	  suffixFn: function suffixFn(index) {
 	    var suffixes = this.suffixes || this.suffixGroups[this.suffixGroup];
 	    validate(suffixes, 'no such suffixgroup: ' + this.suffixGroup);
@@ -143,14 +146,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	// User-visible format choices, like on swarmsim's options screen. 
 	// Each has a different set of options.
 	var Formats = {
-	  standard: {},
+	  standard: { suffixGroups: _standardSuffixes2.default },
+	  // like standard formatting, with a different set of suffixes
+	  longScale: { suffixGroups: _longscaleSuffixes2.default },
 	  // like standard formatting, with no suffixes at all
-	  scientific: { suffixGroups: { long: [], short: [] } },
+	  scientific: { suffixGroups: { full: [], short: [] } },
 	  // like standard formatting, with a smaller set of suffixes
 	  hybrid: {
 	    suffixGroups: {
-	      long: defaultOptions.suffixGroups.long.slice(0, 12),
-	      short: defaultOptions.suffixGroups.short.slice(0, 12)
+	      full: _standardSuffixes2.default.full.slice(0, 12),
+	      short: _standardSuffixes2.default.short.slice(0, 12)
 	    }
 	  },
 	  // like standard formatting, with a different/infinite set of suffixes
@@ -161,7 +166,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	// A convenient way for the developer to modify formatters.
 	// These are different from formats - not user-visible.
 	var Flavors = {
-	  long: { suffixGroup: 'long', sigfigs: 5 },
+	  full: { suffixGroup: 'full', sigfigs: 5 },
 	  short: { suffixGroup: 'short', sigfigs: 3 }
 	};
 	// Allow callers to extend formats and flavors.
@@ -335,7 +340,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			"OOg",
 			"NOg"
 		],
-		"long": [
+		"full": [
 			"",
 			" thousand",
 			" million",
@@ -420,6 +425,100 @@ return /******/ (function(modules) { // webpackBootstrap
 			" octogintillion",
 			" unoctogintillion",
 			" duooctogintillion"
+		]
+	};
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	module.exports = {
+		"short": [],
+		"full": [
+			"",
+			" thousand",
+			" million",
+			" milliard",
+			" billion",
+			" billiard",
+			" trillion",
+			" trilliard",
+			" quadrillion",
+			" quadrilliard",
+			" quintillion",
+			" quintilliard",
+			" sextillion",
+			" sextilliard",
+			" septillion",
+			" septilliard",
+			" octillion",
+			" octilliard",
+			" nonillion",
+			" nonilliard",
+			" decillion",
+			" decilliard",
+			" undecillion",
+			" undecilliard",
+			" duodecillion",
+			" duodecilliard",
+			" tredecillion",
+			" tredecilliard",
+			" quattuordecillion",
+			" quattuordecilliard",
+			" quinquadecillion",
+			" quinquadecilliard",
+			" sedecillion",
+			" sedecilliard",
+			" septendecillion",
+			" septendecilliard",
+			" octodecillion",
+			" octodecilliard",
+			" novendecillion",
+			" novendecilliard",
+			" vigintillion",
+			" vigintilliard",
+			" unvigintillion",
+			" unvigintilliard",
+			" duovigintillion",
+			" duovigintilliard",
+			" tresvigintillion",
+			" tresvigintilliard",
+			" quattuorvigintillion",
+			" quattuorvigintilliard",
+			" quinquavigintillion",
+			" quinquavigintilliard",
+			" sesvigintillion",
+			" sesvigintilliard",
+			" septemvigintillion",
+			" septemvigintilliard",
+			" octovigintillion",
+			" octovigintilliard",
+			" novemvigintillion",
+			" novemvigintilliard",
+			" trigintillion",
+			" trigintilliard",
+			" untrigintillion",
+			" untrigintilliard",
+			" duotrigintillion",
+			" duotrigintilliard",
+			" trestrigintillion",
+			" trestrigintilliard",
+			" quattuortrigintillion",
+			" quattuortrigintilliard",
+			" quinquatrigintillion",
+			" quinquatrigintilliard",
+			" sestrigintillion",
+			" sestrigintilliard",
+			" septentrigintillion",
+			" septentrigintilliard",
+			" octotrigintillion",
+			" octotrigintilliard",
+			" noventrigintillion",
+			" noventrigintilliard",
+			" quadragintillion",
+			" quadragintilliard",
+			" unquadragintillion",
+			" unquadragintilliard"
 		]
 	};
 
