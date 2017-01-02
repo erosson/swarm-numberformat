@@ -23,7 +23,7 @@ Several built-in formats to choose from. Let your users pick their favorite in a
 
 At 1e249, 'standard' and 'longScale' fall back to scientific notation.
      
-Write `{flavor:'short'}` to easily abbreviate suffixes and sigfigs. Plays nice with all the formats above.
+Write `{flavor:'short'}` to easily abbreviate suffixes and sigfigs.
 
      numberformat.format(1e10, {flavor: 'short'})
      // => "10.0B"
