@@ -4,7 +4,6 @@ import standardSuffixes from './standard-suffixes.json'
 import longScaleSuffixes from './longscale-suffixes.json'
 // TODO: use this page to generate names dynamically, for even larger numbers:
 //   http://mathforum.org/library/drmath/view/59154.html
-// TODO: decimal.js support
 // TODO: rounding control
 
 function validate(condition, message) {
