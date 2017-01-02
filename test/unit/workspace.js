@@ -92,9 +92,17 @@ describe('numberformat', () => {
     expect(formatter.format(-1e6)).to.equal('-1.0000 million')
     expect(formatter.format(-1e21)).to.equal('-1.0000 sextillion')
   })
-  // TODO: rounding
-  // TODO: decimal support, 0 < val < 1
-  // TODO: negatives tests
+  it('supports small decimals', () => {
+    const formatter = numberformat
+    expect(formatter.format(8/9)).to.equal('0')
+    expect(formatter.format(8/9, {minRound: 1}, {})).to.equal('0.88889')
+    expect(formatter.format(-8/9, {minRound: 1}, {})).to.equal('-0.88889')
+    expect(formatter.format(8/9, {sigfigs: 3, minRound: 1}, {})).to.equal('0.889')
+    expect(formatter.format(8/9, {sigfigs: 1, minRound: 1}, {})).to.equal('0.9')
+    expect(formatter.format(8/9, {flavor: 'short', minRound: 1}, {})).to.equal('0.889')
+  })
+  // TODO: rounding control1
+  // TODO: decimal.js
 
   it('formats bigger numbers', () => {
     const formatter = numberformat

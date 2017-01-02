@@ -26,7 +26,10 @@ function _format(val, opts) {
   // '99,999' is prettier than '99.9k'
   // TODO: handle 0 < val < 1 here
   if (Math.abs(val) < opts.minSuffix) {
-    return Math.floor(val).toLocaleString()
+    if (Math.abs(val) >= opts.minRound) {
+      val = Math.floor(val)
+    }
+    return val.toLocaleString(undefined, {maximumSignificantDigits: opts.sigfigs})
   }
   // No suffix found: use scientific notation. JS's native toExponential is fine.
   if (!suffix && suffix !== '') {
@@ -54,6 +57,8 @@ const defaultOptions = {
   },
   // minimum value to use any suffix, because '99,900' is prettier than '99.9k'
   minSuffix: 1e5,
+  // Show decimals below this value rounded to opts.sigfigs, instead of floor()ed
+  minRound: 0,
   sigfigs: 3, // often overridden by flavor
   format: 'standard'
 }
