@@ -1,6 +1,5 @@
 import numberformat from '../../src/main'
 
-// TODO fill in all tests from swarm1
 describe('numberformat', () => {
   it('builds formatters', () => {
     expect(new numberformat.Formatter({format: 'hybrid'}).opts.format).to.equal('hybrid')
@@ -14,8 +13,24 @@ describe('numberformat', () => {
     expect(formatter.format(1e3)).to.equal('1,000')
     expect(formatter.format(1e6)).to.equal('1.0000 million')
     expect(formatter.format(1.1111e6)).to.equal('1.1111 million')
+    expect(formatter.format(1.1111e9)).to.equal('1.1111 billion')
+    expect(formatter.format(1.1111e12)).to.equal('1.1111 trillion')
     expect(formatter.format(1e21)).to.equal('1.0000 sextillion')
     expect(formatter.format(1e36)).to.equal('1.0000 undecillion')
+  })
+  it('formats long-scale numbers', () => {
+    const formatter = new numberformat.Formatter({format: 'longScale'})
+    expect(formatter.format(1)).not.to.equal(1)
+    expect(formatter.format(1)).to.equal('1')
+    //expect(formatter.format(8/9)).to.equal('0.889')
+    //expect(formatter.format(1e3)).to.equal('1 thousand')
+    expect(formatter.format(1e3)).to.equal('1,000')
+    expect(formatter.format(1e6)).to.equal('1.0000 million')
+    expect(formatter.format(1.1111e6)).to.equal('1.1111 million')
+    expect(formatter.format(1.1111e9)).to.equal('1.1111 milliard')
+    expect(formatter.format(1.1111e12)).to.equal('1.1111 billion')
+    expect(formatter.format(1e21)).to.equal('1.0000 trilliard')
+    expect(formatter.format(1e36)).to.equal('1.0000 sextillion')
   })
   it('formats hybrid', () => {
     const formatter = new numberformat.Formatter({format: 'hybrid'})

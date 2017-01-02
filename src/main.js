@@ -1,6 +1,7 @@
 // Can't comment a .json file, but the suffixes come from these pages:
 // http://home.kpn.nl/vanadovv/BignumbyN.html
-import suffixes from './suffixes.json'
+import standardSuffixes from './standard-suffixes.json'
+import longScaleSuffixes from './longscale-suffixes.json'
 // TODO: use this page to generate names dynamically, for even larger numbers:
 //   http://mathforum.org/library/drmath/view/59154.html
 // TODO: decimal.js support
@@ -46,7 +47,6 @@ function _format(val, opts) {
 }
 
 export const defaultOptions = {
-  suffixGroups: suffixes, 
   // Flavor is a shortcut to modify any number of other options, like sigfigs.
   // It's much more commonly used by callers than suffixGroup, which only controls
   // suffixes. The two share the same possible names by default.
@@ -70,14 +70,16 @@ export const defaultOptions = {
 // User-visible format choices, like on swarmsim's options screen. 
 // Each has a different set of options.
 const Formats = {
-  standard: {},
+  standard: {suffixGroups: standardSuffixes},
+  // like standard formatting, with a different set of suffixes
+  longScale: {suffixGroups: longScaleSuffixes},
   // like standard formatting, with no suffixes at all
   scientific: {suffixGroups: {long: [], short: []}},
   // like standard formatting, with a smaller set of suffixes
   hybrid: {
     suffixGroups: {
-      long: defaultOptions.suffixGroups.long.slice(0, 12),
-      short: defaultOptions.suffixGroups.short.slice(0, 12),
+      long: standardSuffixes.long.slice(0, 12),
+      short: standardSuffixes.short.slice(0, 12),
     },
   },
   // like standard formatting, with a different/infinite set of suffixes
