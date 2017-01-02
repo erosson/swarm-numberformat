@@ -20,7 +20,7 @@
   },
   "keywords": [],
   "author": "Evan <github@erosson.org>",
-  "license": "GPLv3",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/erosson/swarm-numberformat/issues"
   },
