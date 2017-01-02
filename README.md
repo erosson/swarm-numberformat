@@ -65,3 +65,7 @@ Based on swarmsim's bignum:
 * https://github.com/swarmsim/swarm/blob/master/test/spec/filters/bignum.coffee
 
 Project template: https://github.com/babel/generator-babel-boilerplate
+
+## License
+
+MIT license. I'd appreciate it if you open-sourced any changes to this library, as with an LGPL license. (Pull request? Open-source fork?) Not required, though.
