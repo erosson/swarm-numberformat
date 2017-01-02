@@ -1,3 +1,7 @@
+### [0.0.14](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.14)
+
+- relicense from GPLv3 to MIT
+
 ### [0.0.13](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.13)
 
 - formatShort, formatFull
