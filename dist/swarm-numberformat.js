@@ -69,9 +69,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _standardSuffixes2 = _interopRequireDefault(_standardSuffixes);
 	
-	var _longscaleSuffixes = __webpack_require__(2);
+	var _longScaleSuffixes = __webpack_require__(2);
 	
-	var _longscaleSuffixes2 = _interopRequireDefault(_longscaleSuffixes);
+	var _longScaleSuffixes2 = _interopRequireDefault(_longScaleSuffixes);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -171,7 +171,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Formats = {
 	  standard: { suffixGroups: _standardSuffixes2.default },
 	  // like standard formatting, with a different set of suffixes
-	  longScale: { suffixGroups: _longscaleSuffixes2.default },
+	  longScale: { suffixGroups: _longScaleSuffixes2.default },
 	  // like standard formatting, with no suffixes at all
 	  scientific: { suffixGroups: { full: [], short: [] } },
 	  // like standard formatting, with a smaller set of suffixes

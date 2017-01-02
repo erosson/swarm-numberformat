@@ -1,7 +1,7 @@
 // Can't comment a .json file, but the suffixes come from these pages:
 // http://home.kpn.nl/vanadovv/BignumbyN.html
 import standardSuffixes from './standard-suffixes.json'
-import longScaleSuffixes from './longscale-suffixes.json'
+import longScaleSuffixes from './long-scale-suffixes.json'
 // TODO: use this page to generate names dynamically, for even larger numbers:
 //   http://mathforum.org/library/drmath/view/59154.html
 // TODO: rounding control
