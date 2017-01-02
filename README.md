@@ -1,6 +1,6 @@
 # swarm-numberformat
 
-Format large numbers in several human-readable ways. Designed for incremental games like [swarmsim](https://swarmsim.github.io).
+Format large numbers in several human-readable ways. Designed for incremental games like [swarmsim](https://swarmsim.github.io). Less than 20k minified.
 
 [![Travis build status](http://img.shields.io/travis/erosson/swarm-numberformat.svg?style=flat)](https://travis-ci.org/erosson/swarm-numberformat)
 [![Dependency Status](https://david-dm.org/erosson/swarm-numberformat.svg)](https://david-dm.org/erosson/swarm-numberformat)

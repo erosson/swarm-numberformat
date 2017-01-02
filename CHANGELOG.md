@@ -1,3 +1,8 @@
+### [0.0.11](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.11)
+
+- change main file name
+- readme docs
+
 ### [0.0.10](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.10)
 
 - Support for very large numbers with [Decimal.js](https://github.com/MikeMcl/decimal.js)
