@@ -5,6 +5,7 @@
 - small decimal support
 - many things are more caller-configurable
 - suffix() fetches just the suffix, no number
+- renamed main file from workspace.js to main.js
 
 ### [0.0.5](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.5)
 
