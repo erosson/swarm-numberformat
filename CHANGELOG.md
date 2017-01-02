@@ -1,3 +1,8 @@
+### [0.0.12](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.12)
+
+- docs
+- rename longscale suffix file
+
 ### [0.0.11](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.11)
 
 - change main file name
