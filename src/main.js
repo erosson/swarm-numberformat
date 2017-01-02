@@ -40,7 +40,7 @@ function _format(val, opts) {
   return `${prefix}${suffix}`
 }
 
-const defaultOptions = {
+export const defaultOptions = {
   suffixGroups: suffixes, 
   // Flavor is a shortcut to modify any number of other options, like sigfigs.
   // It's much more commonly used by callers than suffixGroup, which only controls
@@ -88,7 +88,7 @@ const Flavors = {
 defaultOptions.formats = Formats
 defaultOptions.flavors = Flavors
 
-class Formatter {
+export class Formatter {
   constructor(opts = {}) {
     this.opts = opts
   }
@@ -125,3 +125,7 @@ const numberformat = new Formatter()
 numberformat.defaultOptions = defaultOptions
 numberformat.Formatter = Formatter
 export default numberformat
+
+// this is just to make the browser api nicer
+export const format = (val, opts) => numberformat.format(val, opts)
+
