@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.format = exports.Formatter = exports.defaultOptions = undefined;
+	exports.formatShort = exports.formatFull = exports.format = exports.Formatter = exports.defaultOptions = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // Can't comment a .json file, but the suffixes come from these pages:
 	// http://home.kpn.nl/vanadovv/BignumbyN.html
@@ -198,11 +198,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var Formatter = exports.Formatter = function () {
 	  function Formatter() {
+	    var _this = this;
+	
 	    var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	
 	    _classCallCheck(this, Formatter);
 	
 	    this.opts = opts;
+	    // create convenience methods for each flavor
+	    var flavors = Object.keys(this._normalizeOpts().flavors);
+	    // the fn(i) is for stupid binding tricks with the looped fn(val, opts)
+	    for (var i = 0; i < flavors.length; i++) {
+	      (function (i) {
+	        var flavor = flavors[i];
+	        // capitalize the first letter to camel-case method name, like formatShort
+	        var key = 'format' + flavor.charAt(0).toUpperCase() + flavor.substr(1);
+	        _this[key] = function (val, opts) {
+	          return _this.formatFlavor(val, flavor, opts);
+	        };
+	      })(i);
+	    }
 	  }
 	
 	  _createClass(Formatter, [{
@@ -243,6 +258,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      opts = this._normalizeOpts(opts);
 	      return _format(val, opts);
 	    }
+	  }, {
+	    key: 'formatFlavor',
+	    value: function formatFlavor(val, flavor, opts) {
+	      return this.format(val, Object.assign({}, opts, { flavor: flavor }));
+	    }
 	    // Use this in your options UI
 	
 	  }, {
@@ -265,6 +285,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var format = exports.format = function format(val, opts) {
 	  return numberformat.format(val, opts);
+	};
+	var formatFull = exports.formatFull = function formatFull(val, opts) {
+	  return numberformat.formatFlavor(val, 'full', opts);
+	};
+	var formatShort = exports.formatShort = function formatShort(val, opts) {
+	  return numberformat.formatFlavor(val, 'short', opts);
 	};
 
 /***/ },
