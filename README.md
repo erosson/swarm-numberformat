@@ -30,7 +30,7 @@ Use `formatShort()` or `format({flavor:'short'})` to easily abbreviate suffixes 
 
 Of course, you can override significant figures.
 
-     numberformat.format(1e10, {flavor: 'short', sigfigs: 7})
+     numberformat.formatShort(1e10, {sigfigs: 7})
      // => "10.00000B"
      
 Use a formatter object instead of `numberformat.format` / `numberformat.default` to set your own default parameters. 
