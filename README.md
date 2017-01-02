@@ -1,23 +1,32 @@
 # swarm-numberformat
 
+Format large numbers in several human-readable ways. Designed for incremental games like [swarmsim](https://swarmsim.github.io).
+
+     numberformat.format(1e6)
+     // => "1 million"
+
+[See it in action](https://jsbin.com/zadepad/edit?html,output).
+
 [![Travis build status](http://img.shields.io/travis/erosson/swarm-numberformat.svg?style=flat)](https://travis-ci.org/erosson/swarm-numberformat)
 [![Dependency Status](https://david-dm.org/erosson/swarm-numberformat.svg)](https://david-dm.org/erosson/swarm-numberformat)
 [![devDependency Status](https://david-dm.org/erosson/swarm-numberformat/dev-status.svg)](https://david-dm.org/erosson/swarm-numberformat#info=devDependencies)
 
-Based on swarmsim's bignum, but rewritten from scratch in ES6.
+## Getting started
+
+    <script src="//cdn.rawgit.com/erosson/swarm-numberformat/master/dist/main.js"></script>
+
+or
+
+    npm install --save swarm-numberformat
+
+    const numberformat = require('swarm-numberformat')
+
+TODO: better documentation. For now, see its features in [the demo](https://jsbin.com/zadepad/edit?html,output).
+
+## Related work
+
+Based on swarmsim's bignum:
 * https://github.com/swarmsim/swarm/blob/master/app/scripts/filters/bignum.coffee
 * https://github.com/swarmsim/swarm/blob/master/test/spec/filters/bignum.coffee
 
 Project template: https://github.com/babel/generator-babel-boilerplate
-
-This hasn't been used in production yet, so there are probably bugs. If it's anything like the original, they're all precision-related bugs
-
-Basic ES6 usage:
-   
-    import numberformat from  'swarm-numberformat'
-    numberformat.format(1234567)
-    >>> '1.23 million'
-
-npm should work:
-
-    npm install swarm-numberformat
