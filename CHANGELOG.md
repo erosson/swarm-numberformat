@@ -1,4 +1,4 @@
-### [0.0.9](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.9)
+### [0.0.10](https://github.com/erosson/swarm-numberformat/releases/tag/v0.0.10)
 
 - Support for very large numbers with [Decimal.js](https://github.com/MikeMcl/decimal.js)
 
