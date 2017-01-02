@@ -61,7 +61,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.format = exports.Formatter = exports.defaultOptions = undefined;
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // Can't comment a .json file, but the suffixes come from these pages:
+	// http://home.kpn.nl/vanadovv/BignumbyN.html
+	
 	
 	var _suffixes = __webpack_require__(1);
 	
@@ -71,7 +73,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	// import _ from 'lodash'
+	// TODO: use this page to generate names dynamically, for even larger numbers:
+	//   http://mathforum.org/library/drmath/view/59154.html
+	// TODO: decimal.js support
+	// TODO: rounding control
 	
 	function validate(condition, message) {
 	  if (!condition) {
@@ -207,6 +212,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function format(val, opts) {
 	      opts = this._normalizeOpts(opts);
 	      return _format(val, opts);
+	    }
+	    // Use this in your options UI
+	
+	  }, {
+	    key: 'listFormats',
+	    value: function listFormats(opts) {
+	      opts = this._normalizeOpts(opts);
+	      return Object.keys(opts.formats);
 	    }
 	  }]);
 	
