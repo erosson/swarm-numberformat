@@ -35,7 +35,7 @@ Format large numbers in several human-readable ways. Designed for incremental ga
 
 ## Getting started
 
-    <script src="//cdn.rawgit.com/erosson/swarm-numberformat/master/dist/main.js"></script>
+    <script src="//cdn.rawgit.com/erosson/swarm-numberformat/master/dist/swarm-numberformat.js"></script>
 
 or
 
