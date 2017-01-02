@@ -2,6 +2,10 @@
 
 Format large numbers in several human-readable ways. Designed for incremental games like [swarmsim](https://swarmsim.github.io).
 
+[![Travis build status](http://img.shields.io/travis/erosson/swarm-numberformat.svg?style=flat)](https://travis-ci.org/erosson/swarm-numberformat)
+[![Dependency Status](https://david-dm.org/erosson/swarm-numberformat.svg)](https://david-dm.org/erosson/swarm-numberformat)
+[![devDependency Status](https://david-dm.org/erosson/swarm-numberformat/dev-status.svg)](https://david-dm.org/erosson/swarm-numberformat#info=devDependencies)
+
      numberformat.format(1e10)
      // => "10.000 billion"
      numberformat.format(1e10, {format: 'scientific'})
@@ -28,10 +32,6 @@ Format large numbers in several human-readable ways. Designed for incremental ga
      // => "10e9999"
 
 [See it in action](https://jsbin.com/zadepad/edit?html,output).
-
-[![Travis build status](http://img.shields.io/travis/erosson/swarm-numberformat.svg?style=flat)](https://travis-ci.org/erosson/swarm-numberformat)
-[![Dependency Status](https://david-dm.org/erosson/swarm-numberformat.svg)](https://david-dm.org/erosson/swarm-numberformat)
-[![devDependency Status](https://david-dm.org/erosson/swarm-numberformat/dev-status.svg)](https://david-dm.org/erosson/swarm-numberformat#info=devDependencies)
 
 ## Getting started
 
