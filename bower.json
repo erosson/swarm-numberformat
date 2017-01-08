@@ -1,0 +1,17 @@
+{
+  "name": "swarm-numberformat",
+  "description": "Format numbers as strings like Swarm Simulator does",
+  "main": "dist/swarm-numberformat.js",
+  "authors": [
+    "Evan <github@erosson.org>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/erosson/swarm-numberformat",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
