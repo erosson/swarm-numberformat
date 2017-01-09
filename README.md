@@ -1,6 +1,6 @@
 # swarm-numberformat
 
-Format large numbers in several human-readable ways. Designed for incremental games like [swarmsim](https://swarmsim.github.io).
+Format large numbers in several human-readable ways. Designed for incremental games like [Swarm Simulator](https://swarmsim.github.io).
 
 [See it in action](https://jsbin.com/zadepad/edit?html,output).
 
@@ -33,7 +33,7 @@ Of course, you can override significant figures.
      numberformat.formatShort(1e10, {sigfigs: 7})
      // => "10.00000B"
      
-Use a formatter object instead of `numberformat.format` / `numberformat.default` to set your own default parameters. 
+Use a formatter object instead of `numberformat.format()` / `numberformat.default` to set your own default parameters. 
 
      var f = new numberformat.Formatter({format: 'engineering', sigfigs: 2})
      f.format(1.2345e10)
@@ -41,7 +41,7 @@ Use a formatter object instead of `numberformat.format` / `numberformat.default`
      
 There's support for [decimal.js](https://github.com/MikeMcl/decimal.js/) when you need numbers bigger than `Number.MAX_VALUE` (1e308).
 
-     numberformat.format(new Decimal(1e10000), {backend: 'decimal.js', format: 'engineering'})
+     numberformat.format(new Decimal('1e10000'), {backend: 'decimal.js', format: 'engineering'})
      // => "10e9999"
 
 swarm-numberformat includes no third-party dependencies, and is less than 20k minified.
@@ -49,6 +49,10 @@ swarm-numberformat includes no third-party dependencies, and is less than 20k mi
 ## Getting started
 
     <script src="//cdn.rawgit.com/erosson/swarm-numberformat/master/dist/swarm-numberformat.js"></script>
+
+or
+
+    bower install --save swarm-numberformat
 
 or
 
@@ -60,7 +64,7 @@ TODO: full api docs. For now, use the source, the examples above, or [the demo](
 
 ## Related work
 
-Based on swarmsim's bignum:
+Based on Swarm Simulator's bignum:
 * https://github.com/swarmsim/swarm/blob/master/app/scripts/filters/bignum.coffee
 * https://github.com/swarmsim/swarm/blob/master/test/spec/filters/bignum.coffee
 
@@ -68,4 +72,4 @@ Project template: https://github.com/babel/generator-babel-boilerplate
 
 ## License
 
-MIT license. I'd appreciate it if you open-sourced any changes to this library, as with an LGPL license. (Pull request? Open-source fork?) Not required, though.
+MIT - use this anywhere. I'd like it if you open-sourced any changes you make to this library (send a pull request? Github fork?), but it's not required.
