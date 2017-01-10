@@ -1,6 +1,6 @@
 {
   "name": "swarm-numberformat",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Format numbers as strings like Swarm Simulator does",
   "main": "dist/swarm-numberformat.js",
   "scripts": {
@@ -21,8 +21,13 @@
   },
   "gh-pages-deploy": {
     "staticpath": "doc",
-    "prep": ["build-doc", "clean-gh-pages"],
-    "post": ["clean-doc"],
+    "prep": [
+      "build-doc",
+      "clean-gh-pages"
+    ],
+    "post": [
+      "clean-doc"
+    ],
     "noprompt": true
   },
   "repository": {
