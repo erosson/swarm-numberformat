@@ -60,7 +60,7 @@ or
 
     const numberformat = require('swarm-numberformat')
 
-TODO: full api docs. For now, use the source, the examples above, or [the demo](https://jsbin.com/zadepad/edit?html,output).
+[Full API documentation](https://erosson.github.io/swarm-numberformat/). Also see [the demo](https://jsbin.com/zadepad/edit?html,output).
 
 ## Related work
 

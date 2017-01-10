@@ -68,11 +68,8 @@ function _format(val, opts) {
   return `${prefix}${suffix}`
 }
 
-export const defaultOptions = {
+const defaultOptions = {
   backend: 'native',
-  // Flavor is a shortcut to modify any number of other options, like sigfigs.
-  // It's much more commonly used by callers than suffixGroup, which only controls
-  // suffixes. The two share the same possible names by default.
   flavor: 'full',
   suffixGroup: 'full',
   suffixFn(index) {
@@ -119,7 +116,21 @@ defaultOptions.formats = Formats
 defaultOptions.flavors = Flavors
 
 export class Formatter {
+  /**
+   * @param {Object} opts All formatter configuration.
+   * @param {string} [opts.flavor='full'] 'full' or 'short'. Flavors can modify any number of other options here. Full is the default; short has fewer sigfigs and shorter standard-suffixes.
+   * @param {Object} [opts.flavors] Specify your own custom flavors. 
+   * @param {string} [opts.backend='native'] 'native' or 'decimal.js'.
+   * @param {string} [opts.suffixGroup]
+   * @param {Function} [opts.suffixFn]
+   * @param {number} [opts.minSuffix=1e5]
+   * @param {number} [opts.minRound=0]
+   * @param {number} [opts.sigfigs=5]
+   * @param {number} [opts.format='standard'] 'standard', 'hybrid', 'scientific', 'longScale'.
+   * @param {Object} [opts.formats] Specify your own custom formats.
+   */
   constructor(opts = {}) {
+    /** @type Object */
     this.opts = opts
     // create convenience methods for each flavor
     var flavors = Object.keys(this._normalizeOpts().flavors)
@@ -128,6 +139,7 @@ export class Formatter {
       var flavor = flavors[i]
       // capitalize the first letter to camel-case method name, like formatShort
       var key = 'format' + flavor.charAt(0).toUpperCase() + flavor.substr(1)
+      /** @ignore */
       this[key] = (val, opts) => this.formatFlavor(val, flavor, opts)
     })(i)
   }
@@ -147,23 +159,60 @@ export class Formatter {
     // finally, add the implied options: defaults and format-derived
     return Object.assign({}, defaultOptions, formatOptions, flavorOptions, opts)
   }
+  /**
+   * @param {number} val
+   * @param {Object} [opts]
+   * @return {number} which suffix to use for this number in a list of suffixes. You can also think of this as "how many commas are in the number?"
+   */
   index(val, opts) {
     opts = this._normalizeOpts(opts)
     return backends[opts.backend].index(val)
   }
+  /**
+   * @param {number} val
+   * @param {Object} [opts]
+   * @return {string} The suffix that this number would use, with no number shown.
+   * @example
+   * new Formatter().suffix(1e6)
+   * // => " million"
+   * @example
+   * new Formatter().suffix(1e6, {flavor: "short"})
+   * // => "M"
+   */
   suffix(val, opts) {
     opts = this._normalizeOpts(opts)
     var index = backends[opts.backend].index(val)
     return opts.suffixFn(index)
   }
+  /**
+   * Format a number.
+   * @param {number} val
+   * @param {Object} [opts] Override the options provided to the Formatter constructor.
+   * @return {string} The formatted number.
+   * @example
+   * new Formatter().format(1e6)
+   * // => "1.0000 million"
+   */
   format(val, opts) {
     opts = this._normalizeOpts(opts)
     return _format(val, opts)
   }
+  /**
+   * Format a number with a specified flavor. It's very common to call the formatter with different flavors, so it has its own shortcut.
+   *
+   * `Formatter.formatFull()` and `Formatter.formatShort()` are also available.
+   * @param {number} val
+   * @param {string} flavor 'short' or 'full'. See opts.flavor.
+   * @param {Object} [opts]
+   * @return {string[]} The complete list of formats available. Use this to build an options UI to allow your players to choose their favorite format.
+   */
   formatFlavor(val, flavor, opts) {
     return this.format(val, Object.assign({}, opts, {flavor}))
   }
-  // Use this in your options UI
+  /**
+   * @param {Object} [opts]
+   * @return {string[]} The complete list of formats available. Use this to build an options UI to allow your players to choose their favorite format.
+   */
   listFormats(opts) {
     opts = this._normalizeOpts(opts)
     return Object.keys(opts.formats)
@@ -175,7 +224,36 @@ numberformat.defaultOptions = defaultOptions
 numberformat.Formatter = Formatter
 export default numberformat
 
-// this is just to make the browser api nicer
+/**
+ * Format a number using the default options.
+ * @param {number} val
+ * @param {Object} [opts]
+ * @return string
+ * @example
+ * format(1e6)
+ * // => "1.0000 million"
+ * @example
+ * format(1e6, {sigfigs: 1})
+ * // => "1 million"
+ */
 export const format = (val, opts) => numberformat.format(val, opts)
+/**
+ * Format a full-flavor number using the default options. Identical to `format()`
+ * @param {number} val
+ * @param {Object} [opts]
+ * @return string
+ * @example
+ * format(1e6)
+ * // => "1.0000 million"
+ */
 export const formatFull = (val, opts) => numberformat.formatFlavor(val, 'full', opts)
+/**
+ * Format a short-flavor number using the default options.
+ * @param {number} val
+ * @param {Object} [opts]
+ * @return string
+ * @example
+ * format(1e6)
+ * // => "1.00M"
+ */
 export const formatShort = (val, opts) => numberformat.formatFlavor(val, 'short', opts)
