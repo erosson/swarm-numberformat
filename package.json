@@ -10,9 +10,19 @@
     "watch": "gulp watch",
     "watch-build": "gulp watch-build",
     "build": "gulp build",
+    "build-doc": "esdoc",
+    "push-doc": "gh-pages-deploy",
+    "clean-doc": "rimraf doc",
     "preversion": "npm test",
     "version": "npm run build && git add -A dist",
+    "postversion": "npm run push-doc",
     "coverage": "gulp coverage"
+  },
+  "gh-pages-deploy": {
+    "staticpath": "doc",
+    "prep": ["build-doc"],
+    "post": ["clean-doc"],
+    "noprompt": false
   },
   "repository": {
     "type": "git",
@@ -34,6 +44,8 @@
     "chai": "3.5.0",
     "decimal.js": "^7.1.0",
     "del": "2.2.2",
+    "esdoc": "^0.5.2",
+    "gh-pages-deploy": "^0.4.2",
     "glob": "7.0.6",
     "gulp": "3.9.1",
     "gulp-eslint": "3.0.1",
