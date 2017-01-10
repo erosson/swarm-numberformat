@@ -12,7 +12,7 @@
     "build": "gulp build",
     "clean-gh-pages": "rimraf README.md src dist test package.json",
     "build-doc": "esdoc",
-    "push-doc": "gh-pages-deploy",
+    "push-doc": "git stash && gh-pages-deploy",
     "clean-doc": "rimraf doc",
     "preversion": "npm test",
     "version": "npm run build && git add -A dist",
@@ -23,7 +23,7 @@
     "staticpath": "doc",
     "prep": ["build-doc", "clean-gh-pages"],
     "post": ["clean-doc"],
-    "noprompt": false
+    "noprompt": true
   },
   "repository": {
     "type": "git",
