@@ -10,6 +10,7 @@
     "watch": "gulp watch",
     "watch-build": "gulp watch-build",
     "build": "gulp build",
+    "clean-gh-pages": "rimraf README.md src dist test package.json",
     "build-doc": "esdoc",
     "push-doc": "gh-pages-deploy",
     "clean-doc": "rimraf doc",
@@ -20,7 +21,7 @@
   },
   "gh-pages-deploy": {
     "staticpath": "doc",
-    "prep": ["build-doc"],
+    "prep": ["build-doc", "clean-gh-pages"],
     "post": ["clean-doc"],
     "noprompt": false
   },
