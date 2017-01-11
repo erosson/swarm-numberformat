@@ -90,6 +90,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return condition;
 	}
 	
+	// polyfill IE and phantomjs
+	var log10 = function () {
+	  if (!!Math.log10) {
+	    return Math.log10;
+	  }
+	  return function (val) {
+	    var ret = Math.log(val) / Math.LN10;
+	    // bloody stupid rounding errors
+	    ret = Math.round(ret * 1e6) / 1e6;
+	    return ret;
+	  };
+	}();
+	
 	var backends = {
 	  'native': {
 	    // Suffixes are a list - which index of the list do we want? 
@@ -99,7 +112,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    index: function index(val) {
 	      // string length is faster but fails for length >= 20, where JS starts
 	      // formatting with e
-	      return Math.max(0, Math.floor(Math.log10(Math.abs(val)) / 3));
+	      return Math.max(0, Math.floor(log10(Math.abs(val)) / 3));
 	    },
 	    prefix: function prefix(val, sigfigs, index) {
 	      return (val / Math.pow(1000, index)).toPrecision(sigfigs);
