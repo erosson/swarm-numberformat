@@ -13,10 +13,19 @@ function validate(condition, message) {
   return condition
 }
 
-// for IE and phantomjs
-function log10(val) {
-  return Math.log(val) / Math.LN10;
-}
+// polyfill IE and phantomjs
+const log10 = (() => {
+  if (!!Math.log10) {
+    return Math.log10
+  }
+  return function(val) {
+    let ret = Math.log(val) / Math.LN10;
+    // bloody stupid rounding errors
+    ret = Math.round(ret * 1e6) / 1e6
+    return ret
+  }
+})()
+
 const backends = {
   'native': {
     // Suffixes are a list - which index of the list do we want? 
