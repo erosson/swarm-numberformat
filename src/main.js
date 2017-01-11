@@ -89,7 +89,7 @@ const defaultOptions = {
 }
 // User-visible format choices, like on swarmsim's options screen. 
 // Each has a different set of options.
-const Formats = {
+export const Formats = {
   standard: {suffixGroups: standardSuffixes},
   // like standard formatting, with a different set of suffixes
   longScale: {suffixGroups: longScaleSuffixes},
