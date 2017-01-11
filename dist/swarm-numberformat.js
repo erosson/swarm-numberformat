@@ -59,7 +59,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.formatShort = exports.formatFull = exports.format = exports.Formatter = undefined;
+	exports.formatShort = exports.formatFull = exports.format = exports.Formatter = exports.Formats = undefined;
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
@@ -167,7 +167,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	// User-visible format choices, like on swarmsim's options screen. 
 	// Each has a different set of options.
-	var Formats = {
+	var Formats = exports.Formats = {
 	  standard: { suffixGroups: _standardSuffixes2.default },
 	  // like standard formatting, with a different set of suffixes
 	  longScale: { suffixGroups: _longScaleSuffixes2.default },
