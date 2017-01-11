@@ -13,6 +13,10 @@ function validate(condition, message) {
   return condition
 }
 
+// for IE and phantomjs
+function log10(val) {
+  return Math.log(val) / Math.LN10;
+}
 const backends = {
   'native': {
     // Suffixes are a list - which index of the list do we want? 
@@ -22,7 +26,7 @@ const backends = {
     index(val) {
       // string length is faster but fails for length >= 20, where JS starts
       // formatting with e
-      return Math.max(0, Math.floor(Math.log10(Math.abs(val))/3))
+      return Math.max(0, Math.floor(log10(Math.abs(val))/3))
     },
     prefix(val, sigfigs, index) {
       return (val / Math.pow(1000, index)).toPrecision(sigfigs)
