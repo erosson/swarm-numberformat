@@ -61,6 +61,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.formatShort = exports.formatFull = exports.format = exports.Formatter = undefined;
 	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // Can't comment a .json file, but the suffixes come from these pages:
 	// http://home.kpn.nl/vanadovv/BignumbyN.html
 	
@@ -238,7 +240,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	
 	      // all the user-specified opts, no defaults
-	      opts = Object.assign({}, this.opts, opts);
+	      opts = _extends({}, this.opts, opts);
 	      // opts.format redefines some other opts, but should never override the user's opts
 	      var format = opts && opts.format;
 	      var formats = opts && opts.formats || defaultOptions.formats;
@@ -249,7 +251,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var flavorOptions = flavors[flavor || defaultOptions.flavor];
 	      validate(flavorOptions, 'no such flavor: ' + flavor);
 	      // finally, add the implied options: defaults and format-derived
-	      return Object.assign({}, defaultOptions, formatOptions, flavorOptions, opts);
+	      return _extends({}, defaultOptions, formatOptions, flavorOptions, opts);
 	    }
 	    /**
 	     * @param {number} val
@@ -311,7 +313,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'formatFlavor',
 	    value: function formatFlavor(val, flavor, opts) {
-	      return this.format(val, Object.assign({}, opts, { flavor: flavor }));
+	      return this.format(val, _extends({}, opts, { flavor: flavor }));
 	    }
 	    /**
 	     * @param {Object} [opts]
