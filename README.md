@@ -54,7 +54,7 @@ The suffixes used here are available in JSON format - this might be useful if yo
 
 ## Getting started
 
-    <script src="//cdn.rawgit.com/erosson/swarm-numberformat/master/dist/swarm-numberformat.js"></script>
+    <script src="//cdn.rawgit.com/erosson/swarm-numberformat/v0.1.0/dist/swarm-numberformat.js"></script>
 
 or
 
