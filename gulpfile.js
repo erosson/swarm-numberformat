@@ -6,6 +6,7 @@ const path = require('path');
 const isparta = require('isparta');
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
+const checkFilesize = require('gulp-check-filesize');
 
 const Instrumenter = isparta.Instrumenter;
 const mochaGlobals = require('./test/setup/.globals');
@@ -61,7 +62,9 @@ function build() {
       //   jquery: true
       // }
       // would externalize the `jquery` module.
-      externals: {},
+      externals: {
+        'decimal.js': true,
+      },
       module: {
         loaders: [
           {test: /\.json$/, exclude: /node_modules/, loader: 'json-loader'},
@@ -75,6 +78,7 @@ function build() {
     .pipe($.rename(`${exportFileName}.min.js`))
     .pipe($.sourcemaps.init({loadMaps: true}))
     .pipe($.uglify())
+    .pipe(checkFilesize({fileSizeLimit: 16 * 1024}))
     .pipe($.sourcemaps.write('./'))
     .pipe(gulp.dest(destinationFolder));
 }

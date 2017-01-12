@@ -4,7 +4,6 @@ import standardSuffixes from './standard-suffixes.json'
 import longScaleSuffixes from './long-scale-suffixes.json'
 // TODO: use this page to generate names dynamically, for even larger numbers:
 //   http://mathforum.org/library/drmath/view/59154.html
-// TODO: rounding control
 
 function validate(condition, message) {
   if (!condition) {
@@ -55,8 +54,8 @@ const backends = {
         Decimal = window.Decimal
       }
       else {
-        // avoid `require()` to avoid compiling/minifying decimal.js into this file
-        Decimal = global['require']('decimal.js')
+        // the build/minifier must avoid compiling this in. It's externalized in the gulpfile.
+        Decimal = require('decimal.js')
       }
       return Decimal.clone(config)
     },

@@ -55,6 +55,7 @@
     "gh-pages-deploy": "0.4.2",
     "glob": "7.0.6",
     "gulp": "3.9.1",
+    "gulp-check-filesize": "2.0.1",
     "gulp-eslint": "3.0.1",
     "gulp-filter": "4.0.0",
     "gulp-istanbul": "1.1.1",
