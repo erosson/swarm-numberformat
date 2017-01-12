@@ -28,6 +28,9 @@ const log10 = (() => {
 
 const backends = {
   'native': {
+    normalize(val) {
+      return val
+    },
     // Suffixes are a list - which index of the list do we want? 
     // _index(999) === 0
     // _index(1000) === 1
@@ -37,7 +40,7 @@ const backends = {
       // formatting with e
       return Math.max(0, Math.floor(log10(Math.abs(val))/3))
     },
-    prefix(val, sigfigs, index) {
+    prefix(val, index, {sigfigs}) {
       return (val / Math.pow(1000, index)).toPrecision(sigfigs)
     },
   },
@@ -46,13 +49,33 @@ const backends = {
     // We're using its methods passed in by the caller. This keeps the library
     // much smaller for the common case: no decimal.js.
     // api docs: https://mikemcl.github.io/decimal.js/
-    index(val) {
-      // we assume the *exponent* is small enough to be a native js number
-      return Math.max(0, val.abs().logarithm(10).dividedBy(3).floor().toNumber())
+    _requireDecimal(config) {
+      let Decimal
+      if (global.window && window.Decimal) {
+        Decimal = window.Decimal
+      }
+      else {
+        Decimal = require('decimal.js')
+      }
+      return Decimal.clone(config)
     },
-    prefix(val, sigfigs, index) {
-      var div = new val.constructor(1000).pow(index)
-      return val.dividedBy(div).toPrecision(sigfigs)
+    normalize(val, {rounding}) {
+      const Decimal = this._requireDecimal({rounding})
+      return new Decimal(val)
+    },
+    index(val) {
+      const Decimal = this._requireDecimal()
+      // index = val.log10().dividedToIntegerBy(Decimal.log 1000)
+      // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.
+      // Lucky me, the length is used by decimal.js internally: num.e
+      // this is in the docs, so I think it's stable enough to use...
+      val = new Decimal(val)
+      return Math.floor(val.e / 3)
+    },
+    prefix(val, index, {sigfigs, rounding}) {
+      const Decimal = this._requireDecimal({rounding})
+      var div = new Decimal(1000).pow(index)
+      return new Decimal(val).dividedBy(div).toPrecision(sigfigs)
     },
   },
 }
@@ -60,6 +83,7 @@ const backends = {
 // The formatting function.
 function _format(val, opts) {
   const backend = validate(backends[opts.backend], `not a backend: ${opts.backend}`)
+  val = backend.normalize(val, opts)
   const index = backend.index(val)
   const suffix = opts.suffixFn(index)
   // opts.minSuffix: Use JS native formatting for smallish numbers, because
@@ -77,7 +101,7 @@ function _format(val, opts) {
     return val.toExponential(opts.sigfigs-1).replace('e+', 'e')
   }
   // Found a suffix. Calculate the prefix, the number before the suffix.
-  const prefix = backend.prefix(val, opts.sigfigs, index)
+  const prefix = backend.prefix(val, index, opts)
   return `${prefix}${suffix}`
 }
 
