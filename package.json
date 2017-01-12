@@ -11,7 +11,7 @@
     "watch-build": "gulp watch-build",
     "build": "gulp build",
     "clean-gh-pages": "rimraf README.md src dist test package.json",
-    "build-doc": "esdoc",
+    "build-doc": "esdoc && cp -rp demo doc",
     "push-doc": "git stash && gh-pages-deploy",
     "clean-doc": "rimraf doc",
     "preversion": "npm test",

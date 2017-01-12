@@ -2,7 +2,7 @@
 
 Format large numbers in several human-readable ways. Designed for incremental games like [Swarm Simulator](https://swarmsim.github.io).
 
-[See it in action](https://jsbin.com/zadepad/edit?html,output).
+[See it in action](https://jsbin.com/zadepad/edit?html,output), and a [list of all suffixes](https://erosson.github.io/swarm-numberformat/demo/legend.html).
 
 [![Travis build status](http://img.shields.io/travis/erosson/swarm-numberformat.svg?style=flat)](https://travis-ci.org/erosson/swarm-numberformat)
 [![Dependency Status](https://david-dm.org/erosson/swarm-numberformat.svg)](https://david-dm.org/erosson/swarm-numberformat)
@@ -46,6 +46,10 @@ There's support for [decimal.js](https://github.com/MikeMcl/decimal.js/) when yo
 
 swarm-numberformat includes no third-party dependencies, and is less than 20k minified.
 
+The suffixes used here are available in JSON format:
+[standard-suffixes](https://github.com/erosson/swarm-numberformat/blob/master/src/standard-suffixes.json),
+[long-scale-suffixes](https://github.com/erosson/swarm-numberformat/blob/master/src/long-scale-suffixes.json).
+
 ## Getting started
 
     <script src="//cdn.rawgit.com/erosson/swarm-numberformat/master/dist/swarm-numberformat.js"></script>
@@ -60,13 +64,13 @@ or
 
     const numberformat = require('swarm-numberformat')
 
-[Full API documentation](https://erosson.github.io/swarm-numberformat/). Also see [the demo](https://jsbin.com/zadepad/edit?html,output).
+[Full API documentation](https://erosson.github.io/swarm-numberformat/). Also see [the demo](https://jsbin.com/zadepad/edit?html,output) and a [list of all suffixes](https://erosson.github.io/swarm-numberformat/demo/legend.html).
 
 ## Related work
 
-Based on Swarm Simulator's bignum:
-* https://github.com/swarmsim/swarm/blob/master/app/scripts/filters/bignum.coffee
-* https://github.com/swarmsim/swarm/blob/master/test/spec/filters/bignum.coffee
+The suffixes used by `standard` and `longScale` formats are based on http://home.kpn.nl/vanadovv/BignumbyN.html
+
+This project started life as number formatting filters for [Swarm Simulator](https://github.com/swarmsim/swarm/).
 
 Project template: https://github.com/babel/generator-babel-boilerplate
 
