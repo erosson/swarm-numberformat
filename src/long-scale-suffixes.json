@@ -1,5 +1,15 @@
 {
-    "short": [],
+    "short": [
+        "", "K", "M", "Md", "B", "Bd", "T", "Td", "Qa", "Qad",
+        "Qi", "Qid", "Sx", "Sxd", "Sp", "Spd", "Oc", "Od", "No", "Nd",
+        "Dc", "Dd", "UDc", "UDd", "DDc", "DDd", "TDc", "TDd", "QaDc", "QaDd",
+        "QiDc", "QiDd", "SxDc", "SxDd", "SpDc", "SpDd", "ODc", "ODd", "NDc", "NDd",
+        "Vi", "Vd", "UVi", "UVd", "DVi", "DVd", "TVi", "TVd", "QaVi", "QaVd",
+        "QiVi", "QiVd", "SxVi", "SxVd", "SpVi", "SpVd", "OVi", "OVd", "NVi", "NVd",
+        "Tg", "TD", "UTg", "UTD", "DTg", "DTD", "TTg", "TTD", "QaTg", "QaTD",
+        "QiTg", "QiTD", "SxTg", "SxTD", "SpTg", "SpTD", "OTg", "OTD", "NTg", "NTD",
+        "Qd", "QD", "UQd", "UQD", "DQd", "DQD", "TQd", "TQD", "QaQd", "QaQD"
+    ],
     "full": [
         "",
         " thousand",
