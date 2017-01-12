@@ -55,7 +55,8 @@ const backends = {
         Decimal = window.Decimal
       }
       else {
-        Decimal = require('decimal.js')
+        // avoid `require()` to avoid compiling/minifying decimal.js into this file
+        Decimal = global['require']('decimal.js')
       }
       return Decimal.clone(config)
     },
