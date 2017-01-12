@@ -48,7 +48,7 @@ There's support for [decimal.js](https://github.com/MikeMcl/decimal.js/) when yo
 
 swarm-numberformat includes no third-party dependencies, and is less than 20k minified.
 
-The suffixes used here are available in JSON format:
+The suffixes used here are available in JSON format - this might be useful if your program isn't in Javascript, but can read JSON:
 [standard-suffixes](https://github.com/erosson/swarm-numberformat/blob/master/src/standard-suffixes.json),
 [long-scale-suffixes](https://github.com/erosson/swarm-numberformat/blob/master/src/long-scale-suffixes.json).
 
