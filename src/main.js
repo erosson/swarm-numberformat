@@ -241,7 +241,10 @@ export class Formatter {
    * @param {number} val
    * @param {string} flavor 'short' or 'full'. See opts.flavor.
    * @param {Object} [opts]
-   * @return {string[]} The complete list of formats available. Use this to build an options UI to allow your players to choose their favorite format.
+   * @return {string} The formatted number.
+   * @example
+   * new Formatter().format(1e6, 'short')
+   * // => "1.00M"
    */
   formatFlavor(val, flavor, opts) {
     return this.format(val, Object.assign({}, opts, {flavor}))
