@@ -1,0 +1,1493 @@
+[
+  {
+    "__docId__": 0,
+    "kind": "file",
+    "name": "src/main.js",
+    "content": "// Can't comment a .json file, but the suffixes come from these pages:\n// http://home.kpn.nl/vanadovv/BignumbyN.html\nimport standardSuffixes from './standard-suffixes.json'\nimport longScaleSuffixes from './long-scale-suffixes.json'\n// TODO: use this page to generate names dynamically, for even larger numbers:\n//   http://mathforum.org/library/drmath/view/59154.html\n\nfunction validate(condition, message) {\n  if (!condition) {\n    throw new Error(message)\n  }\n  return condition\n}\n\n// polyfill IE and phantomjs\nconst log10 = (() => {\n  if (!!Math.log10) {\n    return Math.log10\n  }\n  return function(val) {\n    let ret = Math.log(val) / Math.LN10;\n    // bloody stupid rounding errors\n    ret = Math.round(ret * 1e6) / 1e6\n    return ret\n  }\n})()\n\nconst backends = {\n  'native': {\n    normalize(val) {\n      return val\n    },\n    // Suffixes are a list - which index of the list do we want? \n    // _index(999) === 0\n    // _index(1000) === 1\n    // _index(1000000) === 2\n    index(val) {\n      // string length is faster but fails for length >= 20, where JS starts\n      // formatting with e\n      return Math.max(0, Math.floor(log10(Math.abs(val))/3))\n    },\n    prefix(val, index, {sigfigs}) {\n      return (val / Math.pow(1000, index)).toPrecision(sigfigs)\n    },\n  },\n  'decimal.js': {\n    // Note that decimal.js is never imported by this library!\n    // We're using its methods passed in by the caller. This keeps the library\n    // much smaller for the common case: no decimal.js.\n    // api docs: https://mikemcl.github.io/decimal.js/\n    _requireDecimal(config) {\n      let Decimal\n      if (global.window && window.Decimal) {\n        Decimal = window.Decimal\n      }\n      else {\n        // the build/minifier must avoid compiling this in. It's externalized in the gulpfile.\n        Decimal = require('decimal.js')\n      }\n      return Decimal.clone(config)\n    },\n    normalize(val, {rounding}) {\n      const Decimal = this._requireDecimal({rounding})\n      return new Decimal(val)\n    },\n    index(val) {\n      const Decimal = this._requireDecimal()\n      // index = val.log10().dividedToIntegerBy(Decimal.log 1000)\n      // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.\n      // Lucky me, the length is used by decimal.js internally: num.e\n      // this is in the docs, so I think it's stable enough to use...\n      val = new Decimal(val)\n      return Math.floor(val.e / 3)\n    },\n    prefix(val, index, {sigfigs, rounding}) {\n      const Decimal = this._requireDecimal({rounding})\n      var div = new Decimal(1000).pow(index)\n      return new Decimal(val).dividedBy(div).toPrecision(sigfigs)\n    },\n  },\n}\n\n// The formatting function.\nfunction _format(val, opts) {\n  const backend = validate(backends[opts.backend], `not a backend: ${opts.backend}`)\n  val = backend.normalize(val, opts)\n  const index = backend.index(val)\n  const suffix = opts.suffixFn(index)\n  // opts.minSuffix: Use JS native formatting for smallish numbers, because\n  // '99,999' is prettier than '99.9k'\n  // it's safe to let Math coerce Decimal.js to infinity here, gt/lt still work\n  if (Math.abs(val) < opts.minSuffix) {\n    // decimal.js minSuffix/minRound aren't supported, we must be native to get here\n    if (Math.abs(val) >= opts.minRound) {\n      val = Math.floor(val)\n    }\n    return val.toLocaleString(undefined, {maximumSignificantDigits: opts.sigfigs})\n  }\n  // No suffix found: use scientific notation. JS's native toExponential is fine.\n  if (!suffix && suffix !== '') {\n    return val.toExponential(opts.sigfigs-1).replace('e+', 'e')\n  }\n  // Found a suffix. Calculate the prefix, the number before the suffix.\n  const prefix = backend.prefix(val, index, opts)\n  return `${prefix}${suffix}`\n}\n\nconst defaultOptions = {\n  backend: 'native',\n  flavor: 'full',\n  suffixGroup: 'full',\n  suffixFn(index) {\n    var suffixes = this.suffixes || this.suffixGroups[this.suffixGroup]\n    validate(suffixes, `no such suffixgroup: ${this.suffixGroup}`)\n    if (index < suffixes.length) {\n      return suffixes[index] || ''\n    }\n    // return undefined\n  },\n  // minimum value to use any suffix, because '99,900' is prettier than '99.9k'\n  minSuffix: 1e5,\n  // Show decimals below this value rounded to opts.sigfigs, instead of floor()ed\n  minRound: 0,\n  sigfigs: 3, // often overridden by flavor\n  format: 'standard'\n}\n// User-visible format choices, like on swarmsim's options screen. \n// Each has a different set of options.\nexport const Formats = {\n  standard: {suffixGroups: standardSuffixes},\n  // like standard formatting, with a different set of suffixes\n  longScale: {suffixGroups: longScaleSuffixes},\n  // like standard formatting, with no suffixes at all\n  scientific: {suffixGroups: {full: [], short: []}},\n  // like standard formatting, with a smaller set of suffixes\n  hybrid: {\n    suffixGroups: {\n      full: standardSuffixes.full.slice(0, 12),\n      short: standardSuffixes.short.slice(0, 12),\n    },\n  },\n  // like standard formatting, with a different/infinite set of suffixes\n  engineering: {suffixFn: index => index === 0 ? '' : `E${index*3}`},\n}\n// A convenient way for the developer to modify formatters.\n// These are different from formats - not user-visible.\nconst Flavors = {\n  full: {suffixGroup: 'full', sigfigs: 5},\n  short: {suffixGroup: 'short', sigfigs: 3},\n}\n// Allow callers to extend formats and flavors.\ndefaultOptions.formats = Formats\ndefaultOptions.flavors = Flavors\n\nexport class Formatter {\n  /**\n   * @param {Object} opts All formatter configuration.\n   * @param {string} [opts.flavor='full'] 'full' or 'short'. Flavors can modify any number of other options here. Full is the default; short has fewer sigfigs and shorter standard-suffixes.\n   * @param {Object} [opts.flavors] Specify your own custom flavors. \n   * @param {string} [opts.backend='native'] 'native' or 'decimal.js'.\n   * @param {string} [opts.suffixGroup]\n   * @param {Function} [opts.suffixFn]\n   * @param {number} [opts.minSuffix=1e5]\n   * @param {number} [opts.minRound=0]\n   * @param {number} [opts.sigfigs=5]\n   * @param {number} [opts.format='standard'] 'standard', 'hybrid', 'scientific', 'longScale'.\n   * @param {Object} [opts.formats] Specify your own custom formats.\n   */\n  constructor(opts = {}) {\n    /** @type Object */\n    this.opts = opts\n    // create convenience methods for each flavor\n    var flavors = Object.keys(this._normalizeOpts().flavors)\n    // the fn(i) is for stupid binding tricks with the looped fn(val, opts)\n    for (var i=0; i < flavors.length; i++) (i => {\n      var flavor = flavors[i]\n      // capitalize the first letter to camel-case method name, like formatShort\n      var key = 'format' + flavor.charAt(0).toUpperCase() + flavor.substr(1)\n      /** @ignore */\n      this[key] = (val, opts) => this.formatFlavor(val, flavor, opts)\n    })(i)\n  }\n  \n  _normalizeOpts(opts={}) {\n    // all the user-specified opts, no defaults\n    opts = Object.assign({}, this.opts, opts)\n    // opts.format redefines some other opts, but should never override the user's opts\n    var format = opts && opts.format\n    var formats = (opts && opts.formats) || defaultOptions.formats\n    var formatOptions = formats[format || defaultOptions.format]\n    validate(formatOptions, `no such format: ${format}`)\n    var flavor = opts && opts.flavor\n    var flavors = (opts && opts.flavors) || defaultOptions.flavors\n    var flavorOptions = flavors[flavor || defaultOptions.flavor]\n    validate(flavorOptions, `no such flavor: ${flavor}`)\n    // finally, add the implied options: defaults and format-derived\n    return Object.assign({}, defaultOptions, formatOptions, flavorOptions, opts)\n  }\n  /**\n   * @param {number} val\n   * @param {Object} [opts]\n   * @return {number} which suffix to use for this number in a list of suffixes. You can also think of this as \"how many commas are in the number?\"\n   */\n  index(val, opts) {\n    opts = this._normalizeOpts(opts)\n    return backends[opts.backend].index(val)\n  }\n  /**\n   * @param {number} val\n   * @param {Object} [opts]\n   * @return {string} The suffix that this number would use, with no number shown.\n   * @example\n   * new Formatter().suffix(1e6)\n   * // => \" million\"\n   * @example\n   * new Formatter().suffix(1e6, {flavor: \"short\"})\n   * // => \"M\"\n   */\n  suffix(val, opts) {\n    opts = this._normalizeOpts(opts)\n    var index = backends[opts.backend].index(val)\n    return opts.suffixFn(index)\n  }\n  /**\n   * Format a number.\n   * @param {number} val\n   * @param {Object} [opts] Override the options provided to the Formatter constructor.\n   * @return {string} The formatted number.\n   * @example\n   * new Formatter().format(1e6)\n   * // => \"1.0000 million\"\n   */\n  format(val, opts) {\n    opts = this._normalizeOpts(opts)\n    return _format(val, opts)\n  }\n  /**\n   * Format a number with a specified flavor. It's very common to call the formatter with different flavors, so it has its own shortcut.\n   *\n   * `Formatter.formatFull()` and `Formatter.formatShort()` are also available.\n   * @param {number} val\n   * @param {string} flavor 'short' or 'full'. See opts.flavor.\n   * @param {Object} [opts]\n   * @return {string} The formatted number.\n   * @example\n   * new Formatter().format(1e6, 'short')\n   * // => \"1.00M\"\n   */\n  formatFlavor(val, flavor, opts) {\n    return this.format(val, Object.assign({}, opts, {flavor}))\n  }\n  /**\n   * @param {Object} [opts]\n   * @return {string[]} The complete list of formats available. Use this to build an options UI to allow your players to choose their favorite format.\n   */\n  listFormats(opts) {\n    opts = this._normalizeOpts(opts)\n    return Object.keys(opts.formats)\n  }\n}\n\nconst numberformat = new Formatter()\nnumberformat.defaultOptions = defaultOptions\nnumberformat.Formatter = Formatter\nexport default numberformat\n\n/**\n * Format a number using the default options.\n * @param {number} val\n * @param {Object} [opts]\n * @return string\n * @example\n * format(1e6)\n * // => \"1.0000 million\"\n * @example\n * format(1e6, {sigfigs: 1})\n * // => \"1 million\"\n */\nexport const format = (val, opts) => numberformat.format(val, opts)\n/**\n * Format a full-flavor number using the default options. Identical to `format()`\n * @param {number} val\n * @param {Object} [opts]\n * @return string\n * @example\n * format(1e6)\n * // => \"1.0000 million\"\n */\nexport const formatFull = (val, opts) => numberformat.formatFlavor(val, 'full', opts)\n/**\n * Format a short-flavor number using the default options.\n * @param {number} val\n * @param {Object} [opts]\n * @return string\n * @example\n * format(1e6)\n * // => \"1.00M\"\n */\nexport const formatShort = (val, opts) => numberformat.formatFlavor(val, 'short', opts)\n",
+    "static": true,
+    "longname": "src/main.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 1,
+    "kind": "function",
+    "name": "validate",
+    "memberof": "src/main.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "src/main.js~validate",
+    "access": null,
+    "export": false,
+    "importPath": "swarm-numberformat/src/main.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 8,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "name": "condition",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "message",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 2,
+    "kind": "variable",
+    "name": "log10",
+    "memberof": "src/main.js",
+    "static": true,
+    "longname": "src/main.js~log10",
+    "access": null,
+    "export": false,
+    "importPath": "swarm-numberformat/src/main.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 16,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 3,
+    "kind": "variable",
+    "name": "backends",
+    "memberof": "src/main.js",
+    "static": true,
+    "longname": "src/main.js~backends",
+    "access": null,
+    "export": false,
+    "importPath": "swarm-numberformat/src/main.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 28,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "{\"native\": *, \"decimal.js\": *}"
+      ]
+    }
+  },
+  {
+    "__docId__": 4,
+    "kind": "function",
+    "name": "_format",
+    "memberof": "src/main.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "src/main.js~_format",
+    "access": null,
+    "export": false,
+    "importPath": "swarm-numberformat/src/main.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 84,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "name": "val",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "opts",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "string"
+      ]
+    }
+  },
+  {
+    "__docId__": 5,
+    "kind": "variable",
+    "name": "defaultOptions",
+    "memberof": "src/main.js",
+    "static": true,
+    "longname": "src/main.js~defaultOptions",
+    "access": null,
+    "export": false,
+    "importPath": "swarm-numberformat/src/main.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 108,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "{\"backend\": string, \"flavor\": string, \"suffixGroup\": string, \"suffixFn\": function, \"minSuffix\": number, \"minRound\": *, \"sigfigs\": number, \"format\": string}"
+      ]
+    }
+  },
+  {
+    "__docId__": 6,
+    "kind": "variable",
+    "name": "Formats",
+    "memberof": "src/main.js",
+    "static": true,
+    "longname": "src/main.js~Formats",
+    "access": null,
+    "export": true,
+    "importPath": "swarm-numberformat/src/main.js",
+    "importStyle": "{Formats}",
+    "description": null,
+    "lineNumber": 129,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "{\"standard\": *, \"longScale\": *, \"scientific\": *, \"hybrid\": *, \"engineering\": *}"
+      ]
+    }
+  },
+  {
+    "__docId__": 7,
+    "kind": "variable",
+    "name": "Flavors",
+    "memberof": "src/main.js",
+    "static": true,
+    "longname": "src/main.js~Flavors",
+    "access": null,
+    "export": false,
+    "importPath": "swarm-numberformat/src/main.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 147,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "{\"full\": *, \"short\": *}"
+      ]
+    }
+  },
+  {
+    "__docId__": 8,
+    "kind": "class",
+    "name": "Formatter",
+    "memberof": "src/main.js",
+    "static": true,
+    "longname": "src/main.js~Formatter",
+    "access": null,
+    "export": true,
+    "importPath": "swarm-numberformat/src/main.js",
+    "importStyle": "{Formatter}",
+    "description": null,
+    "lineNumber": 155,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "interface": false
+  },
+  {
+    "__docId__": 9,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "src/main.js~Formatter",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/main.js~Formatter#constructor",
+    "access": null,
+    "description": "",
+    "lineNumber": 169,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "opts",
+        "description": "All formatter configuration."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": true,
+        "defaultValue": "'full'",
+        "defaultRaw": "'full'",
+        "name": "opts.flavor",
+        "description": "'full' or 'short'. Flavors can modify any number of other options here. Full is the default; short has fewer sigfigs and shorter standard-suffixes."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts.flavors",
+        "description": "Specify your own custom flavors."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": true,
+        "defaultValue": "'native'",
+        "defaultRaw": "'native'",
+        "name": "opts.backend",
+        "description": "'native' or 'decimal.js'."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts.suffixGroup",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Function"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts.suffixFn",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "number"
+        ],
+        "spread": false,
+        "optional": true,
+        "defaultValue": "1e5",
+        "defaultRaw": 100000,
+        "name": "opts.minSuffix",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "number"
+        ],
+        "spread": false,
+        "optional": true,
+        "defaultValue": "0",
+        "defaultRaw": 0,
+        "name": "opts.minRound",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "number"
+        ],
+        "spread": false,
+        "optional": true,
+        "defaultValue": "5",
+        "defaultRaw": 5,
+        "name": "opts.sigfigs",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "number"
+        ],
+        "spread": false,
+        "optional": true,
+        "defaultValue": "'standard'",
+        "defaultRaw": "'standard'",
+        "name": "opts.format",
+        "description": "'standard', 'hybrid', 'scientific', 'longScale'."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts.formats",
+        "description": "Specify your own custom formats."
+      }
+    ]
+  },
+  {
+    "__docId__": 10,
+    "kind": "member",
+    "name": "opts",
+    "memberof": "src/main.js~Formatter",
+    "static": false,
+    "longname": "src/main.js~Formatter#opts",
+    "access": null,
+    "description": null,
+    "lineNumber": 171,
+    "type": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": null
+    }
+  },
+  {
+    "__docId__": 11,
+    "kind": "member",
+    "name": "[key]",
+    "memberof": "src/main.js~Formatter",
+    "static": false,
+    "longname": "src/main.js~Formatter#[key]",
+    "access": null,
+    "description": null,
+    "lineNumber": 180,
+    "ignore": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 12,
+    "kind": "method",
+    "name": "_normalizeOpts",
+    "memberof": "src/main.js~Formatter",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/main.js~Formatter#_normalizeOpts",
+    "access": null,
+    "description": null,
+    "lineNumber": 184,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "name": "opts",
+        "optional": true,
+        "types": [
+          "{}"
+        ],
+        "defaultRaw": {},
+        "defaultValue": "{}"
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 13,
+    "kind": "method",
+    "name": "index",
+    "memberof": "src/main.js~Formatter",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/main.js~Formatter#index",
+    "access": null,
+    "description": "",
+    "lineNumber": 204,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "val",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts",
+        "description": ""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "number"
+      ],
+      "spread": false,
+      "description": "which suffix to use for this number in a list of suffixes. You can also think of this as \"how many commas are in the number?\""
+    }
+  },
+  {
+    "__docId__": 14,
+    "kind": "method",
+    "name": "suffix",
+    "memberof": "src/main.js~Formatter",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/main.js~Formatter#suffix",
+    "access": null,
+    "description": "",
+    "examples": [
+      "new Formatter().suffix(1e6)\n// => \" million\"",
+      "new Formatter().suffix(1e6, {flavor: \"short\"})\n// => \"M\""
+    ],
+    "lineNumber": 219,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "val",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts",
+        "description": ""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "string"
+      ],
+      "spread": false,
+      "description": "The suffix that this number would use, with no number shown."
+    }
+  },
+  {
+    "__docId__": 15,
+    "kind": "method",
+    "name": "format",
+    "memberof": "src/main.js~Formatter",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/main.js~Formatter#format",
+    "access": null,
+    "description": "Format a number.",
+    "examples": [
+      "new Formatter().format(1e6)\n// => \"1.0000 million\""
+    ],
+    "lineNumber": 233,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "val",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts",
+        "description": "Override the options provided to the Formatter constructor."
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "string"
+      ],
+      "spread": false,
+      "description": "The formatted number."
+    }
+  },
+  {
+    "__docId__": 16,
+    "kind": "method",
+    "name": "formatFlavor",
+    "memberof": "src/main.js~Formatter",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/main.js~Formatter#formatFlavor",
+    "access": null,
+    "description": "Format a number with a specified flavor. It's very common to call the formatter with different flavors, so it has its own shortcut.\n\n`Formatter.formatFull()` and `Formatter.formatShort()` are also available.",
+    "examples": [
+      "new Formatter().format(1e6, 'short')\n// => \"1.00M\""
+    ],
+    "lineNumber": 249,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "val",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "string"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "flavor",
+        "description": "'short' or 'full'. See opts.flavor."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts",
+        "description": ""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "string"
+      ],
+      "spread": false,
+      "description": "The formatted number."
+    }
+  },
+  {
+    "__docId__": 17,
+    "kind": "method",
+    "name": "listFormats",
+    "memberof": "src/main.js~Formatter",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "src/main.js~Formatter#listFormats",
+    "access": null,
+    "description": "",
+    "lineNumber": 256,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts",
+        "description": ""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "string[]"
+      ],
+      "spread": false,
+      "description": "The complete list of formats available. Use this to build an options UI to allow your players to choose their favorite format."
+    }
+  },
+  {
+    "__docId__": 18,
+    "kind": "function",
+    "name": "format",
+    "memberof": "src/main.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "src/main.js~format",
+    "access": null,
+    "export": true,
+    "importPath": "swarm-numberformat/src/main.js",
+    "importStyle": "{format}",
+    "description": "Format a number using the default options.",
+    "examples": [
+      "format(1e6)\n// => \"1.0000 million\"",
+      "format(1e6, {sigfigs: 1})\n// => \"1 million\""
+    ],
+    "lineNumber": 279,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "val",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts",
+        "description": ""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "string"
+    }
+  },
+  {
+    "__docId__": 19,
+    "kind": "function",
+    "name": "formatFull",
+    "memberof": "src/main.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "src/main.js~formatFull",
+    "access": null,
+    "export": true,
+    "importPath": "swarm-numberformat/src/main.js",
+    "importStyle": "{formatFull}",
+    "description": "Format a full-flavor number using the default options. Identical to `format()`",
+    "examples": [
+      "format(1e6)\n// => \"1.0000 million\""
+    ],
+    "lineNumber": 289,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "val",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts",
+        "description": ""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "string"
+    }
+  },
+  {
+    "__docId__": 20,
+    "kind": "function",
+    "name": "formatShort",
+    "memberof": "src/main.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "src/main.js~formatShort",
+    "access": null,
+    "export": true,
+    "importPath": "swarm-numberformat/src/main.js",
+    "importStyle": "{formatShort}",
+    "description": "Format a short-flavor number using the default options.",
+    "examples": [
+      "format(1e6)\n// => \"1.00M\""
+    ],
+    "lineNumber": 299,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "val",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts",
+        "description": ""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "string"
+    }
+  },
+  {
+    "__docId__": 22,
+    "kind": "external",
+    "name": "Infinity",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Infinity",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 23,
+    "kind": "external",
+    "name": "NaN",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~NaN",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 24,
+    "kind": "external",
+    "name": "undefined",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~undefined",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 25,
+    "kind": "external",
+    "name": "null",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~null",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 26,
+    "kind": "external",
+    "name": "Object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Object",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 27,
+    "kind": "external",
+    "name": "object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~object",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 28,
+    "kind": "external",
+    "name": "Function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Function",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 29,
+    "kind": "external",
+    "name": "function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~function",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 30,
+    "kind": "external",
+    "name": "Boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Boolean",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 31,
+    "kind": "external",
+    "name": "boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~boolean",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 32,
+    "kind": "external",
+    "name": "Symbol",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Symbol",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 33,
+    "kind": "external",
+    "name": "Error",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Error",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 34,
+    "kind": "external",
+    "name": "EvalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/EvalError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~EvalError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 35,
+    "kind": "external",
+    "name": "InternalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/InternalError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~InternalError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 36,
+    "kind": "external",
+    "name": "RangeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~RangeError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 37,
+    "kind": "external",
+    "name": "ReferenceError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~ReferenceError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 38,
+    "kind": "external",
+    "name": "SyntaxError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~SyntaxError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 39,
+    "kind": "external",
+    "name": "TypeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~TypeError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 40,
+    "kind": "external",
+    "name": "URIError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~URIError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 41,
+    "kind": "external",
+    "name": "Number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Number",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 42,
+    "kind": "external",
+    "name": "number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~number",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 43,
+    "kind": "external",
+    "name": "Date",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Date",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 44,
+    "kind": "external",
+    "name": "String",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~String",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 45,
+    "kind": "external",
+    "name": "string",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~string",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 46,
+    "kind": "external",
+    "name": "RegExp",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~RegExp",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 47,
+    "kind": "external",
+    "name": "Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 48,
+    "kind": "external",
+    "name": "Int8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int8Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int8Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 49,
+    "kind": "external",
+    "name": "Uint8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint8Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 50,
+    "kind": "external",
+    "name": "Uint8ClampedArray",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint8ClampedArray",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 51,
+    "kind": "external",
+    "name": "Int16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int16Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int16Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 52,
+    "kind": "external",
+    "name": "Uint16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint16Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint16Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 53,
+    "kind": "external",
+    "name": "Int32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int32Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 54,
+    "kind": "external",
+    "name": "Uint32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint32Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 55,
+    "kind": "external",
+    "name": "Float32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Float32Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 56,
+    "kind": "external",
+    "name": "Float64Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float64Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Float64Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 57,
+    "kind": "external",
+    "name": "Map",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Map",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 58,
+    "kind": "external",
+    "name": "Set",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Set",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 59,
+    "kind": "external",
+    "name": "WeakMap",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~WeakMap",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 60,
+    "kind": "external",
+    "name": "WeakSet",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~WeakSet",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 61,
+    "kind": "external",
+    "name": "ArrayBuffer",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~ArrayBuffer",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 62,
+    "kind": "external",
+    "name": "DataView",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~DataView",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 63,
+    "kind": "external",
+    "name": "JSON",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~JSON",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 64,
+    "kind": "external",
+    "name": "Promise",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Promise",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 65,
+    "kind": "external",
+    "name": "Generator",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Generator",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 66,
+    "kind": "external",
+    "name": "GeneratorFunction",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GeneratorFunction",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~GeneratorFunction",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 67,
+    "kind": "external",
+    "name": "Reflect",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Reflect",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 68,
+    "kind": "external",
+    "name": "Proxy",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Proxy",
+    "access": null,
+    "description": "",
+    "lineNumber": 193,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 70,
+    "kind": "external",
+    "name": "CanvasRenderingContext2D",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~CanvasRenderingContext2D",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 71,
+    "kind": "external",
+    "name": "DocumentFragment",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~DocumentFragment",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 72,
+    "kind": "external",
+    "name": "Element",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Element",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~Element",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 73,
+    "kind": "external",
+    "name": "Event",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Event",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~Event",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 74,
+    "kind": "external",
+    "name": "Node",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Node",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~Node",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 75,
+    "kind": "external",
+    "name": "NodeList",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/NodeList",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~NodeList",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 76,
+    "kind": "external",
+    "name": "XMLHttpRequest",
+    "externalLink": "https://developer.mozilla.org/en/docs/Web/API/XMLHttpRequest",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~XMLHttpRequest",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 77,
+    "kind": "external",
+    "name": "AudioContext",
+    "externalLink": "https://developer.mozilla.org/en/docs/Web/API/AudioContext",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~AudioContext",
+    "access": null,
+    "description": "",
+    "lineNumber": 34,
+    "builtinExternal": true
+  }
+]
