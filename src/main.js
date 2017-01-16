@@ -86,15 +86,17 @@ function _format(val, opts) {
   val = backend.normalize(val, opts)
   const index = backend.index(val)
   const suffix = opts.suffixFn(index)
+  // optionally format small numbers differently: show decimals without trailing zeros
+  if (Math.abs(val) < opts.maxSmall) {
+    // second param for decimal.js only, native ignores it
+    return val.toPrecision(opts.sigfigs, opts.rounding).replace(/(\.\d*[1-9])0+$/, '$1')
+  }
   // opts.minSuffix: Use JS native formatting for smallish numbers, because
   // '99,999' is prettier than '99.9k'
   // it's safe to let Math coerce Decimal.js to infinity here, gt/lt still work
   if (Math.abs(val) < opts.minSuffix) {
-    // decimal.js minSuffix/minRound aren't supported, we must be native to get here
-    if (Math.abs(val) >= opts.minRound) {
-      val = Math.floor(val)
-    }
-    return val.toLocaleString(undefined, {maximumSignificantDigits: opts.sigfigs})
+    val = Math.floor(val)
+    return val.toLocaleString()
   }
   // No suffix found: use scientific notation. JS's native toExponential is fine.
   if (!suffix && suffix !== '') {
@@ -119,8 +121,10 @@ const defaultOptions = {
   },
   // minimum value to use any suffix, because '99,900' is prettier than '99.9k'
   minSuffix: 1e5,
-  // Show decimals below this value rounded to opts.sigfigs, instead of floor()ed
-  minRound: 0,
+  // don't use sigfigs for smallish numbers. #13
+  minSuffixSigfigs: false,
+  // Special formatting for numbers with a decimal point
+  maxSmall: 0,
   sigfigs: 3, // often overridden by flavor
   format: 'standard'
 }
@@ -161,7 +165,7 @@ export class Formatter {
    * @param {string} [opts.suffixGroup]
    * @param {Function} [opts.suffixFn]
    * @param {number} [opts.minSuffix=1e5]
-   * @param {number} [opts.minRound=0]
+   * @param {number} [opts.maxSmall=0] Special formatting for numbers with a decimal point
    * @param {number} [opts.sigfigs=5]
    * @param {number} [opts.format='standard'] 'standard', 'hybrid', 'scientific', 'longScale'.
    * @param {Object} [opts.formats] Specify your own custom formats.
