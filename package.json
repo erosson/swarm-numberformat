@@ -10,7 +10,7 @@
     "watch": "gulp watch",
     "watch-build": "gulp watch-build",
     "build": "gulp build",
-    "build-docs": "esdoc && cp -rp demo docs",
+    "build-docs": "esdoc && cp -rp demo docs && touch docs/.nojekyll",
     "clean-docs": "rimraf docs",
     "prebuild-docs": "npm run clean-docs",
     "preversion": "npm test",
