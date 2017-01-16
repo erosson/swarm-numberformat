@@ -111,11 +111,16 @@ describe('numberformat', () => {
   it('supports small decimals', () => {
     const formatter = numberformat
     expect(formatter.format(8/9)).to.equal('0')
-    expect(formatter.format(8/9, {minRound: 1}, {})).to.equal('0.88889')
-    expect(formatter.format(-8/9, {minRound: 1}, {})).to.equal('-0.88889')
-    expect(formatter.format(8/9, {sigfigs: 3, minRound: 1}, {})).to.equal('0.889')
-    expect(formatter.format(8/9, {sigfigs: 1, minRound: 1}, {})).to.equal('0.9')
-    expect(formatter.format(8/9, {flavor: 'short', minRound: 1}, {})).to.equal('0.889')
+    expect(formatter.format(8/9, {maxSmall: 1})).to.equal('0.88889')
+    expect(formatter.format(-8/9, {maxSmall: 1})).to.equal('-0.88889')
+    expect(formatter.format(8/9, {sigfigs: 3, maxSmall: 1})).to.equal('0.889')
+    expect(formatter.format(8/9, {sigfigs: 1, maxSmall: 1})).to.equal('0.9')
+    expect(formatter.format(8/9, {flavor: 'short', maxSmall: 1})).to.equal('0.889')
+    // zero-sigfigs after the decimal point are truncated
+    expect(formatter.format(0.1, {maxSmall: 1, sigfigs:9})).to.equal('0.1')
+    expect(formatter.format(0.11, {maxSmall: 1, sigfigs:9})).to.equal('0.11')
+    expect(formatter.format(0.111, {maxSmall: 1, sigfigs:9})).to.equal('0.111')
+    expect(formatter.format(0.101, {maxSmall: 1, sigfigs:9})).to.equal('0.101')
   })
 
   it('formats bigger numbers', () => {
@@ -147,5 +152,10 @@ describe('numberformat', () => {
     expect(!!formatter.formatShort).to.equal(true)
     expect(formatter.formatFull(1e6)).to.equal('1.0000 million')
     expect(formatter.formatShort(1e6)).to.equal('1.00M')
+  })
+  it('doesn\'t round smallish numbers by default, #13', () => {
+    const f = numberformat
+    expect(f.format(12345)).to.equal('12,345')
+    expect(f.formatShort(12345)).to.equal('12,345')
   })
 });
