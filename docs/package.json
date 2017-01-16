@@ -1,7 +1,7 @@
 {
   "name": "swarm-numberformat",
-  "version": "0.1.0",
-  "description": "Format numbers as strings like Swarm Simulator does",
+  "version": "0.1.1",
+  "description": "Format very large numbers in several human-readable ways. `format(1e6)` -> `\"1 million\"` or `\"1M\"`",
   "main": "dist/swarm-numberformat.js",
   "scripts": {
     "test": "gulp",
@@ -10,7 +10,7 @@
     "watch": "gulp watch",
     "watch-build": "gulp watch-build",
     "build": "gulp build",
-    "build-docs": "esdoc && cp -rp demo docs",
+    "build-docs": "esdoc && cp -rp demo docs && touch docs/.nojekyll",
     "clean-docs": "rimraf docs",
     "prebuild-docs": "npm run clean-docs",
     "preversion": "npm test",
@@ -22,7 +22,18 @@
     "type": "git",
     "url": "https://github.com/erosson/swarm-numberformat.git"
   },
-  "keywords": [],
+  "keywords": [
+    "number",
+    "format",
+    "number format",
+    "format number",
+    "words",
+    "number words",
+    "notation",
+    "swarm",
+    "swarmsim",
+    "swarm simulator"
+  ],
   "author": "Evan <github@erosson.org>",
   "license": "MIT",
   "bugs": {
