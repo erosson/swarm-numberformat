@@ -1,6 +1,6 @@
 {
   "name": "swarm-numberformat",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Format very large numbers in several human-readable ways. `format(1e6)` -> `\"1 million\"` or `\"1M\"`",
   "main": "dist/swarm-numberformat.js",
   "scripts": {
@@ -15,7 +15,6 @@
     "prebuild-docs": "npm run clean-docs",
     "preversion": "npm test",
     "version": "npm run build && npm run build-docs && git add -A dist docs",
-    "postversion": "npm run push-doc",
     "coverage": "gulp coverage"
   },
   "repository": {
