@@ -130,15 +130,17 @@ function _format(val, opts) {
   val = backend.normalize(val, opts)
   const index = backend.index(val)
   const suffix = opts.suffixFn(index)
+  // optionally format small numbers differently: show decimals without trailing zeros
+  if (Math.abs(val) &lt; opts.maxSmall) {
+    // second param for decimal.js only, native ignores it
+    return val.toPrecision(opts.sigfigs, opts.rounding).replace(/(\.\d*[1-9])0+$/, &apos;$1&apos;)
+  }
   // opts.minSuffix: Use JS native formatting for smallish numbers, because
   // &apos;99,999&apos; is prettier than &apos;99.9k&apos;
   // it&apos;s safe to let Math coerce Decimal.js to infinity here, gt/lt still work
   if (Math.abs(val) &lt; opts.minSuffix) {
-    // decimal.js minSuffix/minRound aren&apos;t supported, we must be native to get here
-    if (Math.abs(val) &gt;= opts.minRound) {
-      val = Math.floor(val)
-    }
-    return val.toLocaleString(undefined, {maximumSignificantDigits: opts.sigfigs})
+    val = Math.floor(val)
+    return val.toLocaleString()
   }
   // No suffix found: use scientific notation. JS&apos;s native toExponential is fine.
   if (!suffix &amp;&amp; suffix !== &apos;&apos;) {
@@ -163,8 +165,10 @@ const defaultOptions = {
   },
   // minimum value to use any suffix, because &apos;99,900&apos; is prettier than &apos;99.9k&apos;
   minSuffix: 1e5,
-  // Show decimals below this value rounded to opts.sigfigs, instead of floor()ed
-  minRound: 0,
+  // don&apos;t use sigfigs for smallish numbers. #13
+  minSuffixSigfigs: false,
+  // Special formatting for numbers with a decimal point
+  maxSmall: 0,
   sigfigs: 3, // often overridden by flavor
   format: &apos;standard&apos;
 }
@@ -205,7 +209,7 @@ export class Formatter {
    * @param {string} [opts.suffixGroup]
    * @param {Function} [opts.suffixFn]
    * @param {number} [opts.minSuffix=1e5]
-   * @param {number} [opts.minRound=0]
+   * @param {number} [opts.maxSmall=0] Special formatting for numbers with a decimal point
    * @param {number} [opts.sigfigs=5]
    * @param {number} [opts.format=&apos;standard&apos;] &apos;standard&apos;, &apos;hybrid&apos;, &apos;scientific&apos;, &apos;longScale&apos;.
    * @param {Object} [opts.formats] Specify your own custom formats.
