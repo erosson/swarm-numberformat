@@ -1,3 +1,7 @@
+### [0.2.1](https://github.com/erosson/swarm-numberformat/releases/tag/v0.2.1)
+
+- Support undefined/null/zero sigfigs. #15
+
 ### [0.2.0](https://github.com/erosson/swarm-numberformat/releases/tag/v0.2.0)
 
 - BREAKING CHANGE: removed minRound. It existed to format small numbers, but it didn't work very well.
