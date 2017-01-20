@@ -40,7 +40,8 @@ const backends = {
       return Math.max(0, Math.floor(log10(Math.abs(val))/3))
     },
     prefix(val, index, {sigfigs}) {
-      return (val / Math.pow(1000, index)).toPrecision(sigfigs)
+      // `sigfigs||undefined` supports sigfigs=[null|0], #15
+      return (val / Math.pow(1000, index)).toPrecision(sigfigs || undefined)
     },
   },
   'decimal.js': {
@@ -75,7 +76,8 @@ const backends = {
     prefix(val, index, {sigfigs, rounding}) {
       const Decimal = this._requireDecimal({rounding})
       var div = new Decimal(1000).pow(index)
-      return new Decimal(val).dividedBy(div).toPrecision(sigfigs)
+      // `sigfigs||undefined` supports sigfigs=[null|0], #15
+      return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined)
     },
   },
 }
@@ -86,10 +88,12 @@ function _format(val, opts) {
   val = backend.normalize(val, opts)
   const index = backend.index(val)
   const suffix = opts.suffixFn(index)
+  // `{sigfigs: undefined|null|0}` for automatic sigfigs is supported.
+  let sigfigs = opts.sigfigs || undefined
   // optionally format small numbers differently: show decimals without trailing zeros
   if (Math.abs(val) < opts.maxSmall) {
     // second param for decimal.js only, native ignores it
-    return val.toPrecision(opts.sigfigs, opts.rounding).replace(/(\.\d*[1-9])0+$/, '$1')
+    return val.toPrecision(sigfigs, opts.rounding).replace(/(\.\d*[1-9])0+$/, '$1')
   }
   // opts.minSuffix: Use JS native formatting for smallish numbers, because
   // '99,999' is prettier than '99.9k'
@@ -100,7 +104,10 @@ function _format(val, opts) {
   }
   // No suffix found: use scientific notation. JS's native toExponential is fine.
   if (!suffix && suffix !== '') {
-    return val.toExponential(opts.sigfigs-1).replace('e+', 'e')
+    if (!!sigfigs) {
+      sigfigs -= 1
+    }
+    return val.toExponential(sigfigs).replace('e+', 'e')
   }
   // Found a suffix. Calculate the prefix, the number before the suffix.
   const prefix = backend.prefix(val, index, opts)

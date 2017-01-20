@@ -158,4 +158,39 @@ describe('numberformat', () => {
     expect(f.format(12345)).to.equal('12,345')
     expect(f.formatShort(12345)).to.equal('12,345')
   })
+  for (let backend of ['native', 'decimal.js']) {
+    let f = new numberformat.Formatter({backend})
+    it('supports undefined sigfigs, #15: standard, '+backend, () => {
+      expect(f.format(1.00e9, {format: 'standard', sigfigs: undefined})).to.equal('1 billion')
+      expect(f.format(1.23e9, {format: 'standard', sigfigs: undefined})).to.equal('1.23 billion')
+    })
+    it('supports undefined sigfigs, #15: hybrid, '+backend, () => {
+      expect(f.format(1.00e9, {format: 'hybrid', sigfigs: undefined})).to.equal('1 billion')
+      expect(f.format(1.23e9, {format: 'hybrid', sigfigs: undefined})).to.equal('1.23 billion')
+    })
+    it('supports undefined sigfigs, #15: scientific, '+backend, () => {
+      expect(f.format(1.00e9, {format: 'scientific', sigfigs: undefined})).to.equal('1e9')
+      expect(f.format(1.23e9, {format: 'scientific', sigfigs: undefined})).to.equal('1.23e9')
+    })
+    it('supports undefined sigfigs, #15: engineering, '+backend, () => {
+      expect(f.format(1.00e9, {format: 'engineering', sigfigs: undefined})).to.equal('1E9')
+      expect(f.format(1.23e9, {format: 'engineering', sigfigs: undefined})).to.equal('1.23E9')
+    })
+    it('supports undefined sigfigs, #15: longScale, '+backend, () => {
+      expect(f.format(1.00e9, {format: 'longScale', sigfigs: undefined})).to.equal('1 milliard')
+      expect(f.format(1.23e9, {format: 'longScale', sigfigs: undefined})).to.equal('1.23 milliard')
+    })
+    it('supports undefined sigfigs, #15: standard/short, '+backend, () => {
+      expect(f.format(1.00e9, {format: 'standard', sigfigs: undefined, flavor: 'short'})).to.equal('1B')
+      expect(f.format(1.23e9, {format: 'standard', sigfigs: undefined, flavor: 'short'})).to.equal('1.23B')
+    })
+    it('supports undefined sigfigs, #15: standard/null, '+backend, () => {
+      expect(f.format(1.00e9, {format: 'standard', sigfigs: null})).to.equal('1 billion')
+      expect(f.format(1.23e9, {format: 'standard', sigfigs: null})).to.equal('1.23 billion')
+    })
+    it('supports undefined sigfigs, #15: standard/0, '+backend, () => {
+      expect(f.format(1.00e9, {format: 'standard', sigfigs: 0})).to.equal('1 billion')
+      expect(f.format(1.23e9, {format: 'standard', sigfigs: 0})).to.equal('1.23 billion')
+    })
+  }
 });
