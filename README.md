@@ -74,6 +74,8 @@ The suffixes used by `standard` and `longScale` formats are based on http://home
 
 This project started life as number formatting filters for [Swarm Simulator](https://github.com/swarmsim/swarm/).
 
+https://www.npmjs.com/package/written-number has a lot in common with this project. It has better support for internationalization, but its suffixes stop at smaller numbers, and it has no decimal.js support.
+
 Project template: https://github.com/babel/generator-babel-boilerplate
 
 ## License
