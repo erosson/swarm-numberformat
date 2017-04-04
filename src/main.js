@@ -2,6 +2,7 @@
 // http://home.kpn.nl/vanadovv/BignumbyN.html
 import standardSuffixes from './standard-suffixes.json'
 import longScaleSuffixes from './long-scale-suffixes.json'
+import backends from 'number-backend'
 // TODO: use this page to generate names dynamically, for even larger numbers:
 //   http://mathforum.org/library/drmath/view/59154.html
 
@@ -10,6 +11,36 @@ function validate(condition, message) {
     throw new Error(message)
   }
   return condition
+}
+
+// these were written before number-backends was extracted into its own lib
+// Suffixes are a list - which index of the list do we want? 
+// _index(999) === 0
+// _index(1000) === 1
+// _index(1000000) === 2
+backends['native'].index = function(val) {
+  // string length is faster but fails for length >= 20, where JS starts
+  // formatting with e
+  return Math.max(0, Math.floor(log10(Math.abs(val))/3))
+}
+backends['native'].prefix = function(val, index, {sigfigs}) {
+  // `sigfigs||undefined` supports sigfigs=[null|0], #15
+  return (val / Math.pow(1000, index)).toPrecision(sigfigs || undefined)
+}
+backends['decimal.js'].index = function(val) {
+  const Decimal = this._requireDecimal()
+  // index = val.log10().dividedToIntegerBy(Decimal.log 1000)
+  // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.
+  // Lucky me, the length is used by decimal.js internally: num.e
+  // this is in the docs, so I think it's stable enough to use...
+  val = new Decimal(val)
+  return Math.floor(val.e / 3)
+}
+backends['decimal.js'].prefix = function(val, index, {sigfigs, rounding}) {
+  const Decimal = this._requireDecimal({rounding})
+  var div = new Decimal(1000).pow(index)
+  // `sigfigs||undefined` supports sigfigs=[null|0], #15
+  return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined)
 }
 
 // polyfill IE and phantomjs
@@ -25,67 +56,10 @@ const log10 = (() => {
   }
 })()
 
-const backends = {
-  'native': {
-    normalize(val) {
-      return val
-    },
-    // Suffixes are a list - which index of the list do we want? 
-    // _index(999) === 0
-    // _index(1000) === 1
-    // _index(1000000) === 2
-    index(val) {
-      // string length is faster but fails for length >= 20, where JS starts
-      // formatting with e
-      return Math.max(0, Math.floor(log10(Math.abs(val))/3))
-    },
-    prefix(val, index, {sigfigs}) {
-      // `sigfigs||undefined` supports sigfigs=[null|0], #15
-      return (val / Math.pow(1000, index)).toPrecision(sigfigs || undefined)
-    },
-  },
-  'decimal.js': {
-    // Note that decimal.js is never imported by this library!
-    // We're using its methods passed in by the caller. This keeps the library
-    // much smaller for the common case: no decimal.js.
-    // api docs: https://mikemcl.github.io/decimal.js/
-    _requireDecimal(config) {
-      let Decimal
-      if (global.window && window.Decimal) {
-        Decimal = window.Decimal
-      }
-      else {
-        // the build/minifier must avoid compiling this in. It's externalized in the gulpfile.
-        Decimal = require('decimal.js')
-      }
-      return Decimal.clone(config)
-    },
-    normalize(val, {rounding}) {
-      const Decimal = this._requireDecimal({rounding})
-      return new Decimal(val)
-    },
-    index(val) {
-      const Decimal = this._requireDecimal()
-      // index = val.log10().dividedToIntegerBy(Decimal.log 1000)
-      // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.
-      // Lucky me, the length is used by decimal.js internally: num.e
-      // this is in the docs, so I think it's stable enough to use...
-      val = new Decimal(val)
-      return Math.floor(val.e / 3)
-    },
-    prefix(val, index, {sigfigs, rounding}) {
-      const Decimal = this._requireDecimal({rounding})
-      var div = new Decimal(1000).pow(index)
-      // `sigfigs||undefined` supports sigfigs=[null|0], #15
-      return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined)
-    },
-  },
-}
-
 // The formatting function.
 function _format(val, opts) {
   const backend = validate(backends[opts.backend], `not a backend: ${opts.backend}`)
-  val = backend.normalize(val, opts)
+  val = backend.normalize(backend.normalize(val, opts), opts)
   const index = backend.index(val)
   const suffix = opts.suffixFn(index)
   // `{sigfigs: undefined|null|0}` for automatic sigfigs is supported.
