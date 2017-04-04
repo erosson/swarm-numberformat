@@ -7,7 +7,7 @@
 		exports["numberformat"] = factory(require("decimal.js"));
 	else
 		root["numberformat"] = factory(root["decimal.js"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_4__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_3__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -54,7 +54,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -75,10 +75,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _longScaleSuffixes2 = _interopRequireDefault(_longScaleSuffixes);
 	
-	var _numberBackend = __webpack_require__(3);
-	
-	var _numberBackend2 = _interopRequireDefault(_numberBackend);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -93,41 +89,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return condition;
 	}
 	
-	// these were written before number-backends was extracted into its own lib
-	// Suffixes are a list - which index of the list do we want? 
-	// _index(999) === 0
-	// _index(1000) === 1
-	// _index(1000000) === 2
-	_numberBackend2.default['native'].index = function (val) {
-	  // string length is faster but fails for length >= 20, where JS starts
-	  // formatting with e
-	  return Math.max(0, Math.floor(log10(Math.abs(val)) / 3));
-	};
-	_numberBackend2.default['native'].prefix = function (val, index, _ref) {
-	  var sigfigs = _ref.sigfigs;
-	
-	  // `sigfigs||undefined` supports sigfigs=[null|0], #15
-	  return (val / Math.pow(1000, index)).toPrecision(sigfigs || undefined);
-	};
-	_numberBackend2.default['decimal.js'].index = function (val) {
-	  var Decimal = this._requireDecimal();
-	  // index = val.log10().dividedToIntegerBy(Decimal.log 1000)
-	  // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.
-	  // Lucky me, the length is used by decimal.js internally: num.e
-	  // this is in the docs, so I think it's stable enough to use...
-	  val = new Decimal(val);
-	  return Math.floor(val.e / 3);
-	};
-	_numberBackend2.default['decimal.js'].prefix = function (val, index, _ref2) {
-	  var sigfigs = _ref2.sigfigs,
-	      rounding = _ref2.rounding;
-	
-	  var Decimal = this._requireDecimal({ rounding: rounding });
-	  var div = new Decimal(1000).pow(index);
-	  // `sigfigs||undefined` supports sigfigs=[null|0], #15
-	  return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined);
-	};
-	
 	// polyfill IE and phantomjs
 	var log10 = function () {
 	  if (!!Math.log10) {
@@ -141,10 +102,74 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	}();
 	
+	var backends = {
+	  'native': {
+	    normalize: function normalize(val) {
+	      return val;
+	    },
+	
+	    // Suffixes are a list - which index of the list do we want? 
+	    // _index(999) === 0
+	    // _index(1000) === 1
+	    // _index(1000000) === 2
+	    index: function index(val) {
+	      // string length is faster but fails for length >= 20, where JS starts
+	      // formatting with e
+	      return Math.max(0, Math.floor(log10(Math.abs(val)) / 3));
+	    },
+	    prefix: function prefix(val, index, _ref) {
+	      var sigfigs = _ref.sigfigs;
+	
+	      // `sigfigs||undefined` supports sigfigs=[null|0], #15
+	      return (val / Math.pow(1000, index)).toPrecision(sigfigs || undefined);
+	    }
+	  },
+	  'decimal.js': {
+	    // Note that decimal.js is never imported by this library!
+	    // We're using its methods passed in by the caller. This keeps the library
+	    // much smaller for the common case: no decimal.js.
+	    // api docs: https://mikemcl.github.io/decimal.js/
+	    _requireDecimal: function _requireDecimal(config) {
+	      var Decimal = void 0;
+	      if (global.window && window.Decimal) {
+	        Decimal = window.Decimal;
+	      } else {
+	        // the build/minifier must avoid compiling this in. It's externalized in the gulpfile.
+	        Decimal = __webpack_require__(3);
+	      }
+	      return Decimal.clone(config);
+	    },
+	    normalize: function normalize(val, _ref2) {
+	      var rounding = _ref2.rounding;
+	
+	      var Decimal = this._requireDecimal({ rounding: rounding });
+	      return new Decimal(val);
+	    },
+	    index: function index(val) {
+	      var Decimal = this._requireDecimal();
+	      // index = val.log10().dividedToIntegerBy(Decimal.log 1000)
+	      // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.
+	      // Lucky me, the length is used by decimal.js internally: num.e
+	      // this is in the docs, so I think it's stable enough to use...
+	      val = new Decimal(val);
+	      return Math.floor(val.e / 3);
+	    },
+	    prefix: function prefix(val, index, _ref3) {
+	      var sigfigs = _ref3.sigfigs,
+	          rounding = _ref3.rounding;
+	
+	      var Decimal = this._requireDecimal({ rounding: rounding });
+	      var div = new Decimal(1000).pow(index);
+	      // `sigfigs||undefined` supports sigfigs=[null|0], #15
+	      return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined);
+	    }
+	  }
+	};
+	
 	// The formatting function.
 	function _format(val, opts) {
-	  var backend = validate(_numberBackend2.default[opts.backend], 'not a backend: ' + opts.backend);
-	  val = backend.normalize(backend.normalize(val, opts), opts);
+	  var backend = validate(backends[opts.backend], 'not a backend: ' + opts.backend);
+	  val = backend.normalize(val, opts);
 	  var index = backend.index(val);
 	  var suffix = opts.suffixFn(index);
 	  // `{sigfigs: undefined|null|0}` for automatic sigfigs is supported.
@@ -293,7 +318,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'index',
 	    value: function index(val, opts) {
 	      opts = this._normalizeOpts(opts);
-	      return _numberBackend2.default[opts.backend].index(val);
+	      return backends[opts.backend].index(val);
 	    }
 	    /**
 	     * @param {number} val
@@ -311,7 +336,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'suffix',
 	    value: function suffix(val, opts) {
 	      opts = this._normalizeOpts(opts);
-	      var index = _numberBackend2.default[opts.backend].index(val);
+	      var index = backends[opts.backend].index(val);
 	      return opts.suffixFn(index);
 	    }
 	    /**
@@ -409,6 +434,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var formatShort = exports.formatShort = function formatShort(val, opts) {
 	  return numberformat.formatFlavor(val, 'short', opts);
 	};
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 1 */
@@ -783,115 +809,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	(function webpackUniversalModuleDefinition(root, factory) {
-		if(true)
-			module.exports = factory(__webpack_require__(4));
-		else if(typeof define === 'function' && define.amd)
-			define(["decimal.js"], factory);
-		else if(typeof exports === 'object')
-			exports["numberBackend"] = factory(require("decimal.js"));
-		else
-			root["numberBackend"] = factory(root["decimal.js"]);
-	})(this, function(__WEBPACK_EXTERNAL_MODULE_1__) {
-	return /******/ (function(modules) { // webpackBootstrap
-	/******/ 	// The module cache
-	/******/ 	var installedModules = {};
-	/******/
-	/******/ 	// The require function
-	/******/ 	function __webpack_require__(moduleId) {
-	/******/
-	/******/ 		// Check if module is in cache
-	/******/ 		if(installedModules[moduleId])
-	/******/ 			return installedModules[moduleId].exports;
-	/******/
-	/******/ 		// Create a new module (and put it into the cache)
-	/******/ 		var module = installedModules[moduleId] = {
-	/******/ 			exports: {},
-	/******/ 			id: moduleId,
-	/******/ 			loaded: false
-	/******/ 		};
-	/******/
-	/******/ 		// Execute the module function
-	/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-	/******/
-	/******/ 		// Flag the module as loaded
-	/******/ 		module.loaded = true;
-	/******/
-	/******/ 		// Return the exports of the module
-	/******/ 		return module.exports;
-	/******/ 	}
-	/******/
-	/******/
-	/******/ 	// expose the modules object (__webpack_modules__)
-	/******/ 	__webpack_require__.m = modules;
-	/******/
-	/******/ 	// expose the module cache
-	/******/ 	__webpack_require__.c = installedModules;
-	/******/
-	/******/ 	// __webpack_public_path__
-	/******/ 	__webpack_require__.p = "";
-	/******/
-	/******/ 	// Load entry module and return exports
-	/******/ 	return __webpack_require__(0);
-	/******/ })
-	/************************************************************************/
-	/******/ ([
-	/* 0 */
-	/***/ function(module, exports, __webpack_require__) {
-	
-		/* WEBPACK VAR INJECTION */(function(global) {'use strict';
-		
-		Object.defineProperty(exports, "__esModule", {
-		  value: true
-		});
-		var backends = {
-		  'native': {
-		    normalize: function normalize(val) {
-		      return val;
-		    }
-		  },
-		
-		  'decimal.js': {
-		    // Note that decimal.js is never imported by this library!
-		    // We're using its methods passed in by the caller. This keeps the library
-		    // much smaller for the common case: no decimal.js.
-		    // api docs: https://mikemcl.github.io/decimal.js/
-		    _requireDecimal: function _requireDecimal(config) {
-		      var Decimal = config && (config.Decimal || config.decimal) || global && global.Decimal || global && global.window && window.Decimal
-		      // the build/minifier must avoid compiling this in. It's externalized in the gulpfile.
-		      || __webpack_require__(1);
-		      return Decimal.clone(config);
-		    },
-		    normalize: function normalize(val) {
-		      var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-		
-		      var Decimal = this._requireDecimal(config);
-		      return new Decimal(val);
-		    }
-		  }
-		};
-		exports.default = backends;
-		/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-	
-	/***/ },
-	/* 1 */
-	/***/ function(module, exports) {
-	
-		module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
-	
-	/***/ }
-	/******/ ])
-	});
-	;
-	//# sourceMappingURL=number-backend.js.map
-
-/***/ },
-/* 4 */
 /***/ function(module, exports) {
 
-	module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
+	module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
 
 /***/ }
 /******/ ])

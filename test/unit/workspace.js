@@ -133,7 +133,7 @@ describe('numberformat', () => {
     expect(formatter.format(1e21, {flavor: 'short'})).to.equal('1.00Sx')
   })
   it('supports decimal.js', () => {
-    const formatter = new numberformat.Formatter({backend: 'decimal.js', Decimal})
+    const formatter = new numberformat.Formatter({backend: 'decimal.js'})
     //console.log(new Decimal('1e999').toString())
     expect(formatter.format(new Decimal('1e9999'), {format: 'engineering'})).to.equal('1.0000E9999')
     expect(formatter.format(new Decimal('1e9999'))).to.equal('1.0000e9999')
