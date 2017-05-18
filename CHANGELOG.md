@@ -1,3 +1,7 @@
+### [0.2.2](https://github.com/erosson/swarm-numberformat/releases/tag/v0.2.2)
+
+- Babel won't try to compile `dist/` anymore.
+
 ### [0.2.1](https://github.com/erosson/swarm-numberformat/releases/tag/v0.2.1)
 
 - Support undefined/null/zero sigfigs. #15
