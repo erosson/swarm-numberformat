@@ -1,4 +1,5 @@
 {
+  "ignore": "./dist/",
   "plugins": ["transform-object-assign"],
   "presets": ["latest"]
 }
