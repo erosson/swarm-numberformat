@@ -1,5 +1,6 @@
-import standard from './standard-suffixes.json'
-import longScale from './long-scale-suffixes.json'
+// ../src is awkward, but it works from both /src and the compiled /es without fussing with webpack config
+import standard from '../src/standard-suffixes.json'
+import longScale from '../src/long-scale-suffixes.json'
 import {requireDecimal} from './decimal.js'
 
 //const suffixGroups = {standard, longScale}
