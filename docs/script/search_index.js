@@ -12,6 +12,12 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
+    "swarm-numberformat/src/parse.js~parser",
+    "class/src/parse.js~Parser.html",
+    "<span>Parser</span> <span class=\"search-result-import-path\">swarm-numberformat/src/parse.js</span>",
+    "class"
+  ],
+  [
     "swarm-numberformat/src/format.js~format",
     "function/index.html#static-function-format",
     "<span>format</span> <span class=\"search-result-import-path\">swarm-numberformat/src/format.js</span>",
@@ -27,6 +33,18 @@ window.esdocSearchIndex = [
     "swarm-numberformat/src/format.js~formatshort",
     "function/index.html#static-function-formatShort",
     "<span>formatShort</span> <span class=\"search-result-import-path\">swarm-numberformat/src/format.js</span>",
+    "function"
+  ],
+  [
+    "swarm-numberformat/src/parse.js~parse",
+    "function/index.html#static-function-parse",
+    "<span>parse</span> <span class=\"search-result-import-path\">swarm-numberformat/src/parse.js</span>",
+    "function"
+  ],
+  [
+    "swarm-numberformat/src/decimal.js~requiredecimal",
+    "function/index.html#static-function-requireDecimal",
+    "<span>requireDecimal</span> <span class=\"search-result-import-path\">swarm-numberformat/src/decimal.js</span>",
     "function"
   ],
   [
@@ -360,6 +378,12 @@ window.esdocSearchIndex = [
     "external"
   ],
   [
+    "src/decimal.js",
+    "file/src/decimal.js.html",
+    "src/decimal.js",
+    "file"
+  ],
+  [
     "src/format.js",
     "file/src/format.js.html",
     "src/format.js",
@@ -417,6 +441,36 @@ window.esdocSearchIndex = [
     "src/index.js",
     "file/src/index.js.html",
     "src/index.js",
+    "file"
+  ],
+  [
+    "src/parse.js",
+    "file/src/parse.js.html",
+    "src/parse.js",
+    "file"
+  ],
+  [
+    "src/parse.js~parser#config",
+    "class/src/parse.js~Parser.html#instance-member-config",
+    "src/parse.js~Parser#config",
+    "member"
+  ],
+  [
+    "src/parse.js~parser#constructor",
+    "class/src/parse.js~Parser.html#instance-constructor-constructor",
+    "src/parse.js~Parser#constructor",
+    "method"
+  ],
+  [
+    "src/parse.js~parser#parse",
+    "class/src/parse.js~Parser.html#instance-method-parse",
+    "src/parse.js~Parser#parse",
+    "method"
+  ],
+  [
+    "src/parse.test.js",
+    "file/src/parse.test.js.html",
+    "src/parse.test.js",
     "file"
   ]
 ]

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/parse.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/format.js~Formatter.html">Formatter</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/parse.js~Parser.html">Parser</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-requireDecimal">requireDecimal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-format">format</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatFull">formatFull</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatShort">formatShort</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parse">parse</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-Formats">Formats</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/parse.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import standard from &apos;./standard-suffixes.json&apos;
+import longScale from &apos;./long-scale-suffixes.json&apos;
+import {requireDecimal} from &apos;./decimal.js&apos;
+
+//const suffixGroups = {standard, longScale}
+const suffixGroups = {standard} // TODO longscale parsing. There&apos;s a duplicate
+const suffixGroupsToExp = {}
+for (let groupName of Object.keys(suffixGroups)) {
+  const group = suffixGroups[groupName]
+  const suffixToExp = suffixGroupsToExp[groupName] = {}
+  for (let fkey of Object.keys(group)) {
+    const fg = group[fkey]
+    for (let index in fg) {
+      const suffix = fg[index].toLowerCase()
+      const exp = index * 3
+      if(suffixToExp[suffix] &amp;&amp; suffixToExp[suffix].exp === exp,
+        &quot;duplicate parsenumber suffix with different exponents: &quot;+suffix)
+      suffixToExp[suffix] = {index, exp, replace:&apos;e&apos;+exp}
+    }
+  }
+}
+
+const backends = {
+  &apos;native&apos;: {
+    parseInt(text, config) {
+      const val = Math.ceil(Number(text, 10))
+      return &apos;default&apos; in config &amp;&amp; !this.isValid(val) ? config[&apos;default&apos;] : val
+    },
+    isValid(val) {
+      return (val || val === 0) &amp;&amp; !Number.isNaN(val)
+    },
+  },
+  &apos;decimal.js&apos;: {
+    parseInt(text, config) {
+      if (&apos;default&apos; in config) {
+        try {
+          const val = requireDecimal()(text).ceil()
+          return this.isValid(val) ? val : config[&apos;default&apos;]
+        }
+        catch(e) {
+          return config.default
+        }
+      }
+      return requireDecimal()(text).ceil()
+    },
+    isValid(val) {
+      return val &amp;&amp; !val.isNaN()
+    },
+  },
+}
+
+export function parse(text, config={}) {
+  if (!text) return config[&apos;default&apos;] || null
+  // TODO make this an option
+  const suffixToExp = suffixGroupsToExp[config.suffixGroup || &apos;standard&apos;]
+  const backend = backends[config.backend || &apos;native&apos;]
+  if (!backend) throw new Error(&apos;no such backend: &apos;+config.backend)
+  // remove commas. TODO: i18n fail
+  text=text.replace(/,/g, &apos;&apos;)
+  // replace suffixes (&apos;billion&apos;, etc)
+  const match=/ ?[a-zA-Z]+/.exec(text)
+  if (match &amp;&amp; match.length &gt; 0) {
+    const exp = suffixToExp[match[0].toLowerCase()]
+    if (exp) {
+      // ceil(): buy at least this many. The default of floor() is annoying when
+      // we&apos;re trying to purchase exactly-n for an upgrade.
+      return backend.parseInt(text.replace(match[0], exp.replace), config)
+    }
+  }
+  // no/invalid suffix found
+  // note that we also get here for a suffix of &apos;e&apos;, like &apos;1e3&apos;, because it&apos;s not
+  // used as a suffix. Decimal.js will parse it.
+  return backend.parseInt(text, config)
+}
+
+export class Parser {
+  constructor(config) {
+    this.config = config
+  }
+  parse(text, config={}) {
+    return parse(text, {...this.config, ...config})
+  }
+}
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.5.2)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

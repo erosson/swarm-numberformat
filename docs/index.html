@@ -33,9 +33,12 @@
   <ul>
     
   <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/format.js~Formatter.html">Formatter</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/parse.js~Parser.html">Parser</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-requireDecimal">requireDecimal</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-format">format</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatFull">formatFull</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatShort">formatShort</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-parse">parse</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-Formats">Formats</a></span></span></li>
 </ul>
 </div>
@@ -43,7 +46,7 @@
 
 <div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><h1 id="swarm-numberformat">swarm-numberformat</h1>
 <p>Format large numbers in several human-readable ways. Designed for incremental games like <a href="https://swarmsim.github.io">Swarm Simulator</a>.</p>
-<p><a href="https://jsbin.com/zadepad/edit?html,output">See it in action</a>, and a <a href="https://erosson.github.io/swarm-numberformat/demo/">list of all suffixes</a>.</p>
+<p><a href="https://jsbin.com/zadepad/edit?html,output">See it in action</a>, and a <a href="https://erosson.github.io/swarm-numberformat/demo/legend.html">list of all suffixes</a>.</p>
 <p><a href="https://travis-ci.org/erosson/swarm-numberformat"><img src="http://img.shields.io/travis/erosson/swarm-numberformat.svg?style=flat" alt="Travis build status"></a>
 <a href="https://david-dm.org/erosson/swarm-numberformat"><img src="https://david-dm.org/erosson/swarm-numberformat.svg" alt="Dependency Status"></a>
 <a href="https://david-dm.org/erosson/swarm-numberformat#info=devDependencies"><img src="https://david-dm.org/erosson/swarm-numberformat/dev-status.svg" alt="devDependency Status"></a></p>
@@ -73,6 +76,17 @@
 </code></pre><p>There&apos;s support for <a href="https://github.com/MikeMcl/decimal.js/">decimal.js</a> when you need numbers bigger than <code>Number.MAX_VALUE</code> (1e308).</p>
 <pre><code><code class="source-code prettyprint"> numberformat.format(new Decimal(&apos;1e10000&apos;), {backend: &apos;decimal.js&apos;, format: &apos;engineering&apos;})
  // =&gt; &quot;10e9999&quot;</code>
+</code></pre><p><code>numberformat</code> can parse its own output.</p>
+<pre><code><code class="source-code prettyprint"> numberformat.parse(&apos;10k&apos;)
+ // =&gt; 10000
+ numberformat.parse(&apos;10 thousand&apos;)
+ // =&gt; 10000
+ numberformat.parse(&apos;10,000&apos;)
+ // =&gt; 10000
+ numberformat.parse(&apos;10x&apos;)
+ // =&gt; NaN
+ numberformat.parse(&apos;&apos;, {&apos;default&apos;: 3})
+ // =&gt; 3</code>
 </code></pre><p>swarm-numberformat includes no third-party dependencies, and is less than 20k minified.</p>
 <p>The suffixes used here are available in JSON format - this might be useful if your program isn&apos;t in Javascript, but can read JSON:
 <a href="https://github.com/erosson/swarm-numberformat/blob/master/src/standard-suffixes.json">standard-suffixes</a>,
@@ -85,7 +99,7 @@
 <pre><code><code class="source-code prettyprint">npm install --save swarm-numberformat
 
 const numberformat = require(&apos;swarm-numberformat&apos;)</code>
-</code></pre><p><a href="https://erosson.github.io/swarm-numberformat/">Full API documentation</a>. Also see <a href="https://jsbin.com/zadepad/edit?html,output">the demo</a> and a <a href="https://erosson.github.io/swarm-numberformat/demo/">list of all suffixes</a>.</p>
+</code></pre><p><a href="https://erosson.github.io/swarm-numberformat/">Full API documentation</a>. Also see <a href="https://jsbin.com/zadepad/edit?html,output">the demo</a> and a <a href="https://erosson.github.io/swarm-numberformat/demo/legend.html">list of all suffixes</a>.</p>
 <h2 id="related-work">Related work</h2>
 <p>The suffixes used by <code>standard</code> and <code>longScale</code> formats are based on <a href="http://home.kpn.nl/vanadovv/BignumbyN.html">http://home.kpn.nl/vanadovv/BignumbyN.html</a></p>
 <p>This project started life as number formatting filters for <a href="https://github.com/swarmsim/swarm/">Swarm Simulator</a>.</p>
