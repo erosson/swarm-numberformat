@@ -47,8 +47,9 @@
 <div class="content" data-ice="content"><h1 data-ice="title">src/format.js</h1>
 <pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">// Can&apos;t comment a .json file, but the suffixes come from these pages:
 // http://home.kpn.nl/vanadovv/BignumbyN.html
-import standardSuffixes from &apos;./standard-suffixes.json&apos;
-import longScaleSuffixes from &apos;./long-scale-suffixes.json&apos;
+// ../src is awkward, but it works from both /src and the compiled /es without fussing with webpack config
+import standardSuffixes from &apos;../src/standard-suffixes.json&apos;
+import longScaleSuffixes from &apos;../src/long-scale-suffixes.json&apos;
 import {requireDecimal} from &apos;./decimal&apos;
 
 // TODO: use this page to generate names dynamically, for even larger numbers:

@@ -45,8 +45,9 @@
 </nav>
 
 <div class="content" data-ice="content"><h1 data-ice="title">src/parse.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import standard from &apos;./standard-suffixes.json&apos;
-import longScale from &apos;./long-scale-suffixes.json&apos;
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">// ../src is awkward, but it works from both /src and the compiled /es without fussing with webpack config
+import standard from &apos;../src/standard-suffixes.json&apos;
+import longScale from &apos;../src/long-scale-suffixes.json&apos;
 import {requireDecimal} from &apos;./decimal.js&apos;
 
 //const suffixGroups = {standard, longScale}
