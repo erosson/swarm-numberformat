@@ -24,7 +24,7 @@
     "clean-docs": "rimraf docs",
     "prebuild-docs": "npm run clean-docs",
     "preversion": "npm test",
-    "version": "npm run build && npm run build-docs && git add -A es lib dist docs"
+    "version": "npm run build && npm run build-docs && git add -A dist docs"
   },
   "babel": {
     "presets": [
