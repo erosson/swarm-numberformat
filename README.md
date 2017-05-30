@@ -46,6 +46,17 @@ There's support for [decimal.js](https://github.com/MikeMcl/decimal.js/) when yo
      numberformat.format(new Decimal('1e10000'), {backend: 'decimal.js', format: 'engineering'})
      // => "10e9999"
 
+`numberformat` can parse its own output.
+
+     numberformat.parse('10k')
+     // => 10000
+     numberformat.parse('10 thousand')
+     // => 10000
+     numberformat.parse('10x')
+     // => NaN
+     numberformat.parse('', {'default': 3})
+     // => 3
+
 swarm-numberformat includes no third-party dependencies, and is less than 20k minified.
 
 The suffixes used here are available in JSON format - this might be useful if your program isn't in Javascript, but can read JSON:

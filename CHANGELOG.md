@@ -1,6 +1,7 @@
 ### [0.3.0](https://github.com/erosson/swarm-numberformat/releases/tag/v0.3.0)
 
 - Changed build system to use nwb; tests use jest instead of mocha; `npm start` runs the demo page. These are big changes to the development environment, but I think they're invisible to users.
+- Implemented number parsing. Standard suffixes only, for now. `numberformat.parse('10k') === 10000`
 
 ### [0.2.1](https://github.com/erosson/swarm-numberformat/releases/tag/v0.2.1)
 

@@ -2,28 +2,8 @@
 // http://home.kpn.nl/vanadovv/BignumbyN.html
 import standardSuffixes from './standard-suffixes.json'
 import longScaleSuffixes from './long-scale-suffixes.json'
+import {requireDecimal} from './decimal'
 
-function log(...mess) {
-  //console.log(...mess)
-}
-// Lazy-load - we might not need decimal. It's a peerDependency, so the parent
-// library must include it if needed - we don't, because many callers don't need
-// it.
-let Decimal
-function requireDecimal() {
-  return Decimal || (Decimal = (function() {
-    if (global && global.Decimal) {
-      log('swarm-numberformat decimal.js: Found global.Decimal')
-      return global.Decimal
-    }
-    if (global && global.window && window.Decimal) {
-      log('swarm-numberformat decimal.js: Found window.Decimal')
-      return window.Decimal
-    }
-    log('swarm-numberformat decimal.js: trying require()')
-    return require('decimal.js')
-  })())
-}
 // TODO: use this page to generate names dynamically, for even larger numbers:
 //   http://mathforum.org/library/drmath/view/59154.html
 

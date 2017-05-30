@@ -1,0 +1,35 @@
+import {parse, Parser} from './parse'
+import Decimal from 'decimal.js'
+
+describe('parse', () => {
+  it('parses suffixes from user input', () => {
+    expect(parse('10')).toBe(10)
+    expect(parse('10k')).toBe(10000)
+    expect(parse('10x')).toBeNaN()
+    expect(parse('10x', {default: 3})).toBe(3)
+    expect(parse('10 thousand')).toBe(10000)
+    expect(parse('10e3')).toBe(10000)
+    expect(parse('')).toBeNull()
+    expect(parse('', {default: 3})).toBe(3)
+    expect(parse(null)).toBeNull()
+    expect(parse(undefined)).toBeNull()
+    expect(parse('0', {default: 3})).toBe(0)
+    expect(parse('fail')).toBeNaN()
+  })
+  it('parses decimal.js', () => {
+    const parser = new Parser({backend: 'decimal.js'})
+    const parse = (text, config) => parser.parse(text, config)
+    expect(parse('10')).toEqual(Decimal(10))
+    expect(parse('10k')).toEqual(Decimal(10000))
+    expect(() => parse('10x')).toThrow()
+    expect(parse('10x', {default: Decimal(3)})).toEqual(Decimal(3))
+    expect(parse('10 thousand')).toEqual(Decimal(10000))
+    expect(parse('10e3')).toEqual(Decimal(10000))
+    expect(parse('')).toBeNull()
+    expect(parse('', {default: Decimal(3)})).toEqual(Decimal(3))
+    expect(parse(null)).toBeNull()
+    expect(parse(undefined)).toBeNull()
+    expect(parse('0', {default: Decimal(3)})).toEqual(Decimal(0))
+    expect(() => parse('fail')).toThrow()
+  })
+})
