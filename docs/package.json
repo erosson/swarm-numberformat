@@ -1,10 +1,11 @@
 {
   "name": "swarm-numberformat",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Format very large numbers in several human-readable ways. `format(1e6)` -> `\"1 million\"` or `\"1M\"`",
   "main": "lib/index.js",
   "module": "es/index.js",
   "files": [
+    "static",
     "es",
     "lib",
     "dist"

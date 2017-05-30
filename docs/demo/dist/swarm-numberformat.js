@@ -1,5 +1,5 @@
 /*!
- * swarm-numberformat v0.3.1
+ * swarm-numberformat v0.3.2
  * MIT Licensed
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -111,10 +111,10 @@ function requireDecimal() {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__src_standard_suffixes_json__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__src_standard_suffixes_json___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__src_standard_suffixes_json__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__src_long_scale_suffixes_json__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__src_long_scale_suffixes_json___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__src_long_scale_suffixes_json__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__static_standard_suffixes_json__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__static_standard_suffixes_json___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__static_standard_suffixes_json__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__static_long_scale_suffixes_json__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__static_long_scale_suffixes_json___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__static_long_scale_suffixes_json__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__decimal__ = __webpack_require__(0);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Formats; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Formatter; });
@@ -125,7 +125,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 // Can't comment a .json file, but the suffixes come from these pages:
 // http://home.kpn.nl/vanadovv/BignumbyN.html
-// ../src is awkward, but it works from both /src and the compiled /es without fussing with webpack config
 
 
 
@@ -265,16 +264,16 @@ var defaultOptions = {
 // User-visible format choices, like on swarmsim's options screen.
 // Each has a different set of options.
 var Formats = {
-  standard: { suffixGroups: __WEBPACK_IMPORTED_MODULE_0__src_standard_suffixes_json___default.a },
+  standard: { suffixGroups: __WEBPACK_IMPORTED_MODULE_0__static_standard_suffixes_json___default.a },
   // like standard formatting, with a different set of suffixes
-  longScale: { suffixGroups: __WEBPACK_IMPORTED_MODULE_1__src_long_scale_suffixes_json___default.a },
+  longScale: { suffixGroups: __WEBPACK_IMPORTED_MODULE_1__static_long_scale_suffixes_json___default.a },
   // like standard formatting, with no suffixes at all
   scientific: { suffixGroups: { full: [], short: [] } },
   // like standard formatting, with a smaller set of suffixes
   hybrid: {
     suffixGroups: {
-      full: __WEBPACK_IMPORTED_MODULE_0__src_standard_suffixes_json___default.a.full.slice(0, 12),
-      short: __WEBPACK_IMPORTED_MODULE_0__src_standard_suffixes_json___default.a.short.slice(0, 12)
+      full: __WEBPACK_IMPORTED_MODULE_0__static_standard_suffixes_json___default.a.full.slice(0, 12),
+      short: __WEBPACK_IMPORTED_MODULE_0__static_standard_suffixes_json___default.a.short.slice(0, 12)
     }
   },
   // like standard formatting, with a different/infinite set of suffixes
@@ -864,10 +863,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__src_standard_suffixes_json__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__src_standard_suffixes_json___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__src_standard_suffixes_json__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__src_long_scale_suffixes_json__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__src_long_scale_suffixes_json___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__src_long_scale_suffixes_json__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__static_standard_suffixes_json__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__static_standard_suffixes_json___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__static_standard_suffixes_json__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__static_long_scale_suffixes_json__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__static_long_scale_suffixes_json___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__static_long_scale_suffixes_json__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__decimal_js__ = __webpack_require__(0);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _parse; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Parser; });
@@ -877,13 +876,12 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-// ../src is awkward, but it works from both /src and the compiled /es without fussing with webpack config
 
 
 
 
 //const suffixGroups = {standard, longScale}
-var suffixGroups = { standard: __WEBPACK_IMPORTED_MODULE_0__src_standard_suffixes_json___default.a }; // TODO longscale parsing. There's a duplicate
+var suffixGroups = { standard: __WEBPACK_IMPORTED_MODULE_0__static_standard_suffixes_json___default.a }; // TODO longscale parsing. There's a duplicate
 var suffixGroupsToExp = {};
 for (var _iterator = Object.keys(suffixGroups), _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
   var _ref;
