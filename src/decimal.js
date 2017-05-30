@@ -7,14 +7,12 @@ function log(...mess) {
 let Decimal
 export function requireDecimal() {
   return Decimal || (Decimal = (function() {
-    if (global && global.Decimal) {
-      log('swarm-numberformat decimal.js: Found global.Decimal')
-      return global.Decimal
-    }
-    if (global && global.window && window.Decimal) {
-      log('swarm-numberformat decimal.js: Found window.Decimal')
-      return window.Decimal
-    }
+    // Allow node callers to inject their own decimal.js
+    //if (global && global.Decimal) {
+    //  log('swarm-numberformat decimal.js: Found global.Decimal')
+    //  return global.Decimal
+    //}
+    // `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src="...">`) builds
     log('swarm-numberformat decimal.js: trying require()')
     return require('decimal.js')
   })())

@@ -55,6 +55,8 @@ export function parse(text, config={}) {
   const suffixToExp = suffixGroupsToExp[config.suffixGroup || 'standard']
   const backend = backends[config.backend || 'native']
   if (!backend) throw new Error('no such backend: '+config.backend)
+  // remove commas. TODO: i18n fail
+  text=text.replace(/,/g, '')
   // replace suffixes ('billion', etc)
   const match=/ ?[a-zA-Z]+/.exec(text)
   if (match && match.length > 0) {

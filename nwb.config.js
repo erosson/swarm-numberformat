@@ -4,7 +4,9 @@ module.exports = {
     esModules: true,
     umd: {
       global: 'numberformat',
-      externals: {}
-    }
-  }
+      externals: {
+        'decimal.js': 'Decimal',
+      },
+    },
+  },
 }

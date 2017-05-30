@@ -21,7 +21,14 @@ function main() {
     tr.append($('<td>').text(f.format(val, {format: 'scientific'})))
     $.each(formats, function(_, format) {
       $.each(flavors, function(_, flavor) {
-        tr.append($('<td>').text(f.formatFlavor(val, flavor, {format: format})))
+        var text = f.formatFlavor(val, flavor, {format: format})
+        tr.append($('<td>').text(text))
+        // nothing to render here, but running it is proof that parse() really works for everything.
+        // ...except longScale (yet).
+        if (format !== 'longScale') {
+          var parsed = numberformat.parse(text, {backend: 'decimal.js'})
+          if (!val.equals(parsed)) throw new Error("parse() didn't match the original: "+val)
+        }
       });
     });
   }

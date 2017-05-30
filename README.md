@@ -52,6 +52,8 @@ There's support for [decimal.js](https://github.com/MikeMcl/decimal.js/) when yo
      // => 10000
      numberformat.parse('10 thousand')
      // => 10000
+     numberformat.parse('10,000')
+     // => 10000
      numberformat.parse('10x')
      // => NaN
      numberformat.parse('', {'default': 3})
