@@ -1,32 +1,32 @@
 window.esdocSearchIndex = [
   [
-    "swarm-numberformat/src/main.js~formats",
+    "swarm-numberformat/src/format.js~formats",
     "variable/index.html#static-variable-Formats",
-    "<span>Formats</span> <span class=\"search-result-import-path\">swarm-numberformat/src/main.js</span>",
+    "<span>Formats</span> <span class=\"search-result-import-path\">swarm-numberformat/src/format.js</span>",
     "variable"
   ],
   [
-    "swarm-numberformat/src/main.js~formatter",
-    "class/src/main.js~Formatter.html",
-    "<span>Formatter</span> <span class=\"search-result-import-path\">swarm-numberformat/src/main.js</span>",
+    "swarm-numberformat/src/format.js~formatter",
+    "class/src/format.js~Formatter.html",
+    "<span>Formatter</span> <span class=\"search-result-import-path\">swarm-numberformat/src/format.js</span>",
     "class"
   ],
   [
-    "swarm-numberformat/src/main.js~format",
+    "swarm-numberformat/src/format.js~format",
     "function/index.html#static-function-format",
-    "<span>format</span> <span class=\"search-result-import-path\">swarm-numberformat/src/main.js</span>",
+    "<span>format</span> <span class=\"search-result-import-path\">swarm-numberformat/src/format.js</span>",
     "function"
   ],
   [
-    "swarm-numberformat/src/main.js~formatfull",
+    "swarm-numberformat/src/format.js~formatfull",
     "function/index.html#static-function-formatFull",
-    "<span>formatFull</span> <span class=\"search-result-import-path\">swarm-numberformat/src/main.js</span>",
+    "<span>formatFull</span> <span class=\"search-result-import-path\">swarm-numberformat/src/format.js</span>",
     "function"
   ],
   [
-    "swarm-numberformat/src/main.js~formatshort",
+    "swarm-numberformat/src/format.js~formatshort",
     "function/index.html#static-function-formatShort",
-    "<span>formatShort</span> <span class=\"search-result-import-path\">swarm-numberformat/src/main.js</span>",
+    "<span>formatShort</span> <span class=\"search-result-import-path\">swarm-numberformat/src/format.js</span>",
     "function"
   ],
   [
@@ -360,51 +360,63 @@ window.esdocSearchIndex = [
     "external"
   ],
   [
-    "src/main.js",
-    "file/src/main.js.html",
-    "src/main.js",
+    "src/format.js",
+    "file/src/format.js.html",
+    "src/format.js",
     "file"
   ],
   [
-    "src/main.js~formatter#constructor",
-    "class/src/main.js~Formatter.html#instance-constructor-constructor",
-    "src/main.js~Formatter#constructor",
+    "src/format.js~formatter#constructor",
+    "class/src/format.js~Formatter.html#instance-constructor-constructor",
+    "src/format.js~Formatter#constructor",
     "method"
   ],
   [
-    "src/main.js~formatter#format",
-    "class/src/main.js~Formatter.html#instance-method-format",
-    "src/main.js~Formatter#format",
+    "src/format.js~formatter#format",
+    "class/src/format.js~Formatter.html#instance-method-format",
+    "src/format.js~Formatter#format",
     "method"
   ],
   [
-    "src/main.js~formatter#formatflavor",
-    "class/src/main.js~Formatter.html#instance-method-formatFlavor",
-    "src/main.js~Formatter#formatFlavor",
+    "src/format.js~formatter#formatflavor",
+    "class/src/format.js~Formatter.html#instance-method-formatFlavor",
+    "src/format.js~Formatter#formatFlavor",
     "method"
   ],
   [
-    "src/main.js~formatter#index",
-    "class/src/main.js~Formatter.html#instance-method-index",
-    "src/main.js~Formatter#index",
+    "src/format.js~formatter#index",
+    "class/src/format.js~Formatter.html#instance-method-index",
+    "src/format.js~Formatter#index",
     "method"
   ],
   [
-    "src/main.js~formatter#listformats",
-    "class/src/main.js~Formatter.html#instance-method-listFormats",
-    "src/main.js~Formatter#listFormats",
+    "src/format.js~formatter#listformats",
+    "class/src/format.js~Formatter.html#instance-method-listFormats",
+    "src/format.js~Formatter#listFormats",
     "method"
   ],
   [
-    "src/main.js~formatter#opts",
-    "class/src/main.js~Formatter.html#instance-member-opts",
-    "src/main.js~Formatter#opts",
+    "src/format.js~formatter#opts",
+    "class/src/format.js~Formatter.html#instance-member-opts",
+    "src/format.js~Formatter#opts",
     "member"
   ],
   [
-    "src/main.js~formatter#suffix",
-    "class/src/main.js~Formatter.html#instance-method-suffix",
-    "src/main.js~Formatter#suffix",
+    "src/format.js~formatter#suffix",
+    "class/src/format.js~Formatter.html#instance-method-suffix",
+    "src/format.js~Formatter#suffix",
     "method"
+  ],
+  [
+    "src/format.test.js",
+    "file/src/format.test.js.html",
+    "src/format.test.js",
+    "file"
+  ],
+  [
+    "src/index.js",
+    "file/src/index.js.html",
+    "src/index.js",
+    "file"
   ]
 ]

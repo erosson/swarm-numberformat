@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/format.test.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/format.js~Formatter.html">Formatter</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-format">format</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatFull">formatFull</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatShort">formatShort</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-Formats">Formats</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/format.test.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import numberformat from &apos;./format&apos;
+import Decimal from &apos;decimal.js&apos;
+
+describe(&apos;numberformat&apos;, () =&gt; {
+  it(&apos;builds formatters&apos;, () =&gt; {
+    expect(new numberformat.Formatter({format: &apos;hybrid&apos;}).opts.format).toBe(&apos;hybrid&apos;)
+  }),
+  it(&apos;formats numbers&apos;, () =&gt; {
+    const formatter = numberformat
+    expect(formatter.format(1)).not.toBe(1)
+    expect(formatter.format(1)).toBe(&apos;1&apos;)
+    //expect(formatter.format(8/9)).toBe(&apos;0.889&apos;)
+    //expect(formatter.format(1e3)).toBe(&apos;1 thousand&apos;)
+    expect(formatter.format(1e3)).toBe(&apos;1,000&apos;)
+    expect(formatter.format(1e6)).toBe(&apos;1.0000 million&apos;)
+    expect(formatter.format(1.1111e6)).toBe(&apos;1.1111 million&apos;)
+    expect(formatter.format(1.1111e9)).toBe(&apos;1.1111 billion&apos;)
+    expect(formatter.format(1.1111e12)).toBe(&apos;1.1111 trillion&apos;)
+    expect(formatter.format(1e21)).toBe(&apos;1.0000 sextillion&apos;)
+    expect(formatter.format(1e36)).toBe(&apos;1.0000 undecillion&apos;)
+  })
+  it(&apos;formats long-scale numbers&apos;, () =&gt; {
+    const formatter = new numberformat.Formatter({format: &apos;longScale&apos;})
+    expect(formatter.format(1)).not.toBe(1)
+    expect(formatter.format(1)).toBe(&apos;1&apos;)
+    //expect(formatter.format(8/9)).toBe(&apos;0.889&apos;)
+    //expect(formatter.format(1e3)).toBe(&apos;1 thousand&apos;)
+    expect(formatter.format(1e3)).toBe(&apos;1,000&apos;)
+    expect(formatter.format(1e6)).toBe(&apos;1.0000 million&apos;)
+    expect(formatter.format(1.1111e6)).toBe(&apos;1.1111 million&apos;)
+    expect(formatter.format(1.1111e9)).toBe(&apos;1.1111 milliard&apos;)
+    expect(formatter.format(1.1111e12)).toBe(&apos;1.1111 billion&apos;)
+    expect(formatter.format(1e21)).toBe(&apos;1.0000 trilliard&apos;)
+    expect(formatter.format(1e36)).toBe(&apos;1.0000 sextillion&apos;)
+  })
+  it(&apos;formats hybrid&apos;, () =&gt; {
+    const formatter = new numberformat.Formatter({format: &apos;hybrid&apos;})
+    expect(formatter.format(1)).not.toBe(1)
+    expect(formatter.format(1)).toBe(&apos;1&apos;)
+    //expect(formatter.format(8/9)).toBe(&apos;0.889&apos;)
+    //expect(formatter.format(1e3)).toBe(&apos;1 thousand&apos;)
+    expect(formatter.format(1e3)).toBe(&apos;1,000&apos;)
+    expect(formatter.format(1e6)).toBe(&apos;1.0000 million&apos;)
+    expect(formatter.format(1.1111e6)).toBe(&apos;1.1111 million&apos;)
+    expect(formatter.format(1e36)).toBe(&apos;1.0000e36&apos;)
+  })
+  it(&apos;formats scientificE&apos;, () =&gt; {
+    const formatter = new numberformat.Formatter({format: &apos;scientific&apos;})
+    expect(formatter.format(1)).not.toBe(1)
+    expect(formatter.format(1)).toBe(&apos;1&apos;)
+    //expect(formatter.format(8/9)).toBe(&apos;0.889&apos;)
+    //expect(formatter.format(1e3)).toBe(&apos;1e3&apos;)
+    expect(formatter.format(1e3)).toBe(&apos;1,000&apos;)
+    expect(formatter.format(1e6)).toBe(&apos;1.0000e6&apos;)
+    expect(formatter.format(1.1111e6)).toBe(&apos;1.1111e6&apos;)
+    expect(formatter.format(1e36)).toBe(&apos;1.0000e36&apos;)
+  })
+  it(&apos;formats engineering&apos;, () =&gt; {
+    const formatter = new numberformat.Formatter({format: &apos;engineering&apos;})
+    expect(formatter.format(1)).not.toBe(1)
+    expect(formatter.format(1)).toBe(&apos;1&apos;)
+    //expect(formatter.format(8/9)).toBe(&apos;0.889&apos;)
+    //expect(formatter.format(1e3)).toBe(&apos;1E3&apos;)
+    expect(formatter.format(1e3)).toBe(&apos;1,000&apos;)
+    expect(formatter.format(1e6)).toBe(&apos;1.0000E6&apos;)
+    expect(formatter.format(1.1111e6)).toBe(&apos;1.1111E6&apos;)
+    expect(formatter.format(1e7)).toBe(&apos;10.000E6&apos;)
+    expect(formatter.format(1.1111e7)).toBe(&apos;11.111E6&apos;)
+    expect(formatter.format(1e8)).toBe(&apos;100.00E6&apos;)
+  })
+  it(&apos;formats short numbers&apos;, () =&gt; {
+    const formatter = new numberformat.Formatter({flavor: &apos;short&apos;})
+    expect(formatter.format(1)).not.toBe(1)
+    expect(formatter.format(1)).toBe(&apos;1&apos;)
+    expect(formatter.format(1e3)).toBe(&apos;1,000&apos;)
+    expect(formatter.format(1e6)).toBe(&apos;1.00M&apos;)
+    expect(formatter.format(100e3)).toBe(&apos;100K&apos;)
+    expect(formatter.format(1e9)).toBe(&apos;1.00B&apos;)
+    expect(formatter.format(1.1111e6)).toBe(&apos;1.11M&apos;)
+    expect(formatter.format(1.1111e6, {format: &apos;engineering&apos;})).toBe(&apos;1.11E6&apos;)
+  })
+  it(&apos;supports `opts` as a second argument&apos;, () =&gt; {
+    const formatter = numberformat
+    expect(formatter.format(1, {flavor: &apos;short&apos;})).toBe(&apos;1&apos;)
+    expect(formatter.format(1e3, {flavor: &apos;short&apos;})).toBe(&apos;1,000&apos;)
+    expect(formatter.format(1e6, {flavor: &apos;short&apos;})).toBe(&apos;1.00M&apos;)
+    expect(formatter.format(100e3, {flavor: &apos;short&apos;})).toBe(&apos;100K&apos;)
+    expect(formatter.format(1e9, {flavor: &apos;short&apos;})).toBe(&apos;1.00B&apos;)
+    expect(formatter.format(1.1111e6, {flavor: &apos;short&apos;})).toBe(&apos;1.11M&apos;)
+  })
+  it(&apos;handles bogus formats&apos;, () =&gt; {
+    const formatter = numberformat
+    expect(() =&gt; formatter.format(1, {format: &apos;bogus&apos;})).toThrow()
+    expect(() =&gt; formatter.format(1, {format: &apos;standard&apos;})).not.toThrow()
+    expect(() =&gt; formatter.format(1, {format: null})).not.toThrow()
+  })
+  it(&apos;supports suffix-only&apos;, () =&gt; {
+    const formatter = numberformat
+    expect(formatter.suffix(1e6, {format: &apos;standard&apos;})).toBe(&apos; million&apos;)
+    expect(formatter.suffix(1e6, {format: &apos;standard&apos;, flavor: &apos;short&apos;})).toBe(&apos;M&apos;)
+    expect(formatter.suffix(1e6, {format: &apos;engineering&apos;})).toBe(&apos;E6&apos;)
+  })
+  it(&apos;supports negatives&apos;, () =&gt; {
+    const formatter = numberformat
+    expect(formatter.format(0)).toBe(&apos;0&apos;)
+    expect(formatter.format(-1)).toBe(&apos;-1&apos;)
+    expect(formatter.format(-1e3)).toBe(&apos;-1,000&apos;)
+    expect(formatter.format(-1e6)).toBe(&apos;-1.0000 million&apos;)
+    expect(formatter.format(-1e21)).toBe(&apos;-1.0000 sextillion&apos;)
+  })
+  it(&apos;supports small decimals&apos;, () =&gt; {
+    const formatter = numberformat
+    expect(formatter.format(8/9)).toBe(&apos;0&apos;)
+    expect(formatter.format(8/9, {maxSmall: 1})).toBe(&apos;0.88889&apos;)
+    expect(formatter.format(-8/9, {maxSmall: 1})).toBe(&apos;-0.88889&apos;)
+    expect(formatter.format(8/9, {sigfigs: 3, maxSmall: 1})).toBe(&apos;0.889&apos;)
+    expect(formatter.format(8/9, {sigfigs: 1, maxSmall: 1})).toBe(&apos;0.9&apos;)
+    expect(formatter.format(8/9, {flavor: &apos;short&apos;, maxSmall: 1})).toBe(&apos;0.889&apos;)
+    // zero-sigfigs after the decimal point are truncated
+    expect(formatter.format(0.1, {maxSmall: 1, sigfigs:9})).toBe(&apos;0.1&apos;)
+    expect(formatter.format(0.11, {maxSmall: 1, sigfigs:9})).toBe(&apos;0.11&apos;)
+    expect(formatter.format(0.111, {maxSmall: 1, sigfigs:9})).toBe(&apos;0.111&apos;)
+    expect(formatter.format(0.101, {maxSmall: 1, sigfigs:9})).toBe(&apos;0.101&apos;)
+  })
+
+  it(&apos;formats bigger numbers&apos;, () =&gt; {
+    const formatter = numberformat
+    expect(formatter.format(1e18)).toBe(&apos;1.0000 quintillion&apos;)
+    expect(formatter.format(1e18, {flavor: &apos;short&apos;})).toBe(&apos;1.00Qi&apos;)
+    // 1e20 is an important breakpoint: JS&apos;s native number formatting changes
+    // from &apos;123,456&apos; to &apos;1.23e21&apos;
+    expect(formatter.format(1e21)).toBe(&apos;1.0000 sextillion&apos;)
+    expect(formatter.format(1e21, {flavor: &apos;short&apos;})).toBe(&apos;1.00Sx&apos;)
+  })
+  it(&apos;supports decimal.js&apos;, () =&gt; {
+    const formatter = new numberformat.Formatter({backend: &apos;decimal.js&apos;})
+    //console.log(new Decimal(&apos;1e999&apos;).toString())
+    expect(formatter.format(&apos;1e9999&apos;, {format: &apos;engineering&apos;})).toBe(&apos;1.0000E9999&apos;)
+    expect(formatter.format(new Decimal(&apos;1e9999&apos;), {format: &apos;engineering&apos;})).toBe(&apos;1.0000E9999&apos;)
+    expect(formatter.format(new Decimal(&apos;1e9999&apos;))).toBe(&apos;1.0000e9999&apos;)
+    expect(formatter.format(new Decimal(&apos;1&apos;))).toBe(&apos;1&apos;)
+    expect(formatter.format(new Decimal(&apos;1e3&apos;))).toBe(&apos;1,000&apos;)
+    expect(formatter.format(new Decimal(&apos;1e6&apos;))).toBe(&apos;1.0000 million&apos;)
+    expect(formatter.format(new Decimal(&apos;1.1111e6&apos;))).toBe(&apos;1.1111 million&apos;)
+    expect(formatter.format(new Decimal(&apos;1.1111e9&apos;))).toBe(&apos;1.1111 billion&apos;)
+    expect(formatter.format(new Decimal(&apos;1.1111e12&apos;))).toBe(&apos;1.1111 trillion&apos;)
+    expect(formatter.format(new Decimal(&apos;1e21&apos;))).toBe(&apos;1.0000 sextillion&apos;)
+    expect(formatter.format(new Decimal(&apos;1e36&apos;))).toBe(&apos;1.0000 undecillion&apos;)
+  })
+  it(&apos;has shortcuts for each flavor&apos;, () =&gt; {
+    const formatter = numberformat
+    expect(!!formatter.formatFull).toBe(true)
+    expect(!!formatter.formatShort).toBe(true)
+    expect(formatter.formatFull(1e6)).toBe(&apos;1.0000 million&apos;)
+    expect(formatter.formatShort(1e6)).toBe(&apos;1.00M&apos;)
+  })
+  it(&apos;doesn\&apos;t round smallish numbers by default, #13&apos;, () =&gt; {
+    const f = numberformat
+    expect(f.format(12345)).toBe(&apos;12,345&apos;)
+    expect(f.formatShort(12345)).toBe(&apos;12,345&apos;)
+  })
+  for (let backend of [&apos;native&apos;, &apos;decimal.js&apos;]) {
+    let f = new numberformat.Formatter({backend})
+    it(&apos;supports undefined sigfigs, #15: standard, &apos;+backend, () =&gt; {
+      expect(f.format(1.00e9, {format: &apos;standard&apos;, sigfigs: undefined})).toBe(&apos;1 billion&apos;)
+      expect(f.format(1.23e9, {format: &apos;standard&apos;, sigfigs: undefined})).toBe(&apos;1.23 billion&apos;)
+    })
+    it(&apos;supports undefined sigfigs, #15: hybrid, &apos;+backend, () =&gt; {
+      expect(f.format(1.00e9, {format: &apos;hybrid&apos;, sigfigs: undefined})).toBe(&apos;1 billion&apos;)
+      expect(f.format(1.23e9, {format: &apos;hybrid&apos;, sigfigs: undefined})).toBe(&apos;1.23 billion&apos;)
+    })
+    it(&apos;supports undefined sigfigs, #15: scientific, &apos;+backend, () =&gt; {
+      expect(f.format(1.00e9, {format: &apos;scientific&apos;, sigfigs: undefined})).toBe(&apos;1e9&apos;)
+      expect(f.format(1.23e9, {format: &apos;scientific&apos;, sigfigs: undefined})).toBe(&apos;1.23e9&apos;)
+    })
+    it(&apos;supports undefined sigfigs, #15: engineering, &apos;+backend, () =&gt; {
+      expect(f.format(1.00e9, {format: &apos;engineering&apos;, sigfigs: undefined})).toBe(&apos;1E9&apos;)
+      expect(f.format(1.23e9, {format: &apos;engineering&apos;, sigfigs: undefined})).toBe(&apos;1.23E9&apos;)
+    })
+    it(&apos;supports undefined sigfigs, #15: longScale, &apos;+backend, () =&gt; {
+      expect(f.format(1.00e9, {format: &apos;longScale&apos;, sigfigs: undefined})).toBe(&apos;1 milliard&apos;)
+      expect(f.format(1.23e9, {format: &apos;longScale&apos;, sigfigs: undefined})).toBe(&apos;1.23 milliard&apos;)
+    })
+    it(&apos;supports undefined sigfigs, #15: standard/short, &apos;+backend, () =&gt; {
+      expect(f.format(1.00e9, {format: &apos;standard&apos;, sigfigs: undefined, flavor: &apos;short&apos;})).toBe(&apos;1B&apos;)
+      expect(f.format(1.23e9, {format: &apos;standard&apos;, sigfigs: undefined, flavor: &apos;short&apos;})).toBe(&apos;1.23B&apos;)
+    })
+    it(&apos;supports undefined sigfigs, #15: standard/null, &apos;+backend, () =&gt; {
+      expect(f.format(1.00e9, {format: &apos;standard&apos;, sigfigs: null})).toBe(&apos;1 billion&apos;)
+      expect(f.format(1.23e9, {format: &apos;standard&apos;, sigfigs: null})).toBe(&apos;1.23 billion&apos;)
+    })
+    it(&apos;supports undefined sigfigs, #15: standard/0, &apos;+backend, () =&gt; {
+      expect(f.format(1.00e9, {format: &apos;standard&apos;, sigfigs: 0})).toBe(&apos;1 billion&apos;)
+      expect(f.format(1.23e9, {format: &apos;standard&apos;, sigfigs: 0})).toBe(&apos;1.23 billion&apos;)
+    })
+  }
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.5.2)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

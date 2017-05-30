@@ -1,10 +1,6 @@
 {
   "source": "./src",
   "destination": "./docs",
-  "test": {
-    "type": "mocha",
-    "source": "./test"
-  },
   "experimentalProposal": {
     "classProperties": true,
     "objectRestSpread": true,

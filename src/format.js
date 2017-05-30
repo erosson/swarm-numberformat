@@ -1,51 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <base data-ice="baseUrl" href="../../">
-  <title data-ice="title">src/main.js | API Document</title>
-  <link type="text/css" rel="stylesheet" href="css/style.css">
-  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
-  <script src="script/prettify/prettify.js"></script>
-  
-  
-  <script src="script/manual.js"></script>
-</head>
-<body class="layout-container" data-ice="rootContainer">
-
-<header>
-  <a href="./">Home</a>
-  
-  <a href="identifiers.html">Reference</a>
-  <a href="source.html">Source</a>
-  <a href="test.html" data-ice="testLink">Test</a>
-  <a data-ice="repoURL" href="https://github.com/erosson/swarm-numberformat.git" class="repo-url-github">Repository</a>
-  <div class="search-box">
-  <span>
-    <img src="./image/search.png">
-    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
-  </span>
-    <ul class="search-result"></ul>
-  </div>
-</header>
-
-<nav class="navigation" data-ice="nav"><div>
-  <ul>
-    
-  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/main.js~Formatter.html">Formatter</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-format">format</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatFull">formatFull</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-formatShort">formatShort</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-Formats">Formats</a></span></span></li>
-</ul>
-</div>
-</nav>
-
-<div class="content" data-ice="content"><h1 data-ice="title">src/main.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">// Can&apos;t comment a .json file, but the suffixes come from these pages:
+// Can't comment a .json file, but the suffixes come from these pages:
 // http://home.kpn.nl/vanadovv/BignumbyN.html
-import standardSuffixes from &apos;./standard-suffixes.json&apos;
-import longScaleSuffixes from &apos;./long-scale-suffixes.json&apos;
+import standardSuffixes from './standard-suffixes.json'
+import longScaleSuffixes from './long-scale-suffixes.json'
+
+function log(...mess) {
+  //console.log(...mess)
+}
+// Lazy-load - we might not need decimal. It's a peerDependency, so the parent
+// library must include it if needed - we don't, because many callers don't need
+// it.
+let Decimal
+function requireDecimal() {
+  return Decimal || (Decimal = (function() {
+    if (global && global.Decimal) {
+      log('swarm-numberformat decimal.js: Found global.Decimal')
+      return global.Decimal
+    }
+    if (global && global.window && window.Decimal) {
+      log('swarm-numberformat decimal.js: Found window.Decimal')
+      return window.Decimal
+    }
+    log('swarm-numberformat decimal.js: trying require()')
+    return require('decimal.js')
+  })())
+}
 // TODO: use this page to generate names dynamically, for even larger numbers:
 //   http://mathforum.org/library/drmath/view/59154.html
 
@@ -57,7 +35,7 @@ function validate(condition, message) {
 }
 
 // polyfill IE and phantomjs
-const log10 = (() =&gt; {
+const log10 = (() => {
   if (!!Math.log10) {
     return Math.log10
   }
@@ -70,16 +48,16 @@ const log10 = (() =&gt; {
 })()
 
 const backends = {
-  &apos;native&apos;: {
+  'native': {
     normalize(val) {
       return val
     },
-    // Suffixes are a list - which index of the list do we want? 
+    // Suffixes are a list - which index of the list do we want?
     // _index(999) === 0
     // _index(1000) === 1
     // _index(1000000) === 2
     index(val) {
-      // string length is faster but fails for length &gt;= 20, where JS starts
+      // string length is faster but fails for length >= 20, where JS starts
       // formatting with e
       return Math.max(0, Math.floor(log10(Math.abs(val))/3))
     },
@@ -88,21 +66,11 @@ const backends = {
       return (val / Math.pow(1000, index)).toPrecision(sigfigs || undefined)
     },
   },
-  &apos;decimal.js&apos;: {
-    // Note that decimal.js is never imported by this library!
-    // We&apos;re using its methods passed in by the caller. This keeps the library
-    // much smaller for the common case: no decimal.js.
+  'decimal.js': {
     // api docs: https://mikemcl.github.io/decimal.js/
     _requireDecimal(config) {
-      let Decimal
-      if (global.window &amp;&amp; window.Decimal) {
-        Decimal = window.Decimal
-      }
-      else {
-        // the build/minifier must avoid compiling this in. It&apos;s externalized in the gulpfile.
-        Decimal = require(&apos;decimal.js&apos;)
-      }
-      return Decimal.clone(config)
+      if (!requireDecimal()) throw new Error('requireDecimal() failed')
+      return new requireDecimal()(0).constructor.clone(config)
     },
     normalize(val, {rounding}) {
       const Decimal = this._requireDecimal({rounding})
@@ -113,7 +81,7 @@ const backends = {
       // index = val.log10().dividedToIntegerBy(Decimal.log 1000)
       // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.
       // Lucky me, the length is used by decimal.js internally: num.e
-      // this is in the docs, so I think it&apos;s stable enough to use...
+      // this is in the docs, so I think it's stable enough to use...
       val = new Decimal(val)
       return Math.floor(val.e / 3)
     },
@@ -135,23 +103,23 @@ function _format(val, opts) {
   // `{sigfigs: undefined|null|0}` for automatic sigfigs is supported.
   let sigfigs = opts.sigfigs || undefined
   // optionally format small numbers differently: show decimals without trailing zeros
-  if (Math.abs(val) &lt; opts.maxSmall) {
+  if (Math.abs(val) < opts.maxSmall) {
     // second param for decimal.js only, native ignores it
-    return val.toPrecision(sigfigs, opts.rounding).replace(/(\.\d*[1-9])0+$/, &apos;$1&apos;)
+    return val.toPrecision(sigfigs, opts.rounding).replace(/(\.\d*[1-9])0+$/, '$1')
   }
   // opts.minSuffix: Use JS native formatting for smallish numbers, because
-  // &apos;99,999&apos; is prettier than &apos;99.9k&apos;
-  // it&apos;s safe to let Math coerce Decimal.js to infinity here, gt/lt still work
-  if (Math.abs(val) &lt; opts.minSuffix) {
+  // '99,999' is prettier than '99.9k'
+  // it's safe to let Math coerce Decimal.js to infinity here, gt/lt still work
+  if (Math.abs(val) < opts.minSuffix) {
     val = Math.floor(val)
     return val.toLocaleString()
   }
-  // No suffix found: use scientific notation. JS&apos;s native toExponential is fine.
-  if (!suffix &amp;&amp; suffix !== &apos;&apos;) {
+  // No suffix found: use scientific notation. JS's native toExponential is fine.
+  if (!suffix && suffix !== '') {
     if (!!sigfigs) {
       sigfigs -= 1
     }
-    return val.toExponential(sigfigs).replace(&apos;e+&apos;, &apos;e&apos;)
+    return val.toExponential(sigfigs).replace('e+', 'e')
   }
   // Found a suffix. Calculate the prefix, the number before the suffix.
   const prefix = backend.prefix(val, index, opts)
@@ -159,27 +127,27 @@ function _format(val, opts) {
 }
 
 const defaultOptions = {
-  backend: &apos;native&apos;,
-  flavor: &apos;full&apos;,
-  suffixGroup: &apos;full&apos;,
+  backend: 'native',
+  flavor: 'full',
+  suffixGroup: 'full',
   suffixFn(index) {
     var suffixes = this.suffixes || this.suffixGroups[this.suffixGroup]
     validate(suffixes, `no such suffixgroup: ${this.suffixGroup}`)
-    if (index &lt; suffixes.length) {
-      return suffixes[index] || &apos;&apos;
+    if (index < suffixes.length) {
+      return suffixes[index] || ''
     }
     // return undefined
   },
-  // minimum value to use any suffix, because &apos;99,900&apos; is prettier than &apos;99.9k&apos;
+  // minimum value to use any suffix, because '99,900' is prettier than '99.9k'
   minSuffix: 1e5,
-  // don&apos;t use sigfigs for smallish numbers. #13
+  // don't use sigfigs for smallish numbers. #13
   minSuffixSigfigs: false,
   // Special formatting for numbers with a decimal point
   maxSmall: 0,
   sigfigs: 3, // often overridden by flavor
-  format: &apos;standard&apos;
+  format: 'standard'
 }
-// User-visible format choices, like on swarmsim&apos;s options screen. 
+// User-visible format choices, like on swarmsim's options screen.
 // Each has a different set of options.
 export const Formats = {
   standard: {suffixGroups: standardSuffixes},
@@ -195,13 +163,13 @@ export const Formats = {
     },
   },
   // like standard formatting, with a different/infinite set of suffixes
-  engineering: {suffixFn: index =&gt; index === 0 ? &apos;&apos; : `E${index*3}`},
+  engineering: {suffixFn: index => index === 0 ? '' : `E${index*3}`},
 }
 // A convenient way for the developer to modify formatters.
 // These are different from formats - not user-visible.
 const Flavors = {
-  full: {suffixGroup: &apos;full&apos;, sigfigs: 5},
-  short: {suffixGroup: &apos;short&apos;, sigfigs: 3},
+  full: {suffixGroup: 'full', sigfigs: 5},
+  short: {suffixGroup: 'short', sigfigs: 3},
 }
 // Allow callers to extend formats and flavors.
 defaultOptions.formats = Formats
@@ -210,15 +178,15 @@ defaultOptions.flavors = Flavors
 export class Formatter {
   /**
    * @param {Object} opts All formatter configuration.
-   * @param {string} [opts.flavor=&apos;full&apos;] &apos;full&apos; or &apos;short&apos;. Flavors can modify any number of other options here. Full is the default; short has fewer sigfigs and shorter standard-suffixes.
-   * @param {Object} [opts.flavors] Specify your own custom flavors. 
-   * @param {string} [opts.backend=&apos;native&apos;] &apos;native&apos; or &apos;decimal.js&apos;.
+   * @param {string} [opts.flavor='full'] 'full' or 'short'. Flavors can modify any number of other options here. Full is the default; short has fewer sigfigs and shorter standard-suffixes.
+   * @param {Object} [opts.flavors] Specify your own custom flavors.
+   * @param {string} [opts.backend='native'] 'native' or 'decimal.js'.
    * @param {string} [opts.suffixGroup]
    * @param {Function} [opts.suffixFn]
    * @param {number} [opts.minSuffix=1e5]
    * @param {number} [opts.maxSmall=0] Special formatting for numbers with a decimal point
    * @param {number} [opts.sigfigs=5]
-   * @param {number} [opts.format=&apos;standard&apos;] &apos;standard&apos;, &apos;hybrid&apos;, &apos;scientific&apos;, &apos;longScale&apos;.
+   * @param {number} [opts.format='standard'] 'standard', 'hybrid', 'scientific', 'longScale'.
    * @param {Object} [opts.formats] Specify your own custom formats.
    */
   constructor(opts = {}) {
@@ -227,25 +195,25 @@ export class Formatter {
     // create convenience methods for each flavor
     var flavors = Object.keys(this._normalizeOpts().flavors)
     // the fn(i) is for stupid binding tricks with the looped fn(val, opts)
-    for (var i=0; i &lt; flavors.length; i++) (i =&gt; {
+    for (var i=0; i < flavors.length; i++) (i => {
       var flavor = flavors[i]
       // capitalize the first letter to camel-case method name, like formatShort
-      var key = &apos;format&apos; + flavor.charAt(0).toUpperCase() + flavor.substr(1)
+      var key = 'format' + flavor.charAt(0).toUpperCase() + flavor.substr(1)
       /** @ignore */
-      this[key] = (val, opts) =&gt; this.formatFlavor(val, flavor, opts)
+      this[key] = (val, opts) => this.formatFlavor(val, flavor, opts)
     })(i)
   }
-  
+
   _normalizeOpts(opts={}) {
     // all the user-specified opts, no defaults
     opts = Object.assign({}, this.opts, opts)
-    // opts.format redefines some other opts, but should never override the user&apos;s opts
-    var format = opts &amp;&amp; opts.format
-    var formats = (opts &amp;&amp; opts.formats) || defaultOptions.formats
+    // opts.format redefines some other opts, but should never override the user's opts
+    var format = opts && opts.format
+    var formats = (opts && opts.formats) || defaultOptions.formats
     var formatOptions = formats[format || defaultOptions.format]
     validate(formatOptions, `no such format: ${format}`)
-    var flavor = opts &amp;&amp; opts.flavor
-    var flavors = (opts &amp;&amp; opts.flavors) || defaultOptions.flavors
+    var flavor = opts && opts.flavor
+    var flavors = (opts && opts.flavors) || defaultOptions.flavors
     var flavorOptions = flavors[flavor || defaultOptions.flavor]
     validate(flavorOptions, `no such flavor: ${flavor}`)
     // finally, add the implied options: defaults and format-derived
@@ -254,7 +222,7 @@ export class Formatter {
   /**
    * @param {number} val
    * @param {Object} [opts]
-   * @return {number} which suffix to use for this number in a list of suffixes. You can also think of this as &quot;how many commas are in the number?&quot;
+   * @return {number} which suffix to use for this number in a list of suffixes. You can also think of this as "how many commas are in the number?"
    */
   index(val, opts) {
     opts = this._normalizeOpts(opts)
@@ -266,10 +234,10 @@ export class Formatter {
    * @return {string} The suffix that this number would use, with no number shown.
    * @example
    * new Formatter().suffix(1e6)
-   * // =&gt; &quot; million&quot;
+   * // => " million"
    * @example
-   * new Formatter().suffix(1e6, {flavor: &quot;short&quot;})
-   * // =&gt; &quot;M&quot;
+   * new Formatter().suffix(1e6, {flavor: "short"})
+   * // => "M"
    */
   suffix(val, opts) {
     opts = this._normalizeOpts(opts)
@@ -283,23 +251,23 @@ export class Formatter {
    * @return {string} The formatted number.
    * @example
    * new Formatter().format(1e6)
-   * // =&gt; &quot;1.0000 million&quot;
+   * // => "1.0000 million"
    */
   format(val, opts) {
     opts = this._normalizeOpts(opts)
     return _format(val, opts)
   }
   /**
-   * Format a number with a specified flavor. It&apos;s very common to call the formatter with different flavors, so it has its own shortcut.
+   * Format a number with a specified flavor. It's very common to call the formatter with different flavors, so it has its own shortcut.
    *
    * `Formatter.formatFull()` and `Formatter.formatShort()` are also available.
    * @param {number} val
-   * @param {string} flavor &apos;short&apos; or &apos;full&apos;. See opts.flavor.
+   * @param {string} flavor 'short' or 'full'. See opts.flavor.
    * @param {Object} [opts]
    * @return {string} The formatted number.
    * @example
-   * new Formatter().format(1e6, &apos;short&apos;)
-   * // =&gt; &quot;1.00M&quot;
+   * new Formatter().format(1e6, 'short')
+   * // => "1.00M"
    */
   formatFlavor(val, flavor, opts) {
     return this.format(val, Object.assign({}, opts, {flavor}))
@@ -326,12 +294,12 @@ export default numberformat
  * @return string
  * @example
  * format(1e6)
- * // =&gt; &quot;1.0000 million&quot;
+ * // => "1.0000 million"
  * @example
  * format(1e6, {sigfigs: 1})
- * // =&gt; &quot;1 million&quot;
+ * // => "1 million"
  */
-export const format = (val, opts) =&gt; numberformat.format(val, opts)
+export const format = (val, opts) => numberformat.format(val, opts)
 /**
  * Format a full-flavor number using the default options. Identical to `format()`
  * @param {number} val
@@ -339,9 +307,9 @@ export const format = (val, opts) =&gt; numberformat.format(val, opts)
  * @return string
  * @example
  * format(1e6)
- * // =&gt; &quot;1.0000 million&quot;
+ * // => "1.0000 million"
  */
-export const formatFull = (val, opts) =&gt; numberformat.formatFlavor(val, &apos;full&apos;, opts)
+export const formatFull = (val, opts) => numberformat.formatFlavor(val, 'full', opts)
 /**
  * Format a short-flavor number using the default options.
  * @param {number} val
@@ -349,23 +317,6 @@ export const formatFull = (val, opts) =&gt; numberformat.formatFlavor(val, &apos
  * @return string
  * @example
  * format(1e6)
- * // =&gt; &quot;1.00M&quot;
+ * // => "1.00M"
  */
-export const formatShort = (val, opts) =&gt; numberformat.formatFlavor(val, &apos;short&apos;, opts)
-</code></pre>
-
-</div>
-
-<footer class="footer">
-  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.5.2)</span><img src="./image/esdoc-logo-mini-black.png"></a>
-</footer>
-
-<script src="script/search_index.js"></script>
-<script src="script/search.js"></script>
-<script src="script/pretty-print.js"></script>
-<script src="script/inherited-summary.js"></script>
-<script src="script/test-summary.js"></script>
-<script src="script/inner-link.js"></script>
-<script src="script/patch-for-local.js"></script>
-</body>
-</html>
+export const formatShort = (val, opts) => numberformat.formatFlavor(val, 'short', opts)

@@ -2,78 +2,53 @@
   "name": "swarm-numberformat",
   "version": "0.2.1",
   "description": "Format very large numbers in several human-readable ways. `format(1e6)` -> `\"1 million\"` or `\"1M\"`",
-  "main": "dist/swarm-numberformat.js",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "files": [
+    "es",
+    "lib",
+    "dist"
+  ],
   "scripts": {
-    "test": "gulp",
-    "lint": "gulp lint",
-    "test-browser": "gulp test-browser",
-    "watch": "gulp watch",
-    "watch-build": "gulp watch-build",
-    "build": "gulp build",
+    "start": "serve -s demo",
+    "//build": "# For backwards compatibility, compile the <script>-compatible files to /dist/ instead of /umd/. There doesn't seem to be a config option for that though, so just move by hand.",
+    "build": "rimraf umd dist && nwb build-web-module && mv umd dist",
+    "postbuild": "rimraf demo/dist && cp -rp dist demo",
+    "clean": "nwb clean-module",
+    "test": "jest",
+    "test:watch": "jest --watch --notify",
+    "//test": "nwb test",
+    "//test:coverage": "nwb test --coverage",
+    "//test:watch": "nwb test --server",
     "build-docs": "esdoc && cp -rp demo docs && touch docs/.nojekyll",
     "clean-docs": "rimraf docs",
     "prebuild-docs": "npm run clean-docs",
     "preversion": "npm test",
-    "version": "npm run build && npm run build-docs && git add -A dist docs",
-    "coverage": "gulp coverage"
+    "version": "npm run build && npm run build-docs && git add -A es lib dist docs"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/erosson/swarm-numberformat.git"
+  "babel": {
+    "presets": [
+      "env",
+      "stage-0"
+    ]
   },
-  "keywords": [
-    "number",
-    "format",
-    "number format",
-    "format number",
-    "words",
-    "number words",
-    "notation",
-    "swarm",
-    "swarmsim",
-    "swarm simulator"
-  ],
-  "author": "Evan <github@erosson.org>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/erosson/swarm-numberformat/issues"
+  "dependencies": {},
+  "peerDependencies": {
+    "decimal.js": "^7.1.0"
   },
-  "homepage": "https://github.com/erosson/swarm-numberformat",
   "devDependencies": {
-    "babel-core": "6.14.0",
-    "babel-loader": "6.2.5",
-    "babel-plugin-transform-object-assign": "6.8.0",
-    "babel-polyfill": "6.13.0",
-    "babel-preset-latest": "6.14.0",
-    "babel-register": "6.14.0",
-    "chai": "3.5.0",
-    "decimal.js": "7.1.0",
-    "del": "2.2.2",
-    "esdoc": "0.5.2",
-    "glob": "7.0.6",
-    "gulp": "3.9.1",
-    "gulp-check-filesize": "2.0.1",
-    "gulp-eslint": "3.0.1",
-    "gulp-filter": "4.0.0",
-    "gulp-istanbul": "1.1.1",
-    "gulp-livereload": "3.8.1",
-    "gulp-load-plugins": "1.2.4",
-    "gulp-mocha": "3.0.1",
-    "gulp-plumber": "1.1.0",
-    "gulp-rename": "1.2.2",
-    "gulp-sourcemaps": "1.6.0",
-    "gulp-uglify": "2.0.0",
-    "isparta": "4.0.0",
-    "json-loader": "0.5.4",
-    "mocha": "3.0.2",
-    "sinon": "1.17.5",
-    "sinon-chai": "2.8.0",
-    "webpack": "1.13.2",
-    "webpack-stream": "3.2.0"
+    "babel-jest": "^20.0.3",
+    "babel-preset-env": "^1.4.0",
+    "babel-preset-stage-0": "^6.24.1",
+    "decimal.js": "^7.1.0",
+    "esdoc": "^0.5.2",
+    "jest": "^20.0.3",
+    "nwb": "0.15.x",
+    "rimraf": "^2.6.1",
+    "serve": "^5.1.5"
   },
-  "babelBoilerplateOptions": {
-    "entryFileName": "main.js",
-    "mainVarName": "numberformat"
-  },
-  "dependencies": {}
+  "author": "",
+  "homepage": "",
+  "license": "MIT",
+  "repository": ""
 }
