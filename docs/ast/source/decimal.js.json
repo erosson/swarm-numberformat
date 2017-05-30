@@ -1,226 +1,73 @@
 {
   "type": "File",
   "start": 0,
-  "end": 803,
+  "end": 658,
   "loc": {
     "start": {
       "line": 1,
       "column": 0
     },
     "end": {
-      "line": 21,
+      "line": 16,
       "column": 0
     }
   },
   "program": {
     "type": "Program",
     "start": 0,
-    "end": 803,
+    "end": 658,
     "loc": {
       "start": {
         "line": 1,
         "column": 0
       },
       "end": {
-        "line": 21,
+        "line": 16,
         "column": 0
       }
     },
     "sourceType": "module",
     "body": [
       {
-        "type": "FunctionDeclaration",
-        "start": 0,
-        "end": 50,
-        "loc": {
-          "start": {
-            "line": 1,
-            "column": 0
-          },
-          "end": {
-            "line": 3,
-            "column": 1
-          }
-        },
-        "id": {
-          "type": "Identifier",
-          "start": 9,
-          "end": 12,
-          "loc": {
-            "start": {
-              "line": 1,
-              "column": 9
-            },
-            "end": {
-              "line": 1,
-              "column": 12
-            },
-            "identifierName": "log"
-          },
-          "name": "log"
-        },
-        "generator": false,
-        "expression": false,
-        "async": false,
-        "params": [
-          {
-            "type": "RestElement",
-            "start": 13,
-            "end": 20,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 13
-              },
-              "end": {
-                "line": 1,
-                "column": 20
-              }
-            },
-            "argument": {
-              "type": "Identifier",
-              "start": 16,
-              "end": 20,
-              "loc": {
-                "start": {
-                  "line": 1,
-                  "column": 16
-                },
-                "end": {
-                  "line": 1,
-                  "column": 20
-                },
-                "identifierName": "mess"
-              },
-              "name": "mess"
-            }
-          }
-        ],
-        "body": {
-          "type": "BlockStatement",
-          "start": 22,
-          "end": 50,
-          "loc": {
-            "start": {
-              "line": 1,
-              "column": 22
-            },
-            "end": {
-              "line": 3,
-              "column": 1
-            }
-          },
-          "body": [],
-          "directives": [],
-          "leadingComments": null,
-          "trailingComments": [
-            {
-              "type": "CommentLine",
-              "value": "console.log(...mess)",
-              "start": 26,
-              "end": 48,
-              "loc": {
-                "start": {
-                  "line": 2,
-                  "column": 2
-                },
-                "end": {
-                  "line": 2,
-                  "column": 24
-                }
-              }
-            },
-            {
-              "type": "CommentLine",
-              "value": " Lazy-load - we might not need decimal. It's a peerDependency, so the parent",
-              "start": 51,
-              "end": 129,
-              "loc": {
-                "start": {
-                  "line": 4,
-                  "column": 0
-                },
-                "end": {
-                  "line": 4,
-                  "column": 78
-                }
-              }
-            },
-            {
-              "type": "CommentLine",
-              "value": " library must include it if needed - we don't, because many callers don't need",
-              "start": 130,
-              "end": 210,
-              "loc": {
-                "start": {
-                  "line": 5,
-                  "column": 0
-                },
-                "end": {
-                  "line": 5,
-                  "column": 80
-                }
-              }
-            },
-            {
-              "type": "CommentLine",
-              "value": " it.",
-              "start": 211,
-              "end": 217,
-              "loc": {
-                "start": {
-                  "line": 6,
-                  "column": 0
-                },
-                "end": {
-                  "line": 6,
-                  "column": 6
-                }
-              }
-            }
-          ]
-        }
-      },
-      {
         "type": "VariableDeclaration",
-        "start": 218,
-        "end": 229,
+        "start": 167,
+        "end": 178,
         "loc": {
           "start": {
-            "line": 7,
+            "line": 4,
             "column": 0
           },
           "end": {
-            "line": 7,
+            "line": 4,
             "column": 11
           }
         },
         "declarations": [
           {
             "type": "VariableDeclarator",
-            "start": 222,
-            "end": 229,
+            "start": 171,
+            "end": 178,
             "loc": {
               "start": {
-                "line": 7,
+                "line": 4,
                 "column": 4
               },
               "end": {
-                "line": 7,
+                "line": 4,
                 "column": 11
               }
             },
             "id": {
               "type": "Identifier",
-              "start": 222,
-              "end": 229,
+              "start": 171,
+              "end": 178,
               "loc": {
                 "start": {
-                  "line": 7,
+                  "line": 4,
                   "column": 4
                 },
                 "end": {
-                  "line": 7,
+                  "line": 4,
                   "column": 11
                 },
                 "identifierName": "Decimal"
@@ -237,15 +84,15 @@
           {
             "type": "CommentLine",
             "value": " Lazy-load - we might not need decimal. It's a peerDependency, so the parent",
-            "start": 51,
-            "end": 129,
+            "start": 0,
+            "end": 78,
             "loc": {
               "start": {
-                "line": 4,
+                "line": 1,
                 "column": 0
               },
               "end": {
-                "line": 4,
+                "line": 1,
                 "column": 78
               }
             }
@@ -253,15 +100,15 @@
           {
             "type": "CommentLine",
             "value": " library must include it if needed - we don't, because many callers don't need",
-            "start": 130,
-            "end": 210,
+            "start": 79,
+            "end": 159,
             "loc": {
               "start": {
-                "line": 5,
+                "line": 2,
                 "column": 0
               },
               "end": {
-                "line": 5,
+                "line": 2,
                 "column": 80
               }
             }
@@ -269,15 +116,15 @@
           {
             "type": "CommentLine",
             "value": " it.",
-            "start": 211,
-            "end": 217,
+            "start": 160,
+            "end": 166,
             "loc": {
               "start": {
-                "line": 6,
+                "line": 3,
                 "column": 0
               },
               "end": {
-                "line": 6,
+                "line": 3,
                 "column": 6
               }
             }
@@ -286,15 +133,15 @@
       },
       {
         "type": "ExportNamedDeclaration",
-        "start": 230,
-        "end": 802,
+        "start": 179,
+        "end": 657,
         "loc": {
           "start": {
-            "line": 8,
+            "line": 5,
             "column": 0
           },
           "end": {
-            "line": 20,
+            "line": 15,
             "column": 1
           }
         },
@@ -302,29 +149,29 @@
         "source": null,
         "declaration": {
           "type": "FunctionDeclaration",
-          "start": 237,
-          "end": 802,
+          "start": 186,
+          "end": 657,
           "loc": {
             "start": {
-              "line": 8,
+              "line": 5,
               "column": 7
             },
             "end": {
-              "line": 20,
+              "line": 15,
               "column": 1
             }
           },
           "id": {
             "type": "Identifier",
-            "start": 246,
-            "end": 260,
+            "start": 195,
+            "end": 209,
             "loc": {
               "start": {
-                "line": 8,
+                "line": 5,
                 "column": 16
               },
               "end": {
-                "line": 8,
+                "line": 5,
                 "column": 30
               },
               "identifierName": "requireDecimal"
@@ -337,15 +184,15 @@
           "params": [
             {
               "type": "Identifier",
-              "start": 261,
-              "end": 267,
+              "start": 210,
+              "end": 216,
               "loc": {
                 "start": {
-                  "line": 8,
+                  "line": 5,
                   "column": 31
                 },
                 "end": {
-                  "line": 8,
+                  "line": 5,
                   "column": 37
                 },
                 "identifierName": "config"
@@ -355,92 +202,195 @@
           ],
           "body": {
             "type": "BlockStatement",
-            "start": 269,
-            "end": 802,
+            "start": 218,
+            "end": 657,
             "loc": {
               "start": {
-                "line": 8,
+                "line": 5,
                 "column": 39
               },
               "end": {
-                "line": 20,
+                "line": 15,
                 "column": 1
               }
             },
             "body": [
               {
                 "type": "ReturnStatement",
-                "start": 273,
-                "end": 800,
+                "start": 222,
+                "end": 655,
                 "loc": {
                   "start": {
-                    "line": 9,
+                    "line": 6,
                     "column": 2
                   },
                   "end": {
-                    "line": 19,
+                    "line": 14,
                     "column": 7
                   }
                 },
                 "argument": {
                   "type": "LogicalExpression",
-                  "start": 280,
-                  "end": 800,
+                  "start": 229,
+                  "end": 655,
                   "loc": {
                     "start": {
-                      "line": 9,
+                      "line": 6,
                       "column": 9
                     },
                     "end": {
-                      "line": 19,
+                      "line": 14,
                       "column": 7
                     }
                   },
                   "left": {
-                    "type": "Identifier",
-                    "start": 280,
-                    "end": 287,
+                    "type": "LogicalExpression",
+                    "start": 229,
+                    "end": 266,
                     "loc": {
                       "start": {
-                        "line": 9,
+                        "line": 6,
                         "column": 9
                       },
                       "end": {
-                        "line": 9,
-                        "column": 16
-                      },
-                      "identifierName": "Decimal"
+                        "line": 6,
+                        "column": 46
+                      }
                     },
-                    "name": "Decimal"
+                    "left": {
+                      "type": "LogicalExpression",
+                      "start": 230,
+                      "end": 254,
+                      "loc": {
+                        "start": {
+                          "line": 6,
+                          "column": 10
+                        },
+                        "end": {
+                          "line": 6,
+                          "column": 34
+                        }
+                      },
+                      "left": {
+                        "type": "Identifier",
+                        "start": 230,
+                        "end": 236,
+                        "loc": {
+                          "start": {
+                            "line": 6,
+                            "column": 10
+                          },
+                          "end": {
+                            "line": 6,
+                            "column": 16
+                          },
+                          "identifierName": "config"
+                        },
+                        "name": "config"
+                      },
+                      "operator": "&&",
+                      "right": {
+                        "type": "MemberExpression",
+                        "start": 240,
+                        "end": 254,
+                        "loc": {
+                          "start": {
+                            "line": 6,
+                            "column": 20
+                          },
+                          "end": {
+                            "line": 6,
+                            "column": 34
+                          }
+                        },
+                        "object": {
+                          "type": "Identifier",
+                          "start": 240,
+                          "end": 246,
+                          "loc": {
+                            "start": {
+                              "line": 6,
+                              "column": 20
+                            },
+                            "end": {
+                              "line": 6,
+                              "column": 26
+                            },
+                            "identifierName": "config"
+                          },
+                          "name": "config"
+                        },
+                        "property": {
+                          "type": "Identifier",
+                          "start": 247,
+                          "end": 254,
+                          "loc": {
+                            "start": {
+                              "line": 6,
+                              "column": 27
+                            },
+                            "end": {
+                              "line": 6,
+                              "column": 34
+                            },
+                            "identifierName": "Decimal"
+                          },
+                          "name": "Decimal"
+                        },
+                        "computed": false
+                      },
+                      "extra": {
+                        "parenthesized": true,
+                        "parenStart": 229
+                      }
+                    },
+                    "operator": "||",
+                    "right": {
+                      "type": "Identifier",
+                      "start": 259,
+                      "end": 266,
+                      "loc": {
+                        "start": {
+                          "line": 6,
+                          "column": 39
+                        },
+                        "end": {
+                          "line": 6,
+                          "column": 46
+                        },
+                        "identifierName": "Decimal"
+                      },
+                      "name": "Decimal"
+                    }
                   },
                   "operator": "||",
                   "right": {
                     "type": "AssignmentExpression",
-                    "start": 292,
-                    "end": 799,
+                    "start": 271,
+                    "end": 654,
                     "loc": {
                       "start": {
-                        "line": 9,
-                        "column": 21
+                        "line": 6,
+                        "column": 51
                       },
                       "end": {
-                        "line": 19,
+                        "line": 14,
                         "column": 6
                       }
                     },
                     "operator": "=",
                     "left": {
                       "type": "Identifier",
-                      "start": 292,
-                      "end": 299,
+                      "start": 271,
+                      "end": 278,
                       "loc": {
                         "start": {
-                          "line": 9,
-                          "column": 21
+                          "line": 6,
+                          "column": 51
                         },
                         "end": {
-                          "line": 9,
-                          "column": 28
+                          "line": 6,
+                          "column": 58
                         },
                         "identifierName": "Decimal"
                       },
@@ -448,29 +398,29 @@
                     },
                     "right": {
                       "type": "CallExpression",
-                      "start": 302,
-                      "end": 799,
+                      "start": 281,
+                      "end": 654,
                       "loc": {
                         "start": {
-                          "line": 9,
-                          "column": 31
+                          "line": 6,
+                          "column": 61
                         },
                         "end": {
-                          "line": 19,
+                          "line": 14,
                           "column": 6
                         }
                       },
                       "callee": {
                         "type": "FunctionExpression",
-                        "start": 303,
-                        "end": 796,
+                        "start": 282,
+                        "end": 651,
                         "loc": {
                           "start": {
-                            "line": 9,
-                            "column": 32
+                            "line": 6,
+                            "column": 62
                           },
                           "end": {
-                            "line": 19,
+                            "line": 14,
                             "column": 3
                           }
                         },
@@ -481,108 +431,108 @@
                         "params": [],
                         "body": {
                           "type": "BlockStatement",
-                          "start": 314,
-                          "end": 796,
+                          "start": 293,
+                          "end": 651,
                           "loc": {
                             "start": {
-                              "line": 9,
-                              "column": 43
+                              "line": 6,
+                              "column": 73
                             },
                             "end": {
-                              "line": 19,
+                              "line": 14,
                               "column": 3
                             }
                           },
                           "body": [
                             {
                               "type": "IfStatement",
-                              "start": 461,
-                              "end": 591,
+                              "start": 440,
+                              "end": 505,
                               "loc": {
                                 "start": {
-                                  "line": 12,
+                                  "line": 9,
                                   "column": 4
                                 },
                                 "end": {
-                                  "line": 15,
+                                  "line": 11,
                                   "column": 5
                                 }
                               },
                               "test": {
                                 "type": "LogicalExpression",
-                                "start": 465,
-                                "end": 489,
+                                "start": 444,
+                                "end": 468,
                                 "loc": {
                                   "start": {
-                                    "line": 12,
+                                    "line": 9,
                                     "column": 8
                                   },
                                   "end": {
-                                    "line": 12,
+                                    "line": 9,
                                     "column": 32
                                   }
                                 },
                                 "left": {
                                   "type": "Identifier",
-                                  "start": 465,
-                                  "end": 471,
+                                  "start": 444,
+                                  "end": 450,
                                   "loc": {
                                     "start": {
-                                      "line": 12,
+                                      "line": 9,
                                       "column": 8
                                     },
                                     "end": {
-                                      "line": 12,
+                                      "line": 9,
                                       "column": 14
                                     },
-                                    "identifierName": "config"
+                                    "identifierName": "global"
                                   },
-                                  "name": "config",
+                                  "name": "global",
                                   "leadingComments": null
                                 },
                                 "operator": "&&",
                                 "right": {
                                   "type": "MemberExpression",
-                                  "start": 475,
-                                  "end": 489,
+                                  "start": 454,
+                                  "end": 468,
                                   "loc": {
                                     "start": {
-                                      "line": 12,
+                                      "line": 9,
                                       "column": 18
                                     },
                                     "end": {
-                                      "line": 12,
+                                      "line": 9,
                                       "column": 32
                                     }
                                   },
                                   "object": {
                                     "type": "Identifier",
-                                    "start": 475,
-                                    "end": 481,
+                                    "start": 454,
+                                    "end": 460,
                                     "loc": {
                                       "start": {
-                                        "line": 12,
+                                        "line": 9,
                                         "column": 18
                                       },
                                       "end": {
-                                        "line": 12,
+                                        "line": 9,
                                         "column": 24
                                       },
-                                      "identifierName": "config"
+                                      "identifierName": "global"
                                     },
-                                    "name": "config"
+                                    "name": "global"
                                   },
                                   "property": {
                                     "type": "Identifier",
-                                    "start": 482,
-                                    "end": 489,
+                                    "start": 461,
+                                    "end": 468,
                                     "loc": {
                                       "start": {
-                                        "line": 12,
+                                        "line": 9,
                                         "column": 25
                                       },
                                       "end": {
-                                        "line": 12,
+                                        "line": 9,
                                         "column": 32
                                       },
                                       "identifierName": "Decimal"
@@ -595,144 +545,75 @@
                               },
                               "consequent": {
                                 "type": "BlockStatement",
-                                "start": 491,
-                                "end": 591,
+                                "start": 470,
+                                "end": 505,
                                 "loc": {
                                   "start": {
-                                    "line": 12,
+                                    "line": 9,
                                     "column": 34
                                   },
                                   "end": {
-                                    "line": 15,
+                                    "line": 11,
                                     "column": 5
                                   }
                                 },
                                 "body": [
                                   {
-                                    "type": "ExpressionStatement",
-                                    "start": 499,
-                                    "end": 557,
-                                    "loc": {
-                                      "start": {
-                                        "line": 13,
-                                        "column": 6
-                                      },
-                                      "end": {
-                                        "line": 13,
-                                        "column": 64
-                                      }
-                                    },
-                                    "expression": {
-                                      "type": "CallExpression",
-                                      "start": 499,
-                                      "end": 557,
-                                      "loc": {
-                                        "start": {
-                                          "line": 13,
-                                          "column": 6
-                                        },
-                                        "end": {
-                                          "line": 13,
-                                          "column": 64
-                                        }
-                                      },
-                                      "callee": {
-                                        "type": "Identifier",
-                                        "start": 499,
-                                        "end": 502,
-                                        "loc": {
-                                          "start": {
-                                            "line": 13,
-                                            "column": 6
-                                          },
-                                          "end": {
-                                            "line": 13,
-                                            "column": 9
-                                          },
-                                          "identifierName": "log"
-                                        },
-                                        "name": "log"
-                                      },
-                                      "arguments": [
-                                        {
-                                          "type": "StringLiteral",
-                                          "start": 503,
-                                          "end": 556,
-                                          "loc": {
-                                            "start": {
-                                              "line": 13,
-                                              "column": 10
-                                            },
-                                            "end": {
-                                              "line": 13,
-                                              "column": 63
-                                            }
-                                          },
-                                          "extra": {
-                                            "rawValue": "swarm-numberformat decimal.js: Found config.Decimal",
-                                            "raw": "'swarm-numberformat decimal.js: Found config.Decimal'"
-                                          },
-                                          "value": "swarm-numberformat decimal.js: Found config.Decimal"
-                                        }
-                                      ]
-                                    }
-                                  },
-                                  {
                                     "type": "ReturnStatement",
-                                    "start": 564,
-                                    "end": 585,
+                                    "start": 478,
+                                    "end": 499,
                                     "loc": {
                                       "start": {
-                                        "line": 14,
+                                        "line": 10,
                                         "column": 6
                                       },
                                       "end": {
-                                        "line": 14,
+                                        "line": 10,
                                         "column": 27
                                       }
                                     },
                                     "argument": {
                                       "type": "MemberExpression",
-                                      "start": 571,
-                                      "end": 585,
+                                      "start": 485,
+                                      "end": 499,
                                       "loc": {
                                         "start": {
-                                          "line": 14,
+                                          "line": 10,
                                           "column": 13
                                         },
                                         "end": {
-                                          "line": 14,
+                                          "line": 10,
                                           "column": 27
                                         }
                                       },
                                       "object": {
                                         "type": "Identifier",
-                                        "start": 571,
-                                        "end": 577,
+                                        "start": 485,
+                                        "end": 491,
                                         "loc": {
                                           "start": {
-                                            "line": 14,
+                                            "line": 10,
                                             "column": 13
                                           },
                                           "end": {
-                                            "line": 14,
+                                            "line": 10,
                                             "column": 19
                                           },
-                                          "identifierName": "config"
+                                          "identifierName": "global"
                                         },
-                                        "name": "config"
+                                        "name": "global"
                                       },
                                       "property": {
                                         "type": "Identifier",
-                                        "start": 578,
-                                        "end": 585,
+                                        "start": 492,
+                                        "end": 499,
                                         "loc": {
                                           "start": {
-                                            "line": 14,
+                                            "line": 10,
                                             "column": 20
                                           },
                                           "end": {
-                                            "line": 14,
+                                            "line": 10,
                                             "column": 27
                                           },
                                           "identifierName": "Decimal"
@@ -751,15 +632,15 @@
                                 {
                                   "type": "CommentLine",
                                   "value": " Allow node callers to inject their own decimal.js, because I am sick to",
-                                  "start": 320,
-                                  "end": 394,
+                                  "start": 299,
+                                  "end": 373,
                                   "loc": {
                                     "start": {
-                                      "line": 10,
+                                      "line": 7,
                                       "column": 4
                                     },
                                     "end": {
-                                      "line": 10,
+                                      "line": 7,
                                       "column": 78
                                     }
                                   }
@@ -767,15 +648,15 @@
                                 {
                                   "type": "CommentLine",
                                   "value": " death of trying to wrangle require/webpack/import/etc.",
-                                  "start": 399,
-                                  "end": 456,
+                                  "start": 378,
+                                  "end": 435,
                                   "loc": {
                                     "start": {
-                                      "line": 11,
+                                      "line": 8,
                                       "column": 4
                                     },
                                     "end": {
-                                      "line": 11,
+                                      "line": 8,
                                       "column": 61
                                     }
                                   }
@@ -785,104 +666,15 @@
                                 {
                                   "type": "CommentLine",
                                   "value": " `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src=\"...\">`) builds",
-                                  "start": 596,
-                                  "end": 700,
+                                  "start": 510,
+                                  "end": 614,
                                   "loc": {
                                     "start": {
-                                      "line": 16,
+                                      "line": 12,
                                       "column": 4
                                     },
                                     "end": {
-                                      "line": 16,
-                                      "column": 108
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            {
-                              "type": "ExpressionStatement",
-                              "start": 705,
-                              "end": 759,
-                              "loc": {
-                                "start": {
-                                  "line": 17,
-                                  "column": 4
-                                },
-                                "end": {
-                                  "line": 17,
-                                  "column": 58
-                                }
-                              },
-                              "expression": {
-                                "type": "CallExpression",
-                                "start": 705,
-                                "end": 759,
-                                "loc": {
-                                  "start": {
-                                    "line": 17,
-                                    "column": 4
-                                  },
-                                  "end": {
-                                    "line": 17,
-                                    "column": 58
-                                  }
-                                },
-                                "callee": {
-                                  "type": "Identifier",
-                                  "start": 705,
-                                  "end": 708,
-                                  "loc": {
-                                    "start": {
-                                      "line": 17,
-                                      "column": 4
-                                    },
-                                    "end": {
-                                      "line": 17,
-                                      "column": 7
-                                    },
-                                    "identifierName": "log"
-                                  },
-                                  "name": "log",
-                                  "leadingComments": null
-                                },
-                                "arguments": [
-                                  {
-                                    "type": "StringLiteral",
-                                    "start": 709,
-                                    "end": 758,
-                                    "loc": {
-                                      "start": {
-                                        "line": 17,
-                                        "column": 8
-                                      },
-                                      "end": {
-                                        "line": 17,
-                                        "column": 57
-                                      }
-                                    },
-                                    "extra": {
-                                      "rawValue": "swarm-numberformat decimal.js: trying require()",
-                                      "raw": "'swarm-numberformat decimal.js: trying require()'"
-                                    },
-                                    "value": "swarm-numberformat decimal.js: trying require()"
-                                  }
-                                ],
-                                "leadingComments": null
-                              },
-                              "leadingComments": [
-                                {
-                                  "type": "CommentLine",
-                                  "value": " `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src=\"...\">`) builds",
-                                  "start": 596,
-                                  "end": 700,
-                                  "loc": {
-                                    "start": {
-                                      "line": 16,
-                                      "column": 4
-                                    },
-                                    "end": {
-                                      "line": 16,
+                                      "line": 12,
                                       "column": 108
                                     }
                                   }
@@ -891,61 +683,62 @@
                             },
                             {
                               "type": "ReturnStatement",
-                              "start": 764,
-                              "end": 792,
+                              "start": 619,
+                              "end": 647,
                               "loc": {
                                 "start": {
-                                  "line": 18,
+                                  "line": 13,
                                   "column": 4
                                 },
                                 "end": {
-                                  "line": 18,
+                                  "line": 13,
                                   "column": 32
                                 }
                               },
                               "argument": {
                                 "type": "CallExpression",
-                                "start": 771,
-                                "end": 792,
+                                "start": 626,
+                                "end": 647,
                                 "loc": {
                                   "start": {
-                                    "line": 18,
+                                    "line": 13,
                                     "column": 11
                                   },
                                   "end": {
-                                    "line": 18,
+                                    "line": 13,
                                     "column": 32
                                   }
                                 },
                                 "callee": {
                                   "type": "Identifier",
-                                  "start": 771,
-                                  "end": 778,
+                                  "start": 626,
+                                  "end": 633,
                                   "loc": {
                                     "start": {
-                                      "line": 18,
+                                      "line": 13,
                                       "column": 11
                                     },
                                     "end": {
-                                      "line": 18,
+                                      "line": 13,
                                       "column": 18
                                     },
                                     "identifierName": "require"
                                   },
-                                  "name": "require"
+                                  "name": "require",
+                                  "leadingComments": null
                                 },
                                 "arguments": [
                                   {
                                     "type": "StringLiteral",
-                                    "start": 779,
-                                    "end": 791,
+                                    "start": 634,
+                                    "end": 646,
                                     "loc": {
                                       "start": {
-                                        "line": 18,
+                                        "line": 13,
                                         "column": 19
                                       },
                                       "end": {
-                                        "line": 18,
+                                        "line": 13,
                                         "column": 31
                                       }
                                     },
@@ -955,22 +748,41 @@
                                     },
                                     "value": "decimal.js"
                                   }
-                                ]
-                              }
+                                ],
+                                "leadingComments": null
+                              },
+                              "leadingComments": [
+                                {
+                                  "type": "CommentLine",
+                                  "value": " `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src=\"...\">`) builds",
+                                  "start": 510,
+                                  "end": 614,
+                                  "loc": {
+                                    "start": {
+                                      "line": 12,
+                                      "column": 4
+                                    },
+                                    "end": {
+                                      "line": 12,
+                                      "column": 108
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           ],
                           "directives": []
                         },
                         "extra": {
                           "parenthesized": true,
-                          "parenStart": 302
+                          "parenStart": 281
                         }
                       },
                       "arguments": []
                     },
                     "extra": {
                       "parenthesized": true,
-                      "parenStart": 291
+                      "parenStart": 270
                     }
                   }
                 }
@@ -988,32 +800,16 @@
   "comments": [
     {
       "type": "CommentLine",
-      "value": "console.log(...mess)",
-      "start": 26,
-      "end": 48,
-      "loc": {
-        "start": {
-          "line": 2,
-          "column": 2
-        },
-        "end": {
-          "line": 2,
-          "column": 24
-        }
-      }
-    },
-    {
-      "type": "CommentLine",
       "value": " Lazy-load - we might not need decimal. It's a peerDependency, so the parent",
-      "start": 51,
-      "end": 129,
+      "start": 0,
+      "end": 78,
       "loc": {
         "start": {
-          "line": 4,
+          "line": 1,
           "column": 0
         },
         "end": {
-          "line": 4,
+          "line": 1,
           "column": 78
         }
       }
@@ -1021,15 +817,15 @@
     {
       "type": "CommentLine",
       "value": " library must include it if needed - we don't, because many callers don't need",
-      "start": 130,
-      "end": 210,
+      "start": 79,
+      "end": 159,
       "loc": {
         "start": {
-          "line": 5,
+          "line": 2,
           "column": 0
         },
         "end": {
-          "line": 5,
+          "line": 2,
           "column": 80
         }
       }
@@ -1037,15 +833,15 @@
     {
       "type": "CommentLine",
       "value": " it.",
-      "start": 211,
-      "end": 217,
+      "start": 160,
+      "end": 166,
       "loc": {
         "start": {
-          "line": 6,
+          "line": 3,
           "column": 0
         },
         "end": {
-          "line": 6,
+          "line": 3,
           "column": 6
         }
       }
@@ -1053,15 +849,15 @@
     {
       "type": "CommentLine",
       "value": " Allow node callers to inject their own decimal.js, because I am sick to",
-      "start": 320,
-      "end": 394,
+      "start": 299,
+      "end": 373,
       "loc": {
         "start": {
-          "line": 10,
+          "line": 7,
           "column": 4
         },
         "end": {
-          "line": 10,
+          "line": 7,
           "column": 78
         }
       }
@@ -1069,15 +865,15 @@
     {
       "type": "CommentLine",
       "value": " death of trying to wrangle require/webpack/import/etc.",
-      "start": 399,
-      "end": 456,
+      "start": 378,
+      "end": 435,
       "loc": {
         "start": {
-          "line": 11,
+          "line": 8,
           "column": 4
         },
         "end": {
-          "line": 11,
+          "line": 8,
           "column": 61
         }
       }
@@ -1085,15 +881,15 @@
     {
       "type": "CommentLine",
       "value": " `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src=\"...\">`) builds",
-      "start": 596,
-      "end": 700,
+      "start": 510,
+      "end": 614,
       "loc": {
         "start": {
-          "line": 16,
+          "line": 12,
           "column": 4
         },
         "end": {
-          "line": 16,
+          "line": 12,
           "column": 108
         }
       }
@@ -1101,238 +897,17 @@
   ],
   "tokens": [
     {
-      "type": {
-        "label": "function",
-        "keyword": "function",
-        "beforeExpr": false,
-        "startsExpr": true,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "value": "function",
-      "start": 0,
-      "end": 8,
-      "loc": {
-        "start": {
-          "line": 1,
-          "column": 0
-        },
-        "end": {
-          "line": 1,
-          "column": 8
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "name",
-        "beforeExpr": false,
-        "startsExpr": true,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "value": "log",
-      "start": 9,
-      "end": 12,
-      "loc": {
-        "start": {
-          "line": 1,
-          "column": 9
-        },
-        "end": {
-          "line": 1,
-          "column": 12
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "(",
-        "beforeExpr": true,
-        "startsExpr": true,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "start": 12,
-      "end": 13,
-      "loc": {
-        "start": {
-          "line": 1,
-          "column": 12
-        },
-        "end": {
-          "line": 1,
-          "column": 13
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "...",
-        "beforeExpr": true,
-        "startsExpr": false,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null,
-        "updateContext": null
-      },
-      "start": 13,
-      "end": 16,
-      "loc": {
-        "start": {
-          "line": 1,
-          "column": 13
-        },
-        "end": {
-          "line": 1,
-          "column": 16
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "name",
-        "beforeExpr": false,
-        "startsExpr": true,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "value": "mess",
-      "start": 16,
-      "end": 20,
-      "loc": {
-        "start": {
-          "line": 1,
-          "column": 16
-        },
-        "end": {
-          "line": 1,
-          "column": 20
-        }
-      }
-    },
-    {
-      "type": {
-        "label": ")",
-        "beforeExpr": false,
-        "startsExpr": false,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "start": 20,
-      "end": 21,
-      "loc": {
-        "start": {
-          "line": 1,
-          "column": 20
-        },
-        "end": {
-          "line": 1,
-          "column": 21
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "{",
-        "beforeExpr": true,
-        "startsExpr": true,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "start": 22,
-      "end": 23,
-      "loc": {
-        "start": {
-          "line": 1,
-          "column": 22
-        },
-        "end": {
-          "line": 1,
-          "column": 23
-        }
-      }
-    },
-    {
-      "type": "CommentLine",
-      "value": "console.log(...mess)",
-      "start": 26,
-      "end": 48,
-      "loc": {
-        "start": {
-          "line": 2,
-          "column": 2
-        },
-        "end": {
-          "line": 2,
-          "column": 24
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "}",
-        "beforeExpr": false,
-        "startsExpr": false,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "start": 49,
-      "end": 50,
-      "loc": {
-        "start": {
-          "line": 3,
-          "column": 0
-        },
-        "end": {
-          "line": 3,
-          "column": 1
-        }
-      }
-    },
-    {
       "type": "CommentLine",
       "value": " Lazy-load - we might not need decimal. It's a peerDependency, so the parent",
-      "start": 51,
-      "end": 129,
+      "start": 0,
+      "end": 78,
       "loc": {
         "start": {
-          "line": 4,
+          "line": 1,
           "column": 0
         },
         "end": {
-          "line": 4,
+          "line": 1,
           "column": 78
         }
       }
@@ -1340,15 +915,15 @@
     {
       "type": "CommentLine",
       "value": " library must include it if needed - we don't, because many callers don't need",
-      "start": 130,
-      "end": 210,
+      "start": 79,
+      "end": 159,
       "loc": {
         "start": {
-          "line": 5,
+          "line": 2,
           "column": 0
         },
         "end": {
-          "line": 5,
+          "line": 2,
           "column": 80
         }
       }
@@ -1356,15 +931,15 @@
     {
       "type": "CommentLine",
       "value": " it.",
-      "start": 211,
-      "end": 217,
+      "start": 160,
+      "end": 166,
       "loc": {
         "start": {
-          "line": 6,
+          "line": 3,
           "column": 0
         },
         "end": {
-          "line": 6,
+          "line": 3,
           "column": 6
         }
       }
@@ -1384,15 +959,15 @@
         "updateContext": null
       },
       "value": "let",
-      "start": 218,
-      "end": 221,
+      "start": 167,
+      "end": 170,
       "loc": {
         "start": {
-          "line": 7,
+          "line": 4,
           "column": 0
         },
         "end": {
-          "line": 7,
+          "line": 4,
           "column": 3
         }
       }
@@ -1410,15 +985,15 @@
         "binop": null
       },
       "value": "Decimal",
-      "start": 222,
-      "end": 229,
+      "start": 171,
+      "end": 178,
       "loc": {
         "start": {
-          "line": 7,
+          "line": 4,
           "column": 4
         },
         "end": {
-          "line": 7,
+          "line": 4,
           "column": 11
         }
       }
@@ -1438,15 +1013,15 @@
         "updateContext": null
       },
       "value": "export",
-      "start": 230,
-      "end": 236,
+      "start": 179,
+      "end": 185,
       "loc": {
         "start": {
-          "line": 8,
+          "line": 5,
           "column": 0
         },
         "end": {
-          "line": 8,
+          "line": 5,
           "column": 6
         }
       }
@@ -1465,15 +1040,15 @@
         "binop": null
       },
       "value": "function",
-      "start": 237,
-      "end": 245,
+      "start": 186,
+      "end": 194,
       "loc": {
         "start": {
-          "line": 8,
+          "line": 5,
           "column": 7
         },
         "end": {
-          "line": 8,
+          "line": 5,
           "column": 15
         }
       }
@@ -1491,15 +1066,15 @@
         "binop": null
       },
       "value": "requireDecimal",
-      "start": 246,
-      "end": 260,
+      "start": 195,
+      "end": 209,
       "loc": {
         "start": {
-          "line": 8,
+          "line": 5,
           "column": 16
         },
         "end": {
-          "line": 8,
+          "line": 5,
           "column": 30
         }
       }
@@ -1516,15 +1091,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 260,
-      "end": 261,
+      "start": 209,
+      "end": 210,
       "loc": {
         "start": {
-          "line": 8,
+          "line": 5,
           "column": 30
         },
         "end": {
-          "line": 8,
+          "line": 5,
           "column": 31
         }
       }
@@ -1542,15 +1117,15 @@
         "binop": null
       },
       "value": "config",
-      "start": 261,
-      "end": 267,
+      "start": 210,
+      "end": 216,
       "loc": {
         "start": {
-          "line": 8,
+          "line": 5,
           "column": 31
         },
         "end": {
-          "line": 8,
+          "line": 5,
           "column": 37
         }
       }
@@ -1567,15 +1142,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 267,
-      "end": 268,
+      "start": 216,
+      "end": 217,
       "loc": {
         "start": {
-          "line": 8,
+          "line": 5,
           "column": 37
         },
         "end": {
-          "line": 8,
+          "line": 5,
           "column": 38
         }
       }
@@ -1592,15 +1167,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 269,
-      "end": 270,
+      "start": 218,
+      "end": 219,
       "loc": {
         "start": {
-          "line": 8,
+          "line": 5,
           "column": 39
         },
         "end": {
-          "line": 8,
+          "line": 5,
           "column": 40
         }
       }
@@ -1620,16 +1195,146 @@
         "updateContext": null
       },
       "value": "return",
-      "start": 273,
-      "end": 279,
+      "start": 222,
+      "end": 228,
       "loc": {
         "start": {
-          "line": 9,
+          "line": 6,
           "column": 2
         },
         "end": {
-          "line": 9,
+          "line": 6,
           "column": 8
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "(",
+        "beforeExpr": true,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "start": 229,
+      "end": 230,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 9
+        },
+        "end": {
+          "line": 6,
+          "column": 10
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "name",
+        "beforeExpr": false,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "value": "config",
+      "start": 230,
+      "end": 236,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 10
+        },
+        "end": {
+          "line": 6,
+          "column": 16
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "&&",
+        "beforeExpr": true,
+        "startsExpr": false,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": 2,
+        "updateContext": null
+      },
+      "value": "&&",
+      "start": 237,
+      "end": 239,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 17
+        },
+        "end": {
+          "line": 6,
+          "column": 19
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "name",
+        "beforeExpr": false,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "value": "config",
+      "start": 240,
+      "end": 246,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 20
+        },
+        "end": {
+          "line": 6,
+          "column": 26
+        }
+      }
+    },
+    {
+      "type": {
+        "label": ".",
+        "beforeExpr": false,
+        "startsExpr": false,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null,
+        "updateContext": null
+      },
+      "start": 246,
+      "end": 247,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 26
+        },
+        "end": {
+          "line": 6,
+          "column": 27
         }
       }
     },
@@ -1646,16 +1351,41 @@
         "binop": null
       },
       "value": "Decimal",
-      "start": 280,
-      "end": 287,
+      "start": 247,
+      "end": 254,
       "loc": {
         "start": {
-          "line": 9,
-          "column": 9
+          "line": 6,
+          "column": 27
         },
         "end": {
-          "line": 9,
-          "column": 16
+          "line": 6,
+          "column": 34
+        }
+      }
+    },
+    {
+      "type": {
+        "label": ")",
+        "beforeExpr": false,
+        "startsExpr": false,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "start": 254,
+      "end": 255,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 34
+        },
+        "end": {
+          "line": 6,
+          "column": 35
         }
       }
     },
@@ -1673,41 +1403,16 @@
         "updateContext": null
       },
       "value": "||",
-      "start": 288,
-      "end": 290,
+      "start": 256,
+      "end": 258,
       "loc": {
         "start": {
-          "line": 9,
-          "column": 17
+          "line": 6,
+          "column": 36
         },
         "end": {
-          "line": 9,
-          "column": 19
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "(",
-        "beforeExpr": true,
-        "startsExpr": true,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "start": 291,
-      "end": 292,
-      "loc": {
-        "start": {
-          "line": 9,
-          "column": 20
-        },
-        "end": {
-          "line": 9,
-          "column": 21
+          "line": 6,
+          "column": 38
         }
       }
     },
@@ -1724,16 +1429,94 @@
         "binop": null
       },
       "value": "Decimal",
-      "start": 292,
-      "end": 299,
+      "start": 259,
+      "end": 266,
       "loc": {
         "start": {
-          "line": 9,
-          "column": 21
+          "line": 6,
+          "column": 39
         },
         "end": {
-          "line": 9,
-          "column": 28
+          "line": 6,
+          "column": 46
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "||",
+        "beforeExpr": true,
+        "startsExpr": false,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": 1,
+        "updateContext": null
+      },
+      "value": "||",
+      "start": 267,
+      "end": 269,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 47
+        },
+        "end": {
+          "line": 6,
+          "column": 49
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "(",
+        "beforeExpr": true,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "start": 270,
+      "end": 271,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 50
+        },
+        "end": {
+          "line": 6,
+          "column": 51
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "name",
+        "beforeExpr": false,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "value": "Decimal",
+      "start": 271,
+      "end": 278,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 51
+        },
+        "end": {
+          "line": 6,
+          "column": 58
         }
       }
     },
@@ -1751,16 +1534,16 @@
         "updateContext": null
       },
       "value": "=",
-      "start": 300,
-      "end": 301,
+      "start": 279,
+      "end": 280,
       "loc": {
         "start": {
-          "line": 9,
-          "column": 29
+          "line": 6,
+          "column": 59
         },
         "end": {
-          "line": 9,
-          "column": 30
+          "line": 6,
+          "column": 60
         }
       }
     },
@@ -1776,16 +1559,16 @@
         "postfix": false,
         "binop": null
       },
-      "start": 302,
-      "end": 303,
+      "start": 281,
+      "end": 282,
       "loc": {
         "start": {
-          "line": 9,
-          "column": 31
+          "line": 6,
+          "column": 61
         },
         "end": {
-          "line": 9,
-          "column": 32
+          "line": 6,
+          "column": 62
         }
       }
     },
@@ -1803,16 +1586,16 @@
         "binop": null
       },
       "value": "function",
-      "start": 303,
-      "end": 311,
+      "start": 282,
+      "end": 290,
       "loc": {
         "start": {
-          "line": 9,
-          "column": 32
+          "line": 6,
+          "column": 62
         },
         "end": {
-          "line": 9,
-          "column": 40
+          "line": 6,
+          "column": 70
         }
       }
     },
@@ -1828,16 +1611,16 @@
         "postfix": false,
         "binop": null
       },
-      "start": 311,
-      "end": 312,
+      "start": 290,
+      "end": 291,
       "loc": {
         "start": {
-          "line": 9,
-          "column": 40
+          "line": 6,
+          "column": 70
         },
         "end": {
-          "line": 9,
-          "column": 41
+          "line": 6,
+          "column": 71
         }
       }
     },
@@ -1853,16 +1636,16 @@
         "postfix": false,
         "binop": null
       },
-      "start": 312,
-      "end": 313,
+      "start": 291,
+      "end": 292,
       "loc": {
         "start": {
-          "line": 9,
-          "column": 41
+          "line": 6,
+          "column": 71
         },
         "end": {
-          "line": 9,
-          "column": 42
+          "line": 6,
+          "column": 72
         }
       }
     },
@@ -1878,31 +1661,31 @@
         "postfix": false,
         "binop": null
       },
-      "start": 314,
-      "end": 315,
+      "start": 293,
+      "end": 294,
       "loc": {
         "start": {
-          "line": 9,
-          "column": 43
+          "line": 6,
+          "column": 73
         },
         "end": {
-          "line": 9,
-          "column": 44
+          "line": 6,
+          "column": 74
         }
       }
     },
     {
       "type": "CommentLine",
       "value": " Allow node callers to inject their own decimal.js, because I am sick to",
-      "start": 320,
-      "end": 394,
+      "start": 299,
+      "end": 373,
       "loc": {
         "start": {
-          "line": 10,
+          "line": 7,
           "column": 4
         },
         "end": {
-          "line": 10,
+          "line": 7,
           "column": 78
         }
       }
@@ -1910,15 +1693,15 @@
     {
       "type": "CommentLine",
       "value": " death of trying to wrangle require/webpack/import/etc.",
-      "start": 399,
-      "end": 456,
+      "start": 378,
+      "end": 435,
       "loc": {
         "start": {
-          "line": 11,
+          "line": 8,
           "column": 4
         },
         "end": {
-          "line": 11,
+          "line": 8,
           "column": 61
         }
       }
@@ -1938,15 +1721,15 @@
         "updateContext": null
       },
       "value": "if",
-      "start": 461,
-      "end": 463,
+      "start": 440,
+      "end": 442,
       "loc": {
         "start": {
-          "line": 12,
+          "line": 9,
           "column": 4
         },
         "end": {
-          "line": 12,
+          "line": 9,
           "column": 6
         }
       }
@@ -1963,15 +1746,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 464,
-      "end": 465,
+      "start": 443,
+      "end": 444,
       "loc": {
         "start": {
-          "line": 12,
+          "line": 9,
           "column": 7
         },
         "end": {
-          "line": 12,
+          "line": 9,
           "column": 8
         }
       }
@@ -1988,16 +1771,16 @@
         "postfix": false,
         "binop": null
       },
-      "value": "config",
-      "start": 465,
-      "end": 471,
+      "value": "global",
+      "start": 444,
+      "end": 450,
       "loc": {
         "start": {
-          "line": 12,
+          "line": 9,
           "column": 8
         },
         "end": {
-          "line": 12,
+          "line": 9,
           "column": 14
         }
       }
@@ -2016,15 +1799,15 @@
         "updateContext": null
       },
       "value": "&&",
-      "start": 472,
-      "end": 474,
+      "start": 451,
+      "end": 453,
       "loc": {
         "start": {
-          "line": 12,
+          "line": 9,
           "column": 15
         },
         "end": {
-          "line": 12,
+          "line": 9,
           "column": 17
         }
       }
@@ -2041,16 +1824,16 @@
         "postfix": false,
         "binop": null
       },
-      "value": "config",
-      "start": 475,
-      "end": 481,
+      "value": "global",
+      "start": 454,
+      "end": 460,
       "loc": {
         "start": {
-          "line": 12,
+          "line": 9,
           "column": 18
         },
         "end": {
-          "line": 12,
+          "line": 9,
           "column": 24
         }
       }
@@ -2068,15 +1851,15 @@
         "binop": null,
         "updateContext": null
       },
-      "start": 481,
-      "end": 482,
+      "start": 460,
+      "end": 461,
       "loc": {
         "start": {
-          "line": 12,
+          "line": 9,
           "column": 24
         },
         "end": {
-          "line": 12,
+          "line": 9,
           "column": 25
         }
       }
@@ -2094,15 +1877,15 @@
         "binop": null
       },
       "value": "Decimal",
-      "start": 482,
-      "end": 489,
+      "start": 461,
+      "end": 468,
       "loc": {
         "start": {
-          "line": 12,
+          "line": 9,
           "column": 25
         },
         "end": {
-          "line": 12,
+          "line": 9,
           "column": 32
         }
       }
@@ -2119,15 +1902,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 489,
-      "end": 490,
+      "start": 468,
+      "end": 469,
       "loc": {
         "start": {
-          "line": 12,
+          "line": 9,
           "column": 32
         },
         "end": {
-          "line": 12,
+          "line": 9,
           "column": 33
         }
       }
@@ -2144,119 +1927,16 @@
         "postfix": false,
         "binop": null
       },
-      "start": 491,
-      "end": 492,
+      "start": 470,
+      "end": 471,
       "loc": {
         "start": {
-          "line": 12,
+          "line": 9,
           "column": 34
         },
         "end": {
-          "line": 12,
+          "line": 9,
           "column": 35
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "name",
-        "beforeExpr": false,
-        "startsExpr": true,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "value": "log",
-      "start": 499,
-      "end": 502,
-      "loc": {
-        "start": {
-          "line": 13,
-          "column": 6
-        },
-        "end": {
-          "line": 13,
-          "column": 9
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "(",
-        "beforeExpr": true,
-        "startsExpr": true,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "start": 502,
-      "end": 503,
-      "loc": {
-        "start": {
-          "line": 13,
-          "column": 9
-        },
-        "end": {
-          "line": 13,
-          "column": 10
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "string",
-        "beforeExpr": false,
-        "startsExpr": true,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null,
-        "updateContext": null
-      },
-      "value": "swarm-numberformat decimal.js: Found config.Decimal",
-      "start": 503,
-      "end": 556,
-      "loc": {
-        "start": {
-          "line": 13,
-          "column": 10
-        },
-        "end": {
-          "line": 13,
-          "column": 63
-        }
-      }
-    },
-    {
-      "type": {
-        "label": ")",
-        "beforeExpr": false,
-        "startsExpr": false,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "start": 556,
-      "end": 557,
-      "loc": {
-        "start": {
-          "line": 13,
-          "column": 63
-        },
-        "end": {
-          "line": 13,
-          "column": 64
         }
       }
     },
@@ -2275,15 +1955,15 @@
         "updateContext": null
       },
       "value": "return",
-      "start": 564,
-      "end": 570,
+      "start": 478,
+      "end": 484,
       "loc": {
         "start": {
-          "line": 14,
+          "line": 10,
           "column": 6
         },
         "end": {
-          "line": 14,
+          "line": 10,
           "column": 12
         }
       }
@@ -2300,16 +1980,16 @@
         "postfix": false,
         "binop": null
       },
-      "value": "config",
-      "start": 571,
-      "end": 577,
+      "value": "global",
+      "start": 485,
+      "end": 491,
       "loc": {
         "start": {
-          "line": 14,
+          "line": 10,
           "column": 13
         },
         "end": {
-          "line": 14,
+          "line": 10,
           "column": 19
         }
       }
@@ -2327,15 +2007,15 @@
         "binop": null,
         "updateContext": null
       },
-      "start": 577,
-      "end": 578,
+      "start": 491,
+      "end": 492,
       "loc": {
         "start": {
-          "line": 14,
+          "line": 10,
           "column": 19
         },
         "end": {
-          "line": 14,
+          "line": 10,
           "column": 20
         }
       }
@@ -2353,15 +2033,15 @@
         "binop": null
       },
       "value": "Decimal",
-      "start": 578,
-      "end": 585,
+      "start": 492,
+      "end": 499,
       "loc": {
         "start": {
-          "line": 14,
+          "line": 10,
           "column": 20
         },
         "end": {
-          "line": 14,
+          "line": 10,
           "column": 27
         }
       }
@@ -2378,15 +2058,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 590,
-      "end": 591,
+      "start": 504,
+      "end": 505,
       "loc": {
         "start": {
-          "line": 15,
+          "line": 11,
           "column": 4
         },
         "end": {
-          "line": 15,
+          "line": 11,
           "column": 5
         }
       }
@@ -2394,119 +2074,16 @@
     {
       "type": "CommentLine",
       "value": " `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src=\"...\">`) builds",
-      "start": 596,
-      "end": 700,
+      "start": 510,
+      "end": 614,
       "loc": {
         "start": {
-          "line": 16,
+          "line": 12,
           "column": 4
         },
         "end": {
-          "line": 16,
+          "line": 12,
           "column": 108
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "name",
-        "beforeExpr": false,
-        "startsExpr": true,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "value": "log",
-      "start": 705,
-      "end": 708,
-      "loc": {
-        "start": {
-          "line": 17,
-          "column": 4
-        },
-        "end": {
-          "line": 17,
-          "column": 7
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "(",
-        "beforeExpr": true,
-        "startsExpr": true,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "start": 708,
-      "end": 709,
-      "loc": {
-        "start": {
-          "line": 17,
-          "column": 7
-        },
-        "end": {
-          "line": 17,
-          "column": 8
-        }
-      }
-    },
-    {
-      "type": {
-        "label": "string",
-        "beforeExpr": false,
-        "startsExpr": true,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null,
-        "updateContext": null
-      },
-      "value": "swarm-numberformat decimal.js: trying require()",
-      "start": 709,
-      "end": 758,
-      "loc": {
-        "start": {
-          "line": 17,
-          "column": 8
-        },
-        "end": {
-          "line": 17,
-          "column": 57
-        }
-      }
-    },
-    {
-      "type": {
-        "label": ")",
-        "beforeExpr": false,
-        "startsExpr": false,
-        "rightAssociative": false,
-        "isLoop": false,
-        "isAssign": false,
-        "prefix": false,
-        "postfix": false,
-        "binop": null
-      },
-      "start": 758,
-      "end": 759,
-      "loc": {
-        "start": {
-          "line": 17,
-          "column": 57
-        },
-        "end": {
-          "line": 17,
-          "column": 58
         }
       }
     },
@@ -2525,15 +2102,15 @@
         "updateContext": null
       },
       "value": "return",
-      "start": 764,
-      "end": 770,
+      "start": 619,
+      "end": 625,
       "loc": {
         "start": {
-          "line": 18,
+          "line": 13,
           "column": 4
         },
         "end": {
-          "line": 18,
+          "line": 13,
           "column": 10
         }
       }
@@ -2551,15 +2128,15 @@
         "binop": null
       },
       "value": "require",
-      "start": 771,
-      "end": 778,
+      "start": 626,
+      "end": 633,
       "loc": {
         "start": {
-          "line": 18,
+          "line": 13,
           "column": 11
         },
         "end": {
-          "line": 18,
+          "line": 13,
           "column": 18
         }
       }
@@ -2576,15 +2153,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 778,
-      "end": 779,
+      "start": 633,
+      "end": 634,
       "loc": {
         "start": {
-          "line": 18,
+          "line": 13,
           "column": 18
         },
         "end": {
-          "line": 18,
+          "line": 13,
           "column": 19
         }
       }
@@ -2603,15 +2180,15 @@
         "updateContext": null
       },
       "value": "decimal.js",
-      "start": 779,
-      "end": 791,
+      "start": 634,
+      "end": 646,
       "loc": {
         "start": {
-          "line": 18,
+          "line": 13,
           "column": 19
         },
         "end": {
-          "line": 18,
+          "line": 13,
           "column": 31
         }
       }
@@ -2628,15 +2205,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 791,
-      "end": 792,
+      "start": 646,
+      "end": 647,
       "loc": {
         "start": {
-          "line": 18,
+          "line": 13,
           "column": 31
         },
         "end": {
-          "line": 18,
+          "line": 13,
           "column": 32
         }
       }
@@ -2653,15 +2230,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 795,
-      "end": 796,
+      "start": 650,
+      "end": 651,
       "loc": {
         "start": {
-          "line": 19,
+          "line": 14,
           "column": 2
         },
         "end": {
-          "line": 19,
+          "line": 14,
           "column": 3
         }
       }
@@ -2678,15 +2255,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 796,
-      "end": 797,
+      "start": 651,
+      "end": 652,
       "loc": {
         "start": {
-          "line": 19,
+          "line": 14,
           "column": 3
         },
         "end": {
-          "line": 19,
+          "line": 14,
           "column": 4
         }
       }
@@ -2703,15 +2280,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 797,
-      "end": 798,
+      "start": 652,
+      "end": 653,
       "loc": {
         "start": {
-          "line": 19,
+          "line": 14,
           "column": 4
         },
         "end": {
-          "line": 19,
+          "line": 14,
           "column": 5
         }
       }
@@ -2728,15 +2305,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 798,
-      "end": 799,
+      "start": 653,
+      "end": 654,
       "loc": {
         "start": {
-          "line": 19,
+          "line": 14,
           "column": 5
         },
         "end": {
-          "line": 19,
+          "line": 14,
           "column": 6
         }
       }
@@ -2753,15 +2330,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 799,
-      "end": 800,
+      "start": 654,
+      "end": 655,
       "loc": {
         "start": {
-          "line": 19,
+          "line": 14,
           "column": 6
         },
         "end": {
-          "line": 19,
+          "line": 14,
           "column": 7
         }
       }
@@ -2778,15 +2355,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 801,
-      "end": 802,
+      "start": 656,
+      "end": 657,
       "loc": {
         "start": {
-          "line": 20,
+          "line": 15,
           "column": 0
         },
         "end": {
-          "line": 20,
+          "line": 15,
           "column": 1
         }
       }
@@ -2804,15 +2381,15 @@
         "binop": null,
         "updateContext": null
       },
-      "start": 803,
-      "end": 803,
+      "start": 658,
+      "end": 658,
       "loc": {
         "start": {
-          "line": 21,
+          "line": 16,
           "column": 0
         },
         "end": {
-          "line": 21,
+          "line": 16,
           "column": 0
         }
       }
