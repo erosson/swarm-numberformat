@@ -34,14 +34,14 @@ const backends = {
     parseInt(text, config) {
       if ('default' in config) {
         try {
-          const val = requireDecimal()(text).ceil()
+          const val = requireDecimal(config)(text).ceil()
           return this.isValid(val) ? val : config['default']
         }
         catch(e) {
           return config.default
         }
       }
-      return requireDecimal()(text).ceil()
+      return requireDecimal(config)(text).ceil()
     },
     isValid(val) {
       return val && !val.isNaN()

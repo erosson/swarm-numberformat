@@ -49,8 +49,8 @@ const backends = {
   'decimal.js': {
     // api docs: https://mikemcl.github.io/decimal.js/
     _requireDecimal(config) {
-      if (!requireDecimal()) throw new Error('requireDecimal() failed')
-      return new requireDecimal()(0).constructor.clone(config)
+      if (!requireDecimal(config)) throw new Error('requireDecimal() failed')
+      return new requireDecimal(config)(0).constructor.clone(config)
     },
     normalize(val, {rounding}) {
       const Decimal = this._requireDecimal({rounding})
