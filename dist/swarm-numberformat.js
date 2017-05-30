@@ -1,5 +1,5 @@
 /*!
- * swarm-numberformat v0.3.3
+ * swarm-numberformat v0.3.4
  * MIT Licensed
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -11,7 +11,7 @@
 		exports["numberformat"] = factory(require("decimal.js"));
 	else
 		root["numberformat"] = factory(root["Decimal"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_7__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_6__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -77,7 +77,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -85,7 +85,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(global) {/* harmony export (immutable) */ __webpack_exports__["a"] = requireDecimal;
+/* harmony export (immutable) */ __webpack_exports__["a"] = requireDecimal;
 function log() {}
 //console.log(...mess)
 
@@ -93,20 +93,19 @@ function log() {}
 // library must include it if needed - we don't, because many callers don't need
 // it.
 var Decimal = void 0;
-function requireDecimal() {
+function requireDecimal(config) {
   return Decimal || (Decimal = function () {
-    // Allow node callers to inject their own decimal.js via global, because I am
-    // sick to death of trying to wrangle require/webpack/import/etc.
-    if (global && global.Decimal) {
-      log('swarm-numberformat decimal.js: Found global.Decimal');
-      return global.Decimal;
+    // Allow node callers to inject their own decimal.js, because I am sick to
+    // death of trying to wrangle require/webpack/import/etc.
+    if (config && config.Decimal) {
+      log('swarm-numberformat decimal.js: Found config.Decimal');
+      return config.Decimal;
     }
     // `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src="...">`) builds
     log('swarm-numberformat decimal.js: trying require()');
-    return __webpack_require__(7);
+    return __webpack_require__(6);
   }());
 }
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(6)))
 
 /***/ }),
 /* 1 */
@@ -179,8 +178,8 @@ var backends = {
   'decimal.js': {
     // api docs: https://mikemcl.github.io/decimal.js/
     _requireDecimal: function _requireDecimal(config) {
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__decimal__["a" /* requireDecimal */])()) throw new Error('requireDecimal() failed');
-      return new __WEBPACK_IMPORTED_MODULE_2__decimal__["a" /* requireDecimal */]()(0).constructor.clone(config);
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__decimal__["a" /* requireDecimal */])(config)) throw new Error('requireDecimal() failed');
+      return new __WEBPACK_IMPORTED_MODULE_2__decimal__["a" /* requireDecimal */](config)(0).constructor.clone(config);
     },
     normalize: function normalize(val, _ref2) {
       var rounding = _ref2.rounding;
@@ -938,13 +937,13 @@ var backends = {
     parseInt: function parseInt(text, config) {
       if ('default' in config) {
         try {
-          var val = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__decimal_js__["a" /* requireDecimal */])()(text).ceil();
+          var val = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__decimal_js__["a" /* requireDecimal */])(config)(text).ceil();
           return this.isValid(val) ? val : config['default'];
         } catch (e) {
           return config.default;
         }
       }
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__decimal_js__["a" /* requireDecimal */])()(text).ceil();
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__decimal_js__["a" /* requireDecimal */])(config)(text).ceil();
     },
     isValid: function isValid(val) {
       return val && !val.isNaN();
@@ -998,37 +997,10 @@ var Parser = function () {
 /* 6 */
 /***/ (function(module, exports) {
 
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
+module.exports = __WEBPACK_EXTERNAL_MODULE_6__;
 
 /***/ }),
 /* 7 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
-
-/***/ }),
-/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(4);
