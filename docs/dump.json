@@ -3,7 +3,7 @@
     "__docId__": 0,
     "kind": "file",
     "name": "src/decimal.js",
-    "content": "function log(...mess) {\n  //console.log(...mess)\n}\n// Lazy-load - we might not need decimal. It's a peerDependency, so the parent\n// library must include it if needed - we don't, because many callers don't need\n// it.\nlet Decimal\nexport function requireDecimal() {\n  return Decimal || (Decimal = (function() {\n    // Allow node callers to inject their own decimal.js\n    //if (global && global.Decimal) {\n    //  log('swarm-numberformat decimal.js: Found global.Decimal')\n    //  return global.Decimal\n    //}\n    // `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src=\"...\">`) builds\n    log('swarm-numberformat decimal.js: trying require()')\n    return require('decimal.js')\n  })())\n}\n",
+    "content": "function log(...mess) {\n  //console.log(...mess)\n}\n// Lazy-load - we might not need decimal. It's a peerDependency, so the parent\n// library must include it if needed - we don't, because many callers don't need\n// it.\nlet Decimal\nexport function requireDecimal() {\n  return Decimal || (Decimal = (function() {\n    // Allow node callers to inject their own decimal.js via global, because I am\n    // sick to death of trying to wrangle require/webpack/import/etc.\n    if (global && global.Decimal) {\n      log('swarm-numberformat decimal.js: Found global.Decimal')\n      return global.Decimal\n    }\n    // `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src=\"...\">`) builds\n    log('swarm-numberformat decimal.js: trying require()')\n    return require('decimal.js')\n  })())\n}\n",
     "static": true,
     "longname": "src/decimal.js",
     "access": null,

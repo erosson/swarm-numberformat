@@ -1,5 +1,5 @@
 /*!
- * swarm-numberformat v0.3.2
+ * swarm-numberformat v0.3.3
  * MIT Licensed
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -11,7 +11,7 @@
 		exports["numberformat"] = factory(require("decimal.js"));
 	else
 		root["numberformat"] = factory(root["Decimal"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_6__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_7__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -77,7 +77,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 7);
+/******/ 	return __webpack_require__(__webpack_require__.s = 8);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -85,7 +85,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = requireDecimal;
+/* WEBPACK VAR INJECTION */(function(global) {/* harmony export (immutable) */ __webpack_exports__["a"] = requireDecimal;
 function log() {}
 //console.log(...mess)
 
@@ -95,16 +95,18 @@ function log() {}
 var Decimal = void 0;
 function requireDecimal() {
   return Decimal || (Decimal = function () {
-    // Allow node callers to inject their own decimal.js
-    //if (global && global.Decimal) {
-    //  log('swarm-numberformat decimal.js: Found global.Decimal')
-    //  return global.Decimal
-    //}
+    // Allow node callers to inject their own decimal.js via global, because I am
+    // sick to death of trying to wrangle require/webpack/import/etc.
+    if (global && global.Decimal) {
+      log('swarm-numberformat decimal.js: Found global.Decimal');
+      return global.Decimal;
+    }
     // `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src="...">`) builds
     log('swarm-numberformat decimal.js: trying require()');
-    return __webpack_require__(6);
+    return __webpack_require__(7);
   }());
 }
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(6)))
 
 /***/ }),
 /* 1 */
@@ -996,10 +998,37 @@ var Parser = function () {
 /* 6 */
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_6__;
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
 
 /***/ }),
 /* 7 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(4);

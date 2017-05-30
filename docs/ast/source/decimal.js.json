@@ -1,28 +1,28 @@
 {
   "type": "File",
   "start": 0,
-  "end": 721,
+  "end": 808,
   "loc": {
     "start": {
       "line": 1,
       "column": 0
     },
     "end": {
-      "line": 20,
+      "line": 21,
       "column": 0
     }
   },
   "program": {
     "type": "Program",
     "start": 0,
-    "end": 721,
+    "end": 808,
     "loc": {
       "start": {
         "line": 1,
         "column": 0
       },
       "end": {
-        "line": 20,
+        "line": 21,
         "column": 0
       }
     },
@@ -287,14 +287,14 @@
       {
         "type": "ExportNamedDeclaration",
         "start": 230,
-        "end": 720,
+        "end": 807,
         "loc": {
           "start": {
             "line": 8,
             "column": 0
           },
           "end": {
-            "line": 19,
+            "line": 20,
             "column": 1
           }
         },
@@ -303,14 +303,14 @@
         "declaration": {
           "type": "FunctionDeclaration",
           "start": 237,
-          "end": 720,
+          "end": 807,
           "loc": {
             "start": {
               "line": 8,
               "column": 7
             },
             "end": {
-              "line": 19,
+              "line": 20,
               "column": 1
             }
           },
@@ -338,14 +338,14 @@
           "body": {
             "type": "BlockStatement",
             "start": 263,
-            "end": 720,
+            "end": 807,
             "loc": {
               "start": {
                 "line": 8,
                 "column": 33
               },
               "end": {
-                "line": 19,
+                "line": 20,
                 "column": 1
               }
             },
@@ -353,28 +353,28 @@
               {
                 "type": "ReturnStatement",
                 "start": 267,
-                "end": 718,
+                "end": 805,
                 "loc": {
                   "start": {
                     "line": 9,
                     "column": 2
                   },
                   "end": {
-                    "line": 18,
+                    "line": 19,
                     "column": 7
                   }
                 },
                 "argument": {
                   "type": "LogicalExpression",
                   "start": 274,
-                  "end": 718,
+                  "end": 805,
                   "loc": {
                     "start": {
                       "line": 9,
                       "column": 9
                     },
                     "end": {
-                      "line": 18,
+                      "line": 19,
                       "column": 7
                     }
                   },
@@ -399,14 +399,14 @@
                   "right": {
                     "type": "AssignmentExpression",
                     "start": 286,
-                    "end": 717,
+                    "end": 804,
                     "loc": {
                       "start": {
                         "line": 9,
                         "column": 21
                       },
                       "end": {
-                        "line": 18,
+                        "line": 19,
                         "column": 6
                       }
                     },
@@ -431,28 +431,28 @@
                     "right": {
                       "type": "CallExpression",
                       "start": 296,
-                      "end": 717,
+                      "end": 804,
                       "loc": {
                         "start": {
                           "line": 9,
                           "column": 31
                         },
                         "end": {
-                          "line": 18,
+                          "line": 19,
                           "column": 6
                         }
                       },
                       "callee": {
                         "type": "FunctionExpression",
                         "start": 297,
-                        "end": 714,
+                        "end": 801,
                         "loc": {
                           "start": {
                             "line": 9,
                             "column": 32
                           },
                           "end": {
-                            "line": 18,
+                            "line": 19,
                             "column": 3
                           }
                         },
@@ -464,50 +464,311 @@
                         "body": {
                           "type": "BlockStatement",
                           "start": 308,
-                          "end": 714,
+                          "end": 801,
                           "loc": {
                             "start": {
                               "line": 9,
                               "column": 43
                             },
                             "end": {
-                              "line": 18,
+                              "line": 19,
                               "column": 3
                             }
                           },
                           "body": [
                             {
-                              "type": "ExpressionStatement",
-                              "start": 623,
-                              "end": 677,
+                              "type": "IfStatement",
+                              "start": 466,
+                              "end": 596,
                               "loc": {
                                 "start": {
-                                  "line": 16,
+                                  "line": 12,
                                   "column": 4
                                 },
                                 "end": {
-                                  "line": 16,
-                                  "column": 58
+                                  "line": 15,
+                                  "column": 5
                                 }
                               },
-                              "expression": {
-                                "type": "CallExpression",
-                                "start": 623,
-                                "end": 677,
+                              "test": {
+                                "type": "LogicalExpression",
+                                "start": 470,
+                                "end": 494,
                                 "loc": {
                                   "start": {
-                                    "line": 16,
-                                    "column": 4
+                                    "line": 12,
+                                    "column": 8
                                   },
                                   "end": {
-                                    "line": 16,
-                                    "column": 58
+                                    "line": 12,
+                                    "column": 32
                                   }
                                 },
-                                "callee": {
+                                "left": {
                                   "type": "Identifier",
-                                  "start": 623,
-                                  "end": 626,
+                                  "start": 470,
+                                  "end": 476,
+                                  "loc": {
+                                    "start": {
+                                      "line": 12,
+                                      "column": 8
+                                    },
+                                    "end": {
+                                      "line": 12,
+                                      "column": 14
+                                    },
+                                    "identifierName": "global"
+                                  },
+                                  "name": "global",
+                                  "leadingComments": null
+                                },
+                                "operator": "&&",
+                                "right": {
+                                  "type": "MemberExpression",
+                                  "start": 480,
+                                  "end": 494,
+                                  "loc": {
+                                    "start": {
+                                      "line": 12,
+                                      "column": 18
+                                    },
+                                    "end": {
+                                      "line": 12,
+                                      "column": 32
+                                    }
+                                  },
+                                  "object": {
+                                    "type": "Identifier",
+                                    "start": 480,
+                                    "end": 486,
+                                    "loc": {
+                                      "start": {
+                                        "line": 12,
+                                        "column": 18
+                                      },
+                                      "end": {
+                                        "line": 12,
+                                        "column": 24
+                                      },
+                                      "identifierName": "global"
+                                    },
+                                    "name": "global"
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "start": 487,
+                                    "end": 494,
+                                    "loc": {
+                                      "start": {
+                                        "line": 12,
+                                        "column": 25
+                                      },
+                                      "end": {
+                                        "line": 12,
+                                        "column": 32
+                                      },
+                                      "identifierName": "Decimal"
+                                    },
+                                    "name": "Decimal"
+                                  },
+                                  "computed": false
+                                },
+                                "leadingComments": null
+                              },
+                              "consequent": {
+                                "type": "BlockStatement",
+                                "start": 496,
+                                "end": 596,
+                                "loc": {
+                                  "start": {
+                                    "line": 12,
+                                    "column": 34
+                                  },
+                                  "end": {
+                                    "line": 15,
+                                    "column": 5
+                                  }
+                                },
+                                "body": [
+                                  {
+                                    "type": "ExpressionStatement",
+                                    "start": 504,
+                                    "end": 562,
+                                    "loc": {
+                                      "start": {
+                                        "line": 13,
+                                        "column": 6
+                                      },
+                                      "end": {
+                                        "line": 13,
+                                        "column": 64
+                                      }
+                                    },
+                                    "expression": {
+                                      "type": "CallExpression",
+                                      "start": 504,
+                                      "end": 562,
+                                      "loc": {
+                                        "start": {
+                                          "line": 13,
+                                          "column": 6
+                                        },
+                                        "end": {
+                                          "line": 13,
+                                          "column": 64
+                                        }
+                                      },
+                                      "callee": {
+                                        "type": "Identifier",
+                                        "start": 504,
+                                        "end": 507,
+                                        "loc": {
+                                          "start": {
+                                            "line": 13,
+                                            "column": 6
+                                          },
+                                          "end": {
+                                            "line": 13,
+                                            "column": 9
+                                          },
+                                          "identifierName": "log"
+                                        },
+                                        "name": "log"
+                                      },
+                                      "arguments": [
+                                        {
+                                          "type": "StringLiteral",
+                                          "start": 508,
+                                          "end": 561,
+                                          "loc": {
+                                            "start": {
+                                              "line": 13,
+                                              "column": 10
+                                            },
+                                            "end": {
+                                              "line": 13,
+                                              "column": 63
+                                            }
+                                          },
+                                          "extra": {
+                                            "rawValue": "swarm-numberformat decimal.js: Found global.Decimal",
+                                            "raw": "'swarm-numberformat decimal.js: Found global.Decimal'"
+                                          },
+                                          "value": "swarm-numberformat decimal.js: Found global.Decimal"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "type": "ReturnStatement",
+                                    "start": 569,
+                                    "end": 590,
+                                    "loc": {
+                                      "start": {
+                                        "line": 14,
+                                        "column": 6
+                                      },
+                                      "end": {
+                                        "line": 14,
+                                        "column": 27
+                                      }
+                                    },
+                                    "argument": {
+                                      "type": "MemberExpression",
+                                      "start": 576,
+                                      "end": 590,
+                                      "loc": {
+                                        "start": {
+                                          "line": 14,
+                                          "column": 13
+                                        },
+                                        "end": {
+                                          "line": 14,
+                                          "column": 27
+                                        }
+                                      },
+                                      "object": {
+                                        "type": "Identifier",
+                                        "start": 576,
+                                        "end": 582,
+                                        "loc": {
+                                          "start": {
+                                            "line": 14,
+                                            "column": 13
+                                          },
+                                          "end": {
+                                            "line": 14,
+                                            "column": 19
+                                          },
+                                          "identifierName": "global"
+                                        },
+                                        "name": "global"
+                                      },
+                                      "property": {
+                                        "type": "Identifier",
+                                        "start": 583,
+                                        "end": 590,
+                                        "loc": {
+                                          "start": {
+                                            "line": 14,
+                                            "column": 20
+                                          },
+                                          "end": {
+                                            "line": 14,
+                                            "column": 27
+                                          },
+                                          "identifierName": "Decimal"
+                                        },
+                                        "name": "Decimal"
+                                      },
+                                      "computed": false
+                                    }
+                                  }
+                                ],
+                                "directives": [],
+                                "trailingComments": null
+                              },
+                              "alternate": null,
+                              "leadingComments": [
+                                {
+                                  "type": "CommentLine",
+                                  "value": " Allow node callers to inject their own decimal.js via global, because I am",
+                                  "start": 314,
+                                  "end": 391,
+                                  "loc": {
+                                    "start": {
+                                      "line": 10,
+                                      "column": 4
+                                    },
+                                    "end": {
+                                      "line": 10,
+                                      "column": 81
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "CommentLine",
+                                  "value": " sick to death of trying to wrangle require/webpack/import/etc.",
+                                  "start": 396,
+                                  "end": 461,
+                                  "loc": {
+                                    "start": {
+                                      "line": 11,
+                                      "column": 4
+                                    },
+                                    "end": {
+                                      "line": 11,
+                                      "column": 69
+                                    }
+                                  }
+                                }
+                              ],
+                              "trailingComments": [
+                                {
+                                  "type": "CommentLine",
+                                  "value": " `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src=\"...\">`) builds",
+                                  "start": 601,
+                                  "end": 705,
                                   "loc": {
                                     "start": {
                                       "line": 16,
@@ -515,6 +776,51 @@
                                     },
                                     "end": {
                                       "line": 16,
+                                      "column": 108
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "ExpressionStatement",
+                              "start": 710,
+                              "end": 764,
+                              "loc": {
+                                "start": {
+                                  "line": 17,
+                                  "column": 4
+                                },
+                                "end": {
+                                  "line": 17,
+                                  "column": 58
+                                }
+                              },
+                              "expression": {
+                                "type": "CallExpression",
+                                "start": 710,
+                                "end": 764,
+                                "loc": {
+                                  "start": {
+                                    "line": 17,
+                                    "column": 4
+                                  },
+                                  "end": {
+                                    "line": 17,
+                                    "column": 58
+                                  }
+                                },
+                                "callee": {
+                                  "type": "Identifier",
+                                  "start": 710,
+                                  "end": 713,
+                                  "loc": {
+                                    "start": {
+                                      "line": 17,
+                                      "column": 4
+                                    },
+                                    "end": {
+                                      "line": 17,
                                       "column": 7
                                     },
                                     "identifierName": "log"
@@ -525,15 +831,15 @@
                                 "arguments": [
                                   {
                                     "type": "StringLiteral",
-                                    "start": 627,
-                                    "end": 676,
+                                    "start": 714,
+                                    "end": 763,
                                     "loc": {
                                       "start": {
-                                        "line": 16,
+                                        "line": 17,
                                         "column": 8
                                       },
                                       "end": {
-                                        "line": 16,
+                                        "line": 17,
                                         "column": 57
                                       }
                                     },
@@ -549,96 +855,16 @@
                               "leadingComments": [
                                 {
                                   "type": "CommentLine",
-                                  "value": " Allow node callers to inject their own decimal.js",
-                                  "start": 314,
-                                  "end": 366,
-                                  "loc": {
-                                    "start": {
-                                      "line": 10,
-                                      "column": 4
-                                    },
-                                    "end": {
-                                      "line": 10,
-                                      "column": 56
-                                    }
-                                  }
-                                },
-                                {
-                                  "type": "CommentLine",
-                                  "value": "if (global && global.Decimal) {",
-                                  "start": 371,
-                                  "end": 404,
-                                  "loc": {
-                                    "start": {
-                                      "line": 11,
-                                      "column": 4
-                                    },
-                                    "end": {
-                                      "line": 11,
-                                      "column": 37
-                                    }
-                                  }
-                                },
-                                {
-                                  "type": "CommentLine",
-                                  "value": "  log('swarm-numberformat decimal.js: Found global.Decimal')",
-                                  "start": 409,
-                                  "end": 471,
-                                  "loc": {
-                                    "start": {
-                                      "line": 12,
-                                      "column": 4
-                                    },
-                                    "end": {
-                                      "line": 12,
-                                      "column": 66
-                                    }
-                                  }
-                                },
-                                {
-                                  "type": "CommentLine",
-                                  "value": "  return global.Decimal",
-                                  "start": 476,
-                                  "end": 501,
-                                  "loc": {
-                                    "start": {
-                                      "line": 13,
-                                      "column": 4
-                                    },
-                                    "end": {
-                                      "line": 13,
-                                      "column": 29
-                                    }
-                                  }
-                                },
-                                {
-                                  "type": "CommentLine",
-                                  "value": "}",
-                                  "start": 506,
-                                  "end": 509,
-                                  "loc": {
-                                    "start": {
-                                      "line": 14,
-                                      "column": 4
-                                    },
-                                    "end": {
-                                      "line": 14,
-                                      "column": 7
-                                    }
-                                  }
-                                },
-                                {
-                                  "type": "CommentLine",
                                   "value": " `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src=\"...\">`) builds",
-                                  "start": 514,
-                                  "end": 618,
+                                  "start": 601,
+                                  "end": 705,
                                   "loc": {
                                     "start": {
-                                      "line": 15,
+                                      "line": 16,
                                       "column": 4
                                     },
                                     "end": {
-                                      "line": 15,
+                                      "line": 16,
                                       "column": 108
                                     }
                                   }
@@ -647,43 +873,43 @@
                             },
                             {
                               "type": "ReturnStatement",
-                              "start": 682,
-                              "end": 710,
+                              "start": 769,
+                              "end": 797,
                               "loc": {
                                 "start": {
-                                  "line": 17,
+                                  "line": 18,
                                   "column": 4
                                 },
                                 "end": {
-                                  "line": 17,
+                                  "line": 18,
                                   "column": 32
                                 }
                               },
                               "argument": {
                                 "type": "CallExpression",
-                                "start": 689,
-                                "end": 710,
+                                "start": 776,
+                                "end": 797,
                                 "loc": {
                                   "start": {
-                                    "line": 17,
+                                    "line": 18,
                                     "column": 11
                                   },
                                   "end": {
-                                    "line": 17,
+                                    "line": 18,
                                     "column": 32
                                   }
                                 },
                                 "callee": {
                                   "type": "Identifier",
-                                  "start": 689,
-                                  "end": 696,
+                                  "start": 776,
+                                  "end": 783,
                                   "loc": {
                                     "start": {
-                                      "line": 17,
+                                      "line": 18,
                                       "column": 11
                                     },
                                     "end": {
-                                      "line": 17,
+                                      "line": 18,
                                       "column": 18
                                     },
                                     "identifierName": "require"
@@ -693,15 +919,15 @@
                                 "arguments": [
                                   {
                                     "type": "StringLiteral",
-                                    "start": 697,
-                                    "end": 709,
+                                    "start": 784,
+                                    "end": 796,
                                     "loc": {
                                       "start": {
-                                        "line": 17,
+                                        "line": 18,
                                         "column": 19
                                       },
                                       "end": {
-                                        "line": 17,
+                                        "line": 18,
                                         "column": 31
                                       }
                                     },
@@ -808,9 +1034,9 @@
     },
     {
       "type": "CommentLine",
-      "value": " Allow node callers to inject their own decimal.js",
+      "value": " Allow node callers to inject their own decimal.js via global, because I am",
       "start": 314,
-      "end": 366,
+      "end": 391,
       "loc": {
         "start": {
           "line": 10,
@@ -818,15 +1044,15 @@
         },
         "end": {
           "line": 10,
-          "column": 56
+          "column": 81
         }
       }
     },
     {
       "type": "CommentLine",
-      "value": "if (global && global.Decimal) {",
-      "start": 371,
-      "end": 404,
+      "value": " sick to death of trying to wrangle require/webpack/import/etc.",
+      "start": 396,
+      "end": 461,
       "loc": {
         "start": {
           "line": 11,
@@ -834,70 +1060,22 @@
         },
         "end": {
           "line": 11,
-          "column": 37
-        }
-      }
-    },
-    {
-      "type": "CommentLine",
-      "value": "  log('swarm-numberformat decimal.js: Found global.Decimal')",
-      "start": 409,
-      "end": 471,
-      "loc": {
-        "start": {
-          "line": 12,
-          "column": 4
-        },
-        "end": {
-          "line": 12,
-          "column": 66
-        }
-      }
-    },
-    {
-      "type": "CommentLine",
-      "value": "  return global.Decimal",
-      "start": 476,
-      "end": 501,
-      "loc": {
-        "start": {
-          "line": 13,
-          "column": 4
-        },
-        "end": {
-          "line": 13,
-          "column": 29
-        }
-      }
-    },
-    {
-      "type": "CommentLine",
-      "value": "}",
-      "start": 506,
-      "end": 509,
-      "loc": {
-        "start": {
-          "line": 14,
-          "column": 4
-        },
-        "end": {
-          "line": 14,
-          "column": 7
+          "column": 69
         }
       }
     },
     {
       "type": "CommentLine",
       "value": " `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src=\"...\">`) builds",
-      "start": 514,
-      "end": 618,
+      "start": 601,
+      "end": 705,
       "loc": {
         "start": {
-          "line": 15,
+          "line": 16,
           "column": 4
         },
         "end": {
-          "line": 15,
+          "line": 16,
           "column": 108
         }
       }
@@ -1671,9 +1849,9 @@
     },
     {
       "type": "CommentLine",
-      "value": " Allow node callers to inject their own decimal.js",
+      "value": " Allow node callers to inject their own decimal.js via global, because I am",
       "start": 314,
-      "end": 366,
+      "end": 391,
       "loc": {
         "start": {
           "line": 10,
@@ -1681,15 +1859,15 @@
         },
         "end": {
           "line": 10,
-          "column": 56
+          "column": 81
         }
       }
     },
     {
       "type": "CommentLine",
-      "value": "if (global && global.Decimal) {",
-      "start": 371,
-      "end": 404,
+      "value": " sick to death of trying to wrangle require/webpack/import/etc.",
+      "start": 396,
+      "end": 461,
       "loc": {
         "start": {
           "line": 11,
@@ -1697,15 +1875,27 @@
         },
         "end": {
           "line": 11,
-          "column": 37
+          "column": 69
         }
       }
     },
     {
-      "type": "CommentLine",
-      "value": "  log('swarm-numberformat decimal.js: Found global.Decimal')",
-      "start": 409,
-      "end": 471,
+      "type": {
+        "label": "if",
+        "keyword": "if",
+        "beforeExpr": false,
+        "startsExpr": false,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null,
+        "updateContext": null
+      },
+      "value": "if",
+      "start": 466,
+      "end": 468,
       "loc": {
         "start": {
           "line": 12,
@@ -1713,54 +1903,462 @@
         },
         "end": {
           "line": 12,
-          "column": 66
+          "column": 6
         }
       }
     },
     {
-      "type": "CommentLine",
-      "value": "  return global.Decimal",
-      "start": 476,
-      "end": 501,
+      "type": {
+        "label": "(",
+        "beforeExpr": true,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "start": 469,
+      "end": 470,
       "loc": {
         "start": {
-          "line": 13,
-          "column": 4
-        },
-        "end": {
-          "line": 13,
-          "column": 29
-        }
-      }
-    },
-    {
-      "type": "CommentLine",
-      "value": "}",
-      "start": 506,
-      "end": 509,
-      "loc": {
-        "start": {
-          "line": 14,
-          "column": 4
-        },
-        "end": {
-          "line": 14,
+          "line": 12,
           "column": 7
+        },
+        "end": {
+          "line": 12,
+          "column": 8
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "name",
+        "beforeExpr": false,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "value": "global",
+      "start": 470,
+      "end": 476,
+      "loc": {
+        "start": {
+          "line": 12,
+          "column": 8
+        },
+        "end": {
+          "line": 12,
+          "column": 14
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "&&",
+        "beforeExpr": true,
+        "startsExpr": false,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": 2,
+        "updateContext": null
+      },
+      "value": "&&",
+      "start": 477,
+      "end": 479,
+      "loc": {
+        "start": {
+          "line": 12,
+          "column": 15
+        },
+        "end": {
+          "line": 12,
+          "column": 17
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "name",
+        "beforeExpr": false,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "value": "global",
+      "start": 480,
+      "end": 486,
+      "loc": {
+        "start": {
+          "line": 12,
+          "column": 18
+        },
+        "end": {
+          "line": 12,
+          "column": 24
+        }
+      }
+    },
+    {
+      "type": {
+        "label": ".",
+        "beforeExpr": false,
+        "startsExpr": false,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null,
+        "updateContext": null
+      },
+      "start": 486,
+      "end": 487,
+      "loc": {
+        "start": {
+          "line": 12,
+          "column": 24
+        },
+        "end": {
+          "line": 12,
+          "column": 25
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "name",
+        "beforeExpr": false,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "value": "Decimal",
+      "start": 487,
+      "end": 494,
+      "loc": {
+        "start": {
+          "line": 12,
+          "column": 25
+        },
+        "end": {
+          "line": 12,
+          "column": 32
+        }
+      }
+    },
+    {
+      "type": {
+        "label": ")",
+        "beforeExpr": false,
+        "startsExpr": false,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "start": 494,
+      "end": 495,
+      "loc": {
+        "start": {
+          "line": 12,
+          "column": 32
+        },
+        "end": {
+          "line": 12,
+          "column": 33
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "{",
+        "beforeExpr": true,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "start": 496,
+      "end": 497,
+      "loc": {
+        "start": {
+          "line": 12,
+          "column": 34
+        },
+        "end": {
+          "line": 12,
+          "column": 35
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "name",
+        "beforeExpr": false,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "value": "log",
+      "start": 504,
+      "end": 507,
+      "loc": {
+        "start": {
+          "line": 13,
+          "column": 6
+        },
+        "end": {
+          "line": 13,
+          "column": 9
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "(",
+        "beforeExpr": true,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "start": 507,
+      "end": 508,
+      "loc": {
+        "start": {
+          "line": 13,
+          "column": 9
+        },
+        "end": {
+          "line": 13,
+          "column": 10
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "string",
+        "beforeExpr": false,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null,
+        "updateContext": null
+      },
+      "value": "swarm-numberformat decimal.js: Found global.Decimal",
+      "start": 508,
+      "end": 561,
+      "loc": {
+        "start": {
+          "line": 13,
+          "column": 10
+        },
+        "end": {
+          "line": 13,
+          "column": 63
+        }
+      }
+    },
+    {
+      "type": {
+        "label": ")",
+        "beforeExpr": false,
+        "startsExpr": false,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "start": 561,
+      "end": 562,
+      "loc": {
+        "start": {
+          "line": 13,
+          "column": 63
+        },
+        "end": {
+          "line": 13,
+          "column": 64
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "return",
+        "keyword": "return",
+        "beforeExpr": true,
+        "startsExpr": false,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null,
+        "updateContext": null
+      },
+      "value": "return",
+      "start": 569,
+      "end": 575,
+      "loc": {
+        "start": {
+          "line": 14,
+          "column": 6
+        },
+        "end": {
+          "line": 14,
+          "column": 12
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "name",
+        "beforeExpr": false,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "value": "global",
+      "start": 576,
+      "end": 582,
+      "loc": {
+        "start": {
+          "line": 14,
+          "column": 13
+        },
+        "end": {
+          "line": 14,
+          "column": 19
+        }
+      }
+    },
+    {
+      "type": {
+        "label": ".",
+        "beforeExpr": false,
+        "startsExpr": false,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null,
+        "updateContext": null
+      },
+      "start": 582,
+      "end": 583,
+      "loc": {
+        "start": {
+          "line": 14,
+          "column": 19
+        },
+        "end": {
+          "line": 14,
+          "column": 20
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "name",
+        "beforeExpr": false,
+        "startsExpr": true,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "value": "Decimal",
+      "start": 583,
+      "end": 590,
+      "loc": {
+        "start": {
+          "line": 14,
+          "column": 20
+        },
+        "end": {
+          "line": 14,
+          "column": 27
+        }
+      }
+    },
+    {
+      "type": {
+        "label": "}",
+        "beforeExpr": false,
+        "startsExpr": false,
+        "rightAssociative": false,
+        "isLoop": false,
+        "isAssign": false,
+        "prefix": false,
+        "postfix": false,
+        "binop": null
+      },
+      "start": 595,
+      "end": 596,
+      "loc": {
+        "start": {
+          "line": 15,
+          "column": 4
+        },
+        "end": {
+          "line": 15,
+          "column": 5
         }
       }
     },
     {
       "type": "CommentLine",
       "value": " `nwb.config.js: extenals` ensures this points to window.Decimal for umd (`<script src=\"...\">`) builds",
-      "start": 514,
-      "end": 618,
+      "start": 601,
+      "end": 705,
       "loc": {
         "start": {
-          "line": 15,
+          "line": 16,
           "column": 4
         },
         "end": {
-          "line": 15,
+          "line": 16,
           "column": 108
         }
       }
@@ -1778,15 +2376,15 @@
         "binop": null
       },
       "value": "log",
-      "start": 623,
-      "end": 626,
+      "start": 710,
+      "end": 713,
       "loc": {
         "start": {
-          "line": 16,
+          "line": 17,
           "column": 4
         },
         "end": {
-          "line": 16,
+          "line": 17,
           "column": 7
         }
       }
@@ -1803,15 +2401,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 626,
-      "end": 627,
+      "start": 713,
+      "end": 714,
       "loc": {
         "start": {
-          "line": 16,
+          "line": 17,
           "column": 7
         },
         "end": {
-          "line": 16,
+          "line": 17,
           "column": 8
         }
       }
@@ -1830,15 +2428,15 @@
         "updateContext": null
       },
       "value": "swarm-numberformat decimal.js: trying require()",
-      "start": 627,
-      "end": 676,
+      "start": 714,
+      "end": 763,
       "loc": {
         "start": {
-          "line": 16,
+          "line": 17,
           "column": 8
         },
         "end": {
-          "line": 16,
+          "line": 17,
           "column": 57
         }
       }
@@ -1855,15 +2453,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 676,
-      "end": 677,
+      "start": 763,
+      "end": 764,
       "loc": {
         "start": {
-          "line": 16,
+          "line": 17,
           "column": 57
         },
         "end": {
-          "line": 16,
+          "line": 17,
           "column": 58
         }
       }
@@ -1883,15 +2481,15 @@
         "updateContext": null
       },
       "value": "return",
-      "start": 682,
-      "end": 688,
+      "start": 769,
+      "end": 775,
       "loc": {
         "start": {
-          "line": 17,
+          "line": 18,
           "column": 4
         },
         "end": {
-          "line": 17,
+          "line": 18,
           "column": 10
         }
       }
@@ -1909,15 +2507,15 @@
         "binop": null
       },
       "value": "require",
-      "start": 689,
-      "end": 696,
+      "start": 776,
+      "end": 783,
       "loc": {
         "start": {
-          "line": 17,
+          "line": 18,
           "column": 11
         },
         "end": {
-          "line": 17,
+          "line": 18,
           "column": 18
         }
       }
@@ -1934,15 +2532,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 696,
-      "end": 697,
+      "start": 783,
+      "end": 784,
       "loc": {
         "start": {
-          "line": 17,
+          "line": 18,
           "column": 18
         },
         "end": {
-          "line": 17,
+          "line": 18,
           "column": 19
         }
       }
@@ -1961,15 +2559,15 @@
         "updateContext": null
       },
       "value": "decimal.js",
-      "start": 697,
-      "end": 709,
+      "start": 784,
+      "end": 796,
       "loc": {
         "start": {
-          "line": 17,
+          "line": 18,
           "column": 19
         },
         "end": {
-          "line": 17,
+          "line": 18,
           "column": 31
         }
       }
@@ -1986,15 +2584,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 709,
-      "end": 710,
+      "start": 796,
+      "end": 797,
       "loc": {
         "start": {
-          "line": 17,
+          "line": 18,
           "column": 31
         },
         "end": {
-          "line": 17,
+          "line": 18,
           "column": 32
         }
       }
@@ -2011,15 +2609,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 713,
-      "end": 714,
+      "start": 800,
+      "end": 801,
       "loc": {
         "start": {
-          "line": 18,
+          "line": 19,
           "column": 2
         },
         "end": {
-          "line": 18,
+          "line": 19,
           "column": 3
         }
       }
@@ -2036,15 +2634,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 714,
-      "end": 715,
+      "start": 801,
+      "end": 802,
       "loc": {
         "start": {
-          "line": 18,
+          "line": 19,
           "column": 3
         },
         "end": {
-          "line": 18,
+          "line": 19,
           "column": 4
         }
       }
@@ -2061,15 +2659,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 715,
-      "end": 716,
+      "start": 802,
+      "end": 803,
       "loc": {
         "start": {
-          "line": 18,
+          "line": 19,
           "column": 4
         },
         "end": {
-          "line": 18,
+          "line": 19,
           "column": 5
         }
       }
@@ -2086,15 +2684,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 716,
-      "end": 717,
+      "start": 803,
+      "end": 804,
       "loc": {
         "start": {
-          "line": 18,
+          "line": 19,
           "column": 5
         },
         "end": {
-          "line": 18,
+          "line": 19,
           "column": 6
         }
       }
@@ -2111,15 +2709,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 717,
-      "end": 718,
+      "start": 804,
+      "end": 805,
       "loc": {
         "start": {
-          "line": 18,
+          "line": 19,
           "column": 6
         },
         "end": {
-          "line": 18,
+          "line": 19,
           "column": 7
         }
       }
@@ -2136,15 +2734,15 @@
         "postfix": false,
         "binop": null
       },
-      "start": 719,
-      "end": 720,
+      "start": 806,
+      "end": 807,
       "loc": {
         "start": {
-          "line": 19,
+          "line": 20,
           "column": 0
         },
         "end": {
-          "line": 19,
+          "line": 20,
           "column": 1
         }
       }
@@ -2162,15 +2760,15 @@
         "binop": null,
         "updateContext": null
       },
-      "start": 721,
-      "end": 721,
+      "start": 808,
+      "end": 808,
       "loc": {
         "start": {
-          "line": 20,
+          "line": 21,
           "column": 0
         },
         "end": {
-          "line": 20,
+          "line": 21,
           "column": 0
         }
       }
