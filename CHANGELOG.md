@@ -1,4 +1,4 @@
-### [0.3.1](https://github.com/erosson/swarm-numberformat/releases/tag/v0.3.1)
+### [0.3.2](https://github.com/erosson/swarm-numberformat/releases/tag/v0.3.2)
 
 - Fix node.js import failures.
 

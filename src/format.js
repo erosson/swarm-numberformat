@@ -1,8 +1,7 @@
 // Can't comment a .json file, but the suffixes come from these pages:
 // http://home.kpn.nl/vanadovv/BignumbyN.html
-// ../src is awkward, but it works from both /src and the compiled /es without fussing with webpack config
-import standardSuffixes from '../src/standard-suffixes.json'
-import longScaleSuffixes from '../src/long-scale-suffixes.json'
+import standardSuffixes from '../static/standard-suffixes.json'
+import longScaleSuffixes from '../static/long-scale-suffixes.json'
 import {requireDecimal} from './decimal'
 
 // TODO: use this page to generate names dynamically, for even larger numbers:
