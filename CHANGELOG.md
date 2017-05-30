@@ -1,3 +1,7 @@
+### [0.3.1](https://github.com/erosson/swarm-numberformat/releases/tag/v0.3.1)
+
+- Fix node.js import failures.
+
 ### [0.3.0](https://github.com/erosson/swarm-numberformat/releases/tag/v0.3.0)
 
 - Changed build system to use nwb; tests use jest instead of mocha; `npm start` runs the demo page. These are big changes to the development environment, but I think they're invisible to users.
