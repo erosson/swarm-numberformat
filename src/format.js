@@ -49,24 +49,28 @@ const backends = {
   'decimal.js': {
     // api docs: https://mikemcl.github.io/decimal.js/
     _requireDecimal(config) {
-      if (!requireDecimal(config)) throw new Error('requireDecimal() failed')
-      return new requireDecimal(config)(0).constructor.clone(config)
+      const Decimal = requireDecimal(config)
+      if (!Decimal) throw new Error('requireDecimal() failed')
+      return Decimal.clone(config)
     },
-    normalize(val, {rounding}) {
-      const Decimal = this._requireDecimal({rounding})
+    normalize(val, config) {
+      const Decimal = this._requireDecimal(config)
       return new Decimal(val)
     },
-    index(val) {
-      const Decimal = this._requireDecimal()
+    index(val, config) {
+      const Decimal = this._requireDecimal(config)
       // index = val.log10().dividedToIntegerBy(Decimal.log 1000)
       // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.
       // Lucky me, the length is used by decimal.js internally: num.e
       // this is in the docs, so I think it's stable enough to use...
+      // Actually, not quite. .exponent(): decimal.js-light; .e: decimal.js
       val = new Decimal(val)
-      return Math.floor(val.e / 3)
+      const e = val.exponent ? val.exponent() : val.e
+      return Math.floor(e / 3)
     },
-    prefix(val, index, {sigfigs, rounding}) {
-      const Decimal = this._requireDecimal({rounding})
+    prefix(val, index, config) {
+      const {sigfigs} = config
+      const Decimal = this._requireDecimal(config)
       var div = new Decimal(1000).pow(index)
       // `sigfigs||undefined` supports sigfigs=[null|0], #15
       return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined)
@@ -78,7 +82,7 @@ const backends = {
 function _format(val, opts) {
   const backend = validate(backends[opts.backend], `not a backend: ${opts.backend}`)
   val = backend.normalize(val, opts)
-  const index = backend.index(val)
+  const index = backend.index(val, opts)
   const suffix = opts.suffixFn(index)
   // `{sigfigs: undefined|null|0}` for automatic sigfigs is supported.
   let sigfigs = opts.sigfigs || undefined
@@ -168,6 +172,7 @@ export class Formatter {
    * @param {number} [opts.sigfigs=5]
    * @param {number} [opts.format='standard'] 'standard', 'hybrid', 'scientific', 'longScale'.
    * @param {Object} [opts.formats] Specify your own custom formats.
+   * @param {Function} [opts.Decimal] With the decimal.js backend, use this custom decimal.js constructor, like decimal.js-light or break_infinity.js. By default, we'll try to import decimal.js.
    */
   constructor(opts = {}) {
     /** @type Object */
@@ -206,7 +211,7 @@ export class Formatter {
    */
   index(val, opts) {
     opts = this._normalizeOpts(opts)
-    return backends[opts.backend].index(val)
+    return backends[opts.backend].index(val, opts)
   }
   /**
    * @param {number} val
@@ -221,7 +226,7 @@ export class Formatter {
    */
   suffix(val, opts) {
     opts = this._normalizeOpts(opts)
-    var index = backends[opts.backend].index(val)
+    var index = backends[opts.backend].index(val, opts)
     return opts.suffixFn(index)
   }
   /**

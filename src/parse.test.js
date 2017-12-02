@@ -1,5 +1,6 @@
 import {parse, Parser} from './parse'
 import Decimal from 'decimal.js'
+import LDecimal from 'decimal.js-light'
 
 describe('parse', () => {
   it('parses suffixes from user input', () => {
@@ -32,6 +33,23 @@ describe('parse', () => {
     expect(parse(null)).toBeNull()
     expect(parse(undefined)).toBeNull()
     expect(parse('0', {default: Decimal(3)})).toEqual(Decimal(0))
+    expect(() => parse('fail')).toThrow()
+  })
+  it('parses decimal.js-light', () => {
+    const parser = new Parser({backend: 'decimal.js', Decimal: LDecimal})
+    const parse = (text, config) => parser.parse(text, config)
+    expect(parse('10')).toEqual(LDecimal(10))
+    expect(parse('10k')).toEqual(LDecimal(10000))
+    expect(() => parse('10x')).toThrow()
+    expect(parse('10x', {default: LDecimal(3)})).toEqual(LDecimal(3))
+    expect(parse('10,000')).toEqual(LDecimal(10000))
+    expect(parse('10 thousand')).toEqual(LDecimal(10000))
+    expect(parse('10e3')).toEqual(LDecimal(10000))
+    expect(parse('')).toBeNull()
+    expect(parse('', {default: LDecimal(3)})).toEqual(LDecimal(3))
+    expect(parse(null)).toBeNull()
+    expect(parse(undefined)).toBeNull()
+    expect(parse('0', {default: LDecimal(3)})).toEqual(LDecimal(0))
     expect(() => parse('fail')).toThrow()
   })
 })

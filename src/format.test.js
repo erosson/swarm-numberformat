@@ -1,5 +1,6 @@
 import numberformat from './format'
 import Decimal from 'decimal.js'
+import LDecimal from 'decimal.js-light'
 
 describe('numberformat', () => {
   it('builds formatters', () => {
@@ -147,6 +148,20 @@ describe('numberformat', () => {
     expect(formatter.format(new Decimal('1e21'))).toBe('1.0000 sextillion')
     expect(formatter.format(new Decimal('1e36'))).toBe('1.0000 undecillion')
   })
+  it('supports decimal.js-light', () => {
+    const formatter = new numberformat.Formatter({backend: 'decimal.js', Decimal: LDecimal})
+    expect(formatter.format('1e9999', {format: 'engineering'})).toBe('1.0000E9999')
+    expect(formatter.format(new LDecimal('1e9999'), {format: 'engineering'})).toBe('1.0000E9999')
+    expect(formatter.format(new LDecimal('1e9999'))).toBe('1.0000e9999')
+    expect(formatter.format(new LDecimal('1'))).toBe('1')
+    expect(formatter.format(new LDecimal('1e3'))).toBe('1,000')
+    expect(formatter.format(new LDecimal('1e6'))).toBe('1.0000 million')
+    expect(formatter.format(new LDecimal('1.1111e6'))).toBe('1.1111 million')
+    expect(formatter.format(new LDecimal('1.1111e9'))).toBe('1.1111 billion')
+    expect(formatter.format(new LDecimal('1.1111e12'))).toBe('1.1111 trillion')
+    expect(formatter.format(new LDecimal('1e21'))).toBe('1.0000 sextillion')
+    expect(formatter.format(new LDecimal('1e36'))).toBe('1.0000 undecillion')
+  })
   it('has shortcuts for each flavor', () => {
     const formatter = numberformat
     expect(!!formatter.formatFull).toBe(true)
@@ -159,37 +174,43 @@ describe('numberformat', () => {
     expect(f.format(12345)).toBe('12,345')
     expect(f.formatShort(12345)).toBe('12,345')
   })
-  for (let backend of ['native', 'decimal.js']) {
-    let f = new numberformat.Formatter({backend})
-    it('supports undefined sigfigs, #15: standard, '+backend, () => {
+  for (let config0 of [
+    {backend: 'native'},
+    {backend: 'decimal.js'},
+    {name: 'decimal.js-light', backend: 'decimal.js', Decimal: LDecimal}
+  ]) {
+    let {name, ...config} = config0
+    name = name || config.backend
+    const f = new numberformat.Formatter(config)
+    it('supports undefined sigfigs, #15: standard, '+name, () => {
       expect(f.format(1.00e9, {format: 'standard', sigfigs: undefined})).toBe('1 billion')
       expect(f.format(1.23e9, {format: 'standard', sigfigs: undefined})).toBe('1.23 billion')
     })
-    it('supports undefined sigfigs, #15: hybrid, '+backend, () => {
+    it('supports undefined sigfigs, #15: hybrid, '+name, () => {
       expect(f.format(1.00e9, {format: 'hybrid', sigfigs: undefined})).toBe('1 billion')
       expect(f.format(1.23e9, {format: 'hybrid', sigfigs: undefined})).toBe('1.23 billion')
     })
-    it('supports undefined sigfigs, #15: scientific, '+backend, () => {
+    it('supports undefined sigfigs, #15: scientific, '+name, () => {
       expect(f.format(1.00e9, {format: 'scientific', sigfigs: undefined})).toBe('1e9')
       expect(f.format(1.23e9, {format: 'scientific', sigfigs: undefined})).toBe('1.23e9')
     })
-    it('supports undefined sigfigs, #15: engineering, '+backend, () => {
+    it('supports undefined sigfigs, #15: engineering, '+name, () => {
       expect(f.format(1.00e9, {format: 'engineering', sigfigs: undefined})).toBe('1E9')
       expect(f.format(1.23e9, {format: 'engineering', sigfigs: undefined})).toBe('1.23E9')
     })
-    it('supports undefined sigfigs, #15: longScale, '+backend, () => {
+    it('supports undefined sigfigs, #15: longScale, '+name, () => {
       expect(f.format(1.00e9, {format: 'longScale', sigfigs: undefined})).toBe('1 milliard')
       expect(f.format(1.23e9, {format: 'longScale', sigfigs: undefined})).toBe('1.23 milliard')
     })
-    it('supports undefined sigfigs, #15: standard/short, '+backend, () => {
+    it('supports undefined sigfigs, #15: standard/short, '+name, () => {
       expect(f.format(1.00e9, {format: 'standard', sigfigs: undefined, flavor: 'short'})).toBe('1B')
       expect(f.format(1.23e9, {format: 'standard', sigfigs: undefined, flavor: 'short'})).toBe('1.23B')
     })
-    it('supports undefined sigfigs, #15: standard/null, '+backend, () => {
+    it('supports undefined sigfigs, #15: standard/null, '+name, () => {
       expect(f.format(1.00e9, {format: 'standard', sigfigs: null})).toBe('1 billion')
       expect(f.format(1.23e9, {format: 'standard', sigfigs: null})).toBe('1.23 billion')
     })
-    it('supports undefined sigfigs, #15: standard/0, '+backend, () => {
+    it('supports undefined sigfigs, #15: standard/0, '+name, () => {
       expect(f.format(1.00e9, {format: 'standard', sigfigs: 0})).toBe('1 billion')
       expect(f.format(1.23e9, {format: 'standard', sigfigs: 0})).toBe('1.23 billion')
     })

@@ -2141,6 +2141,10 @@ decamelize@^1.0.0, decamelize@^1.1.1, decamelize@^1.1.2:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
 
+decimal.js-light@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/decimal.js-light/-/decimal.js-light-2.3.1.tgz#2a31d60385c5c365b49ddedb223e41240c72955a"
+
 decimal.js@^7.1.0:
   version "7.2.1"
   resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-7.2.1.tgz#5766c5424919b3a4dcfba10c34f32c73bc7d3ddf"

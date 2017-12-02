@@ -1,3 +1,8 @@
+### [0.4.0](https://github.com/erosson/swarm-numberformat/releases/tag/v0.4.0)
+
+- Added support for custom decimal.js constructors.
+- Added support for decimal.js-light.
+
 ### [0.3.5](https://github.com/erosson/swarm-numberformat/releases/tag/v0.3.5)
 
 - Fix node.js import failures.
