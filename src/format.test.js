@@ -174,6 +174,20 @@ describe('numberformat', () => {
     expect(f.format(12345)).toBe('12,345')
     expect(f.formatShort(12345)).toBe('12,345')
   })
+  it('doesn\'t display double suffixes: native, #20', () => {
+    const f = numberformat
+    expect(f.format(1e9-1)).toBe('999.99 million')
+    expect(f.formatShort(1e9-1)).toBe('999M')
+    expect(f.format(1e6-1)).toBe('999.99 thousand')
+    expect(f.formatShort(1e6-1)).toBe('999K')
+  })
+  it('doesn\'t display double suffixes: decimal.js, #20', () => {
+    const f = new numberformat.Formatter({backend: 'decimal.js'})
+    expect(f.format(1e9-1)).toBe('999.99 million')
+    expect(f.formatShort(1e9-1)).toBe('999M')
+    expect(f.format(1e6-1)).toBe('999.99 thousand')
+    expect(f.formatShort(1e6-1)).toBe('999K')
+  })
   for (let config0 of [
     {backend: 'native'},
     {backend: 'decimal.js'},

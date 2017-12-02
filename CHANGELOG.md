@@ -2,6 +2,7 @@
 
 - Added support for custom decimal.js constructors.
 - Added support for decimal.js-light.
+- Numbers like 999,999 or 999,999,999 should no longer display two suffixes. #20
 
 ### [0.3.5](https://github.com/erosson/swarm-numberformat/releases/tag/v0.3.5)
 

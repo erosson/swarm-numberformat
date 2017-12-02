@@ -27,6 +27,16 @@ const log10 = (() => {
   }
 })()
 
+// Math.floor() to a specified number of sigfigs for native JS numbers.
+// Like Decimal.floor(sigfigs).
+// Based on http://blog.magnetiq.com/post/497605344/rounding-to-a-certain-significant-figures-in
+function floorSigfigs(n, sig) {
+  if (!sig) return n
+  if (n < 0) return -floorSigfigs(-n, sig)
+  var mult = Math.pow(10,
+    sig - Math.floor(Math.log(n) / Math.LN10) - 1)
+  return Math.floor(n * mult) / mult
+}
 const backends = {
   'native': {
     normalize(val) {
@@ -43,7 +53,7 @@ const backends = {
     },
     prefix(val, index, {sigfigs}) {
       // `sigfigs||undefined` supports sigfigs=[null|0], #15
-      return (val / Math.pow(1000, index)).toPrecision(sigfigs || undefined)
+      return floorSigfigs(val / Math.pow(1000, index), sigfigs).toPrecision(sigfigs || undefined)
     },
   },
   'decimal.js': {
@@ -73,7 +83,7 @@ const backends = {
       const Decimal = this._requireDecimal(config)
       var div = new Decimal(1000).pow(index)
       // `sigfigs||undefined` supports sigfigs=[null|0], #15
-      return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined)
+      return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined, Decimal.ROUND_DOWN)
     },
   },
 }
