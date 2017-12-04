@@ -247,4 +247,12 @@ describe('numberformat', () => {
       expect(f.format(1.23e9, {format: 'standard', sigfigs: 0})).toBe('1.23 billion')
     })
   }
+  it('has crude support for smallish numbers with maxSmall', () => {
+    const formatter = numberformat
+    expect(formatter.format(0.12)).toBe('0')
+    expect(formatter.format(0.12, {maxSmall: '10'})).toBe('0.12')
+    expect(formatter.format(9.12, {maxSmall: '10'})).toBe('9.12')
+    expect(formatter.format(10.12, {maxSmall: '10'})).toBe('10')
+    expect(formatter.format(0.123456789, {maxSmall: '10', sigfigs: 2})).toBe('0.12')
+  })
 });
