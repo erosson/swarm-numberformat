@@ -50,7 +50,7 @@ If you need numbers bigger than `Number.MAX_VALUE` (1e308), there's support for 
 
 [decimal.js-light example](https://jsbin.com/yezokofofu/edit?html,output): 
 
-     var Decimal = require('[decimal.js-light](https://jsbin.com/vitefuhebu/edit?html,output)') // or <script src="decimal.js-light">; load it in whatever way works for your app
+     var Decimal = require('decimal.js-light') // or <script src="decimal.js-light">; load it in whatever way works for your app
      numberformat.format(new Decimal('1e10000'), {backend: 'decimal.js', format: 'engineering', Decimal: Decimal})
      // => "10e9999"
      
