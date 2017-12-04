@@ -1,7 +1,7 @@
 import {parse, Parser} from './parse'
 import Decimal from 'decimal.js'
 import LDecimal from 'decimal.js-light'
-import BDecimal from 'break_infinity.js/break_infinity'
+import BDecimal from 'break_infinity.js'
 
 describe('parse', () => {
   it('parses suffixes from user input', () => {

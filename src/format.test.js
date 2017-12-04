@@ -1,7 +1,7 @@
 import numberformat from './format'
 import Decimal from 'decimal.js'
 import LDecimal from 'decimal.js-light'
-import BDecimal from 'break_infinity.js/break_infinity'
+import BDecimal from 'break_infinity.js'
 
 describe('numberformat', () => {
   it('builds formatters', () => {
