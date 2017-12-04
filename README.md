@@ -46,9 +46,13 @@ If you need numbers bigger than `Number.MAX_VALUE` (1e308), there's support for 
      numberformat.format(new Decimal('1e10000'), {backend: 'decimal.js', format: 'engineering'})
      // => "10e9999"
 
-[decimal.js-light](https://github.com/MikeMcl/decimal.js-light) and other Decimal.js-compatible number objects are supported too. Pass their constructor to your formatter.
+[decimal.js-light](https://github.com/MikeMcl/decimal.js-light), [break\_infinity.js](https://github.com/Patashu/break_infinity.js) and other Decimal.js-compatible number objects are supported too. Pass their constructor to your formatter.
 
      var Decimal = require('decimal.js-light') // or <script src="decimal.js-light">; load it in whatever way works for your app
+     numberformat.format(new Decimal('1e10000'), {backend: 'decimal.js', format: 'engineering', Decimal: Decimal})
+     // => "10e9999"
+
+     var Decimal = require('break_infinity.js') // or <script src="break_infinity.js">; load it in whatever way works for your app
      numberformat.format(new Decimal('1e10000'), {backend: 'decimal.js', format: 'engineering', Decimal: Decimal})
      // => "10e9999"
 
