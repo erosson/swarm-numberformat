@@ -35,7 +35,7 @@ Of course, you can override significant figures.
      numberformat.formatShort(1e10, {sigfigs: 7})
      // => "10.00000B"
 
-Use a formatter object instead of `numberformat.format()` / `numberformat.default` to set your own default parameters.
+Use a formatter object instead of `numberformat.format()` / `numberformat.numberformat` to set your own default parameters.
 
      var f = new numberformat.Formatter({format: 'engineering', sigfigs: 2})
      f.format(1.2345e10)
