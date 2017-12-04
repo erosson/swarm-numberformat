@@ -1324,6 +1324,10 @@ braces@^1.8.2:
     preserve "^0.2.0"
     repeat-element "^1.1.2"
 
+break_infinity.js@Patashu/break_infinity.js#1804e9a:
+  version "1.0.0"
+  resolved "https://codeload.github.com/Patashu/break_infinity.js/tar.gz/1804e9af6215890d56984579c2c183676370b5eb"
+
 brorand@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/brorand/-/brorand-1.1.0.tgz#12c25efe40a45e3c323eb8675a0a0ce57b22371f"

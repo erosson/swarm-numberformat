@@ -61,7 +61,8 @@ const backends = {
     _requireDecimal(config) {
       const Decimal = requireDecimal(config)
       if (!Decimal) throw new Error('requireDecimal() failed')
-      return Decimal.clone(config)
+      //return Decimal.clone(config)
+      return Decimal.clone ? Decimal.clone(config) : Decimal
     },
     normalize(val, config) {
       const Decimal = this._requireDecimal(config)
@@ -73,9 +74,17 @@ const backends = {
       // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.
       // Lucky me, the length is used by decimal.js internally: num.e
       // this is in the docs, so I think it's stable enough to use...
-      // Actually, not quite. .exponent(): decimal.js-light; .e: decimal.js
+      // Actually, not quite. decimal.js, decimal.js-light, and break_infinity
+      // are all slightly different here. Not worth separate adapters yet.
       val = new Decimal(val)
-      const e = val.exponent ? val.exponent() : val.e
+      const e = val.exponent
+        ? typeof val.exponent === 'function'
+          // decimal.js-light
+          ? val.exponent()
+          // break_infinity.js
+          : val.exponent
+        // decimal.js
+        : val.e
       return Math.floor(e / 3)
     },
     prefix(val, index, config) {

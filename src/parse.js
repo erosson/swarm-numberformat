@@ -34,9 +34,12 @@ const backends = {
     parseInt(text, config) {
       try {
         const Decimal = requireDecimal(config)
+        const val0 = new Decimal(text)
         // decimal.js-light doesn't have ceil; use the more general rounding fn.
-        //const val = new Decimal(text).ceil()
-        const val = new Decimal(text).toDecimalPlaces(0, Decimal.ROUND_UP)
+        // Not yet worth a separate adapter.
+        const val = val0.ceil
+          ? val0.ceil()
+          : val0.toDecimalPlaces(0, Decimal.ROUND_UP)
         return this.isValid(val) ? val : config['default']
       }
       catch(e) {

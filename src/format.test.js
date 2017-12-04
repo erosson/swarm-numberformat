@@ -1,6 +1,7 @@
 import numberformat from './format'
 import Decimal from 'decimal.js'
 import LDecimal from 'decimal.js-light'
+import BDecimal from 'break_infinity.js/break_infinity'
 
 describe('numberformat', () => {
   it('builds formatters', () => {
@@ -149,18 +150,34 @@ describe('numberformat', () => {
     expect(formatter.format(new Decimal('1e36'))).toBe('1.0000 undecillion')
   })
   it('supports decimal.js-light', () => {
-    const formatter = new numberformat.Formatter({backend: 'decimal.js', Decimal: LDecimal})
+    const Decimal = LDecimal
+    const formatter = new numberformat.Formatter({backend: 'decimal.js', Decimal})
     expect(formatter.format('1e9999', {format: 'engineering'})).toBe('1.0000E9999')
-    expect(formatter.format(new LDecimal('1e9999'), {format: 'engineering'})).toBe('1.0000E9999')
-    expect(formatter.format(new LDecimal('1e9999'))).toBe('1.0000e9999')
-    expect(formatter.format(new LDecimal('1'))).toBe('1')
-    expect(formatter.format(new LDecimal('1e3'))).toBe('1,000')
-    expect(formatter.format(new LDecimal('1e6'))).toBe('1.0000 million')
-    expect(formatter.format(new LDecimal('1.1111e6'))).toBe('1.1111 million')
-    expect(formatter.format(new LDecimal('1.1111e9'))).toBe('1.1111 billion')
-    expect(formatter.format(new LDecimal('1.1111e12'))).toBe('1.1111 trillion')
-    expect(formatter.format(new LDecimal('1e21'))).toBe('1.0000 sextillion')
-    expect(formatter.format(new LDecimal('1e36'))).toBe('1.0000 undecillion')
+    expect(formatter.format(new Decimal('1e9999'), {format: 'engineering'})).toBe('1.0000E9999')
+    expect(formatter.format(new Decimal('1e9999'))).toBe('1.0000e9999')
+    expect(formatter.format(new Decimal('1'))).toBe('1')
+    expect(formatter.format(new Decimal('1e3'))).toBe('1,000')
+    expect(formatter.format(new Decimal('1e6'))).toBe('1.0000 million')
+    expect(formatter.format(new Decimal('1.1111e6'))).toBe('1.1111 million')
+    expect(formatter.format(new Decimal('1.1111e9'))).toBe('1.1111 billion')
+    expect(formatter.format(new Decimal('1.1111e12'))).toBe('1.1111 trillion')
+    expect(formatter.format(new Decimal('1e21'))).toBe('1.0000 sextillion')
+    expect(formatter.format(new Decimal('1e36'))).toBe('1.0000 undecillion')
+  })
+  it('supports break_infinity.js', () => {
+    const Decimal = BDecimal
+    const formatter = new numberformat.Formatter({backend: 'decimal.js', Decimal})
+    expect(formatter.format('1e9999', {format: 'engineering'})).toBe('1.0000E9999')
+    expect(formatter.format(new Decimal('1e9999'), {format: 'engineering'})).toBe('1.0000E9999')
+    expect(formatter.format(new Decimal('1e9999'))).toBe('1.0000e9999')
+    expect(formatter.format(new Decimal('1'))).toBe('1')
+    expect(formatter.format(new Decimal('1e3'))).toBe('1,000')
+    expect(formatter.format(new Decimal('1e6'))).toBe('1.0000 million')
+    expect(formatter.format(new Decimal('1.1111e6'))).toBe('1.1111 million')
+    expect(formatter.format(new Decimal('1.1111e9'))).toBe('1.1111 billion')
+    expect(formatter.format(new Decimal('1.1111e12'))).toBe('1.1111 trillion')
+    expect(formatter.format(new Decimal('1e21'))).toBe('1.0000 sextillion')
+    expect(formatter.format(new Decimal('1e36'))).toBe('1.0000 undecillion')
   })
   it('has shortcuts for each flavor', () => {
     const formatter = numberformat
@@ -191,7 +208,8 @@ describe('numberformat', () => {
   for (let config0 of [
     {backend: 'native'},
     {backend: 'decimal.js'},
-    {name: 'decimal.js-light', backend: 'decimal.js', Decimal: LDecimal}
+    {name: 'decimal.js-light', backend: 'decimal.js', Decimal: LDecimal},
+    //{name: 'break_infinity.js', backend: 'decimal.js', Decimal: BDecimal},
   ]) {
     let {name, ...config} = config0
     name = name || config.backend

@@ -41,6 +41,7 @@
     "babel-jest": "^20.0.3",
     "babel-preset-env": "^1.4.0",
     "babel-preset-stage-0": "^6.24.1",
+    "break_infinity.js": "Patashu/break_infinity.js#1804e9a",
     "decimal.js": "^7.1.0",
     "decimal.js-light": "^2.3.1",
     "esdoc": "^0.5.2",
