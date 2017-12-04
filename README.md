@@ -2,7 +2,7 @@
 
 Format large numbers in several human-readable ways. Designed for incremental games like [Swarm Simulator](https://swarmsim.github.io).
 
-[See it in action](https://jsbin.com/zadepad/edit?html,output), and a [list of all suffixes](https://erosson.github.io/swarm-numberformat/demo/legend.html).
+[See it in action](https://jsbin.com/vitefuhebu/edit?html,output), and a [list of all suffixes](https://erosson.github.io/swarm-numberformat/demo/legend.html).
 
 [![Travis build status](http://img.shields.io/travis/erosson/swarm-numberformat.svg?style=flat)](https://travis-ci.org/erosson/swarm-numberformat)
 [![Dependency Status](https://david-dm.org/erosson/swarm-numberformat.svg)](https://david-dm.org/erosson/swarm-numberformat)
@@ -48,9 +48,13 @@ If you need numbers bigger than `Number.MAX_VALUE` (1e308), there's support for 
 
 [decimal.js-light](https://github.com/MikeMcl/decimal.js-light), [break\_infinity.js](https://github.com/Patashu/break_infinity.js) and other Decimal.js-compatible number objects are supported too. Pass their constructor to your formatter.
 
-     var Decimal = require('decimal.js-light') // or <script src="decimal.js-light">; load it in whatever way works for your app
+[decimal.js-light example](https://jsbin.com/yezokofofu/edit?html,output): 
+
+     var Decimal = require('[decimal.js-light](https://jsbin.com/vitefuhebu/edit?html,output)') // or <script src="decimal.js-light">; load it in whatever way works for your app
      numberformat.format(new Decimal('1e10000'), {backend: 'decimal.js', format: 'engineering', Decimal: Decimal})
      // => "10e9999"
+     
+[break_infinity.js example](https://jsbin.com/pilefawala/1/edit?html,output):
 
      var Decimal = require('break_infinity.js') // or <script src="break_infinity.js">; load it in whatever way works for your app
      numberformat.format(new Decimal('1e10000'), {backend: 'decimal.js', format: 'engineering', Decimal: Decimal})
@@ -77,7 +81,7 @@ The suffixes used here are available in JSON format - this might be useful if yo
 
 ## Getting started
 
-    <script src="//cdn.rawgit.com/erosson/swarm-numberformat/v0.1.0/dist/swarm-numberformat.min.js"></script>
+    <script src="//cdn.rawgit.com/erosson/swarm-numberformat/v0.4.0/dist/swarm-numberformat.min.js"></script>
 
 or
 
@@ -89,7 +93,7 @@ or
 
     const numberformat = require('swarm-numberformat')
 
-[Full API documentation](https://erosson.github.io/swarm-numberformat/). Also see [the demo](https://jsbin.com/zadepad/edit?html,output) and a [list of all suffixes](https://erosson.github.io/swarm-numberformat/demo/legend.html).
+[Full API documentation](https://erosson.github.io/swarm-numberformat/). Also see [the demo](https://jsbin.com/vitefuhebu/edit?html,output) and a [list of all suffixes](https://erosson.github.io/swarm-numberformat/demo/legend.html).
 
 ## Related work
 
