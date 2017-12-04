@@ -47,6 +47,8 @@
 <div class="content" data-ice="content"><h1 data-ice="title">src/format.test.js</h1>
 <pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import numberformat from &apos;./format&apos;
 import Decimal from &apos;decimal.js&apos;
+import LDecimal from &apos;decimal.js-light&apos;
+import BDecimal from &apos;break_infinity.js&apos;
 
 describe(&apos;numberformat&apos;, () =&gt; {
   it(&apos;builds formatters&apos;, () =&gt; {
@@ -194,6 +196,36 @@ describe(&apos;numberformat&apos;, () =&gt; {
     expect(formatter.format(new Decimal(&apos;1e21&apos;))).toBe(&apos;1.0000 sextillion&apos;)
     expect(formatter.format(new Decimal(&apos;1e36&apos;))).toBe(&apos;1.0000 undecillion&apos;)
   })
+  it(&apos;supports decimal.js-light&apos;, () =&gt; {
+    const Decimal = LDecimal
+    const formatter = new numberformat.Formatter({backend: &apos;decimal.js&apos;, Decimal})
+    expect(formatter.format(&apos;1e9999&apos;, {format: &apos;engineering&apos;})).toBe(&apos;1.0000E9999&apos;)
+    expect(formatter.format(new Decimal(&apos;1e9999&apos;), {format: &apos;engineering&apos;})).toBe(&apos;1.0000E9999&apos;)
+    expect(formatter.format(new Decimal(&apos;1e9999&apos;))).toBe(&apos;1.0000e9999&apos;)
+    expect(formatter.format(new Decimal(&apos;1&apos;))).toBe(&apos;1&apos;)
+    expect(formatter.format(new Decimal(&apos;1e3&apos;))).toBe(&apos;1,000&apos;)
+    expect(formatter.format(new Decimal(&apos;1e6&apos;))).toBe(&apos;1.0000 million&apos;)
+    expect(formatter.format(new Decimal(&apos;1.1111e6&apos;))).toBe(&apos;1.1111 million&apos;)
+    expect(formatter.format(new Decimal(&apos;1.1111e9&apos;))).toBe(&apos;1.1111 billion&apos;)
+    expect(formatter.format(new Decimal(&apos;1.1111e12&apos;))).toBe(&apos;1.1111 trillion&apos;)
+    expect(formatter.format(new Decimal(&apos;1e21&apos;))).toBe(&apos;1.0000 sextillion&apos;)
+    expect(formatter.format(new Decimal(&apos;1e36&apos;))).toBe(&apos;1.0000 undecillion&apos;)
+  })
+  it(&apos;supports break_infinity.js&apos;, () =&gt; {
+    const Decimal = BDecimal
+    const formatter = new numberformat.Formatter({backend: &apos;decimal.js&apos;, Decimal})
+    expect(formatter.format(&apos;1e9999&apos;, {format: &apos;engineering&apos;})).toBe(&apos;1.0000E9999&apos;)
+    expect(formatter.format(new Decimal(&apos;1e9999&apos;), {format: &apos;engineering&apos;})).toBe(&apos;1.0000E9999&apos;)
+    expect(formatter.format(new Decimal(&apos;1e9999&apos;))).toBe(&apos;1.0000e9999&apos;)
+    expect(formatter.format(new Decimal(&apos;1&apos;))).toBe(&apos;1&apos;)
+    expect(formatter.format(new Decimal(&apos;1e3&apos;))).toBe(&apos;1,000&apos;)
+    expect(formatter.format(new Decimal(&apos;1e6&apos;))).toBe(&apos;1.0000 million&apos;)
+    expect(formatter.format(new Decimal(&apos;1.1111e6&apos;))).toBe(&apos;1.1111 million&apos;)
+    expect(formatter.format(new Decimal(&apos;1.1111e9&apos;))).toBe(&apos;1.1111 billion&apos;)
+    expect(formatter.format(new Decimal(&apos;1.1111e12&apos;))).toBe(&apos;1.1111 trillion&apos;)
+    expect(formatter.format(new Decimal(&apos;1e21&apos;))).toBe(&apos;1.0000 sextillion&apos;)
+    expect(formatter.format(new Decimal(&apos;1e36&apos;))).toBe(&apos;1.0000 undecillion&apos;)
+  })
   it(&apos;has shortcuts for each flavor&apos;, () =&gt; {
     const formatter = numberformat
     expect(!!formatter.formatFull).toBe(true)
@@ -206,37 +238,58 @@ describe(&apos;numberformat&apos;, () =&gt; {
     expect(f.format(12345)).toBe(&apos;12,345&apos;)
     expect(f.formatShort(12345)).toBe(&apos;12,345&apos;)
   })
-  for (let backend of [&apos;native&apos;, &apos;decimal.js&apos;]) {
-    let f = new numberformat.Formatter({backend})
-    it(&apos;supports undefined sigfigs, #15: standard, &apos;+backend, () =&gt; {
+  it(&apos;doesn\&apos;t display double suffixes: native, #20&apos;, () =&gt; {
+    const f = numberformat
+    expect(f.format(1e9-1)).toBe(&apos;999.99 million&apos;)
+    expect(f.formatShort(1e9-1)).toBe(&apos;999M&apos;)
+    expect(f.format(1e6-1)).toBe(&apos;999.99 thousand&apos;)
+    expect(f.formatShort(1e6-1)).toBe(&apos;999K&apos;)
+  })
+  it(&apos;doesn\&apos;t display double suffixes: decimal.js, #20&apos;, () =&gt; {
+    const f = new numberformat.Formatter({backend: &apos;decimal.js&apos;})
+    expect(f.format(1e9-1)).toBe(&apos;999.99 million&apos;)
+    expect(f.formatShort(1e9-1)).toBe(&apos;999M&apos;)
+    expect(f.format(1e6-1)).toBe(&apos;999.99 thousand&apos;)
+    expect(f.formatShort(1e6-1)).toBe(&apos;999K&apos;)
+  })
+  for (let config0 of [
+    {backend: &apos;native&apos;},
+    {backend: &apos;decimal.js&apos;},
+    {name: &apos;decimal.js-light&apos;, backend: &apos;decimal.js&apos;, Decimal: LDecimal},
+    //{name: &apos;break_infinity.js&apos;, backend: &apos;decimal.js&apos;, Decimal: BDecimal},
+  ]) {
+    let {name, ...config} = config0
+    name = name || config.backend
+    const f = new numberformat.Formatter(config)
+    it(&apos;supports undefined sigfigs, #15: standard, &apos;+name, () =&gt; {
       expect(f.format(1.00e9, {format: &apos;standard&apos;, sigfigs: undefined})).toBe(&apos;1 billion&apos;)
       expect(f.format(1.23e9, {format: &apos;standard&apos;, sigfigs: undefined})).toBe(&apos;1.23 billion&apos;)
     })
-    it(&apos;supports undefined sigfigs, #15: hybrid, &apos;+backend, () =&gt; {
+    it(&apos;supports undefined sigfigs, #15: hybrid, &apos;+name, () =&gt; {
       expect(f.format(1.00e9, {format: &apos;hybrid&apos;, sigfigs: undefined})).toBe(&apos;1 billion&apos;)
       expect(f.format(1.23e9, {format: &apos;hybrid&apos;, sigfigs: undefined})).toBe(&apos;1.23 billion&apos;)
     })
-    it(&apos;supports undefined sigfigs, #15: scientific, &apos;+backend, () =&gt; {
+    it(&apos;supports undefined sigfigs, #15: scientific, &apos;+name, () =&gt; {
       expect(f.format(1.00e9, {format: &apos;scientific&apos;, sigfigs: undefined})).toBe(&apos;1e9&apos;)
       expect(f.format(1.23e9, {format: &apos;scientific&apos;, sigfigs: undefined})).toBe(&apos;1.23e9&apos;)
     })
-    it(&apos;supports undefined sigfigs, #15: engineering, &apos;+backend, () =&gt; {
+    it(&apos;supports undefined sigfigs, #15: engineering, &apos;+name, () =&gt; {
       expect(f.format(1.00e9, {format: &apos;engineering&apos;, sigfigs: undefined})).toBe(&apos;1E9&apos;)
       expect(f.format(1.23e9, {format: &apos;engineering&apos;, sigfigs: undefined})).toBe(&apos;1.23E9&apos;)
     })
-    it(&apos;supports undefined sigfigs, #15: longScale, &apos;+backend, () =&gt; {
+    it(&apos;supports undefined sigfigs, #15: longScale, &apos;+name, () =&gt; {
       expect(f.format(1.00e9, {format: &apos;longScale&apos;, sigfigs: undefined})).toBe(&apos;1 milliard&apos;)
       expect(f.format(1.23e9, {format: &apos;longScale&apos;, sigfigs: undefined})).toBe(&apos;1.23 milliard&apos;)
     })
-    it(&apos;supports undefined sigfigs, #15: standard/short, &apos;+backend, () =&gt; {
+    it(&apos;supports undefined sigfigs, #15: standard/short, &apos;+name, () =&gt; {
       expect(f.format(1.00e9, {format: &apos;standard&apos;, sigfigs: undefined, flavor: &apos;short&apos;})).toBe(&apos;1B&apos;)
       expect(f.format(1.23e9, {format: &apos;standard&apos;, sigfigs: undefined, flavor: &apos;short&apos;})).toBe(&apos;1.23B&apos;)
     })
-    it(&apos;supports undefined sigfigs, #15: standard/null, &apos;+backend, () =&gt; {
+    it(&apos;supports undefined sigfigs, #15: standard/null, &apos;+name, () =&gt; {
       expect(f.format(1.00e9, {format: &apos;standard&apos;, sigfigs: null})).toBe(&apos;1 billion&apos;)
       expect(f.format(1.23e9, {format: &apos;standard&apos;, sigfigs: null})).toBe(&apos;1.23 billion&apos;)
     })
-    it(&apos;supports undefined sigfigs, #15: standard/0, &apos;+backend, () =&gt; {
+    it(&apos;supports undefined sigfigs, #15: standard/0, &apos;+name, () =&gt; {
       expect(f.format(1.00e9, {format: &apos;standard&apos;, sigfigs: 0})).toBe(&apos;1 billion&apos;)
       expect(f.format(1.23e9, {format: &apos;standard&apos;, sigfigs: 0})).toBe(&apos;1.23 billion&apos;)
     })

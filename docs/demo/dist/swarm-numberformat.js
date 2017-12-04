@@ -1,5 +1,5 @@
 /*!
- * swarm-numberformat v0.3.5
+ * swarm-numberformat v0.4.0
  * MIT Licensed
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -149,6 +149,15 @@ var log10 = function () {
   };
 }();
 
+// Math.floor() to a specified number of sigfigs for native JS numbers.
+// Like Decimal.floor(sigfigs).
+// Based on http://blog.magnetiq.com/post/497605344/rounding-to-a-certain-significant-figures-in
+function floorSigfigs(n, sig) {
+  if (!sig) return n;
+  if (n < 0) return -floorSigfigs(-n, sig);
+  var mult = Math.pow(10, sig - Math.floor(Math.log(n) / Math.LN10) - 1);
+  return Math.floor(n * mult) / mult;
+}
 var backends = {
   'native': {
     normalize: function normalize(val) {
@@ -168,38 +177,46 @@ var backends = {
       var sigfigs = _ref.sigfigs;
 
       // `sigfigs||undefined` supports sigfigs=[null|0], #15
-      return (val / Math.pow(1000, index)).toPrecision(sigfigs || undefined);
+      return floorSigfigs(val / Math.pow(1000, index), sigfigs).toPrecision(sigfigs || undefined);
     }
   },
   'decimal.js': {
     // api docs: https://mikemcl.github.io/decimal.js/
     _requireDecimal: function _requireDecimal(config) {
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__decimal__["a" /* requireDecimal */])(config)) throw new Error('requireDecimal() failed');
-      return new __WEBPACK_IMPORTED_MODULE_2__decimal__["a" /* requireDecimal */](config)(0).constructor.clone(config);
+      var Decimal = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__decimal__["a" /* requireDecimal */])(config);
+      if (!Decimal) throw new Error('requireDecimal() failed');
+      //return Decimal.clone(config)
+      return Decimal.clone ? Decimal.clone(config) : Decimal;
     },
-    normalize: function normalize(val, _ref2) {
-      var rounding = _ref2.rounding;
-
-      var Decimal = this._requireDecimal({ rounding: rounding });
+    normalize: function normalize(val, config) {
+      var Decimal = this._requireDecimal(config);
       return new Decimal(val);
     },
-    index: function index(val) {
-      var Decimal = this._requireDecimal();
+    index: function index(val, config) {
+      var Decimal = this._requireDecimal(config);
       // index = val.log10().dividedToIntegerBy(Decimal.log 1000)
       // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.
       // Lucky me, the length is used by decimal.js internally: num.e
       // this is in the docs, so I think it's stable enough to use...
+      // Actually, not quite. decimal.js, decimal.js-light, and break_infinity
+      // are all slightly different here. Not worth separate adapters yet.
       val = new Decimal(val);
-      return Math.floor(val.e / 3);
+      var e = val.exponent ? typeof val.exponent === 'function'
+      // decimal.js-light
+      ? val.exponent()
+      // break_infinity.js
+      : val.exponent
+      // decimal.js
+      : val.e;
+      return Math.floor(e / 3);
     },
-    prefix: function prefix(val, index, _ref3) {
-      var sigfigs = _ref3.sigfigs,
-          rounding = _ref3.rounding;
+    prefix: function prefix(val, index, config) {
+      var sigfigs = config.sigfigs;
 
-      var Decimal = this._requireDecimal({ rounding: rounding });
+      var Decimal = this._requireDecimal(config);
       var div = new Decimal(1000).pow(index);
       // `sigfigs||undefined` supports sigfigs=[null|0], #15
-      return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined);
+      return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined, Decimal.ROUND_DOWN);
     }
   }
 };
@@ -208,7 +225,7 @@ var backends = {
 function _format(val, opts) {
   var backend = validate(backends[opts.backend], 'not a backend: ' + opts.backend);
   val = backend.normalize(val, opts);
-  var index = backend.index(val);
+  var index = backend.index(val, opts);
   var suffix = opts.suffixFn(index);
   // `{sigfigs: undefined|null|0}` for automatic sigfigs is supported.
   var sigfigs = opts.sigfigs || undefined;
@@ -301,6 +318,7 @@ var Formatter = function () {
    * @param {number} [opts.sigfigs=5]
    * @param {number} [opts.format='standard'] 'standard', 'hybrid', 'scientific', 'longScale'.
    * @param {Object} [opts.formats] Specify your own custom formats.
+   * @param {Function} [opts.Decimal] With the decimal.js backend, use this custom decimal.js constructor, like decimal.js-light or break_infinity.js. By default, we'll try to import decimal.js.
    */
   function Formatter() {
     var _this = this;
@@ -353,7 +371,7 @@ var Formatter = function () {
 
   Formatter.prototype.index = function index(val, opts) {
     opts = this._normalizeOpts(opts);
-    return backends[opts.backend].index(val);
+    return backends[opts.backend].index(val, opts);
   };
   /**
    * @param {number} val
@@ -370,7 +388,7 @@ var Formatter = function () {
 
   Formatter.prototype.suffix = function suffix(val, opts) {
     opts = this._normalizeOpts(opts);
-    var index = backends[opts.backend].index(val);
+    var index = backends[opts.backend].index(val, opts);
     return opts.suffixFn(index);
   };
   /**
@@ -931,18 +949,21 @@ var backends = {
   },
   'decimal.js': {
     parseInt: function parseInt(text, config) {
-      if ('default' in config) {
-        try {
-          var val = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__decimal_js__["a" /* requireDecimal */])(config)(text).ceil();
-          return this.isValid(val) ? val : config['default'];
-        } catch (e) {
-          return config.default;
-        }
+      try {
+        var Decimal = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__decimal_js__["a" /* requireDecimal */])(config);
+        var val0 = new Decimal(text);
+        // decimal.js-light doesn't have ceil; use the more general rounding fn.
+        // Not yet worth a separate adapter.
+        var val = val0.ceil ? val0.ceil() : val0.toDecimalPlaces(0, Decimal.ROUND_UP);
+        return this.isValid(val) ? val : config['default'];
+      } catch (e) {
+        if ('default' in config) return config.default;
+        throw e;
       }
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__decimal_js__["a" /* requireDecimal */])(config)(text).ceil();
     },
     isValid: function isValid(val) {
-      return val && !val.isNaN();
+      // decimal.js-light doesn't have isNaN(), it just throws. Test for isNaN only if it exists.
+      return val && (!val.isNaN || !val.isNaN());
     }
   }
 };

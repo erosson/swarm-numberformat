@@ -79,19 +79,24 @@ const backends = {
   },
   &apos;decimal.js&apos;: {
     parseInt(text, config) {
-      if (&apos;default&apos; in config) {
-        try {
-          const val = requireDecimal(config)(text).ceil()
-          return this.isValid(val) ? val : config[&apos;default&apos;]
-        }
-        catch(e) {
-          return config.default
-        }
+      try {
+        const Decimal = requireDecimal(config)
+        const val0 = new Decimal(text)
+        // decimal.js-light doesn&apos;t have ceil; use the more general rounding fn.
+        // Not yet worth a separate adapter.
+        const val = val0.ceil
+          ? val0.ceil()
+          : val0.toDecimalPlaces(0, Decimal.ROUND_UP)
+        return this.isValid(val) ? val : config[&apos;default&apos;]
       }
-      return requireDecimal(config)(text).ceil()
+      catch(e) {
+        if (&apos;default&apos; in config) return config.default
+        throw e
+      }
     },
     isValid(val) {
-      return val &amp;&amp; !val.isNaN()
+      // decimal.js-light doesn&apos;t have isNaN(), it just throws. Test for isNaN only if it exists.
+      return val &amp;&amp; (!val.isNaN || !val.isNaN())
     },
   },
 }

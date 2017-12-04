@@ -51,7 +51,7 @@
 <a href="https://david-dm.org/erosson/swarm-numberformat"><img src="https://david-dm.org/erosson/swarm-numberformat.svg" alt="Dependency Status"></a>
 <a href="https://david-dm.org/erosson/swarm-numberformat#info=devDependencies"><img src="https://david-dm.org/erosson/swarm-numberformat/dev-status.svg" alt="devDependency Status"></a></p>
 <h2 id="features">Features</h2>
-<p>Several built-in formats to choose from. Let your users pick their favorite in an options menu! </p>
+<p>Several built-in formats to choose from. Let your users pick their favorite in an options menu!</p>
 <pre><code><code class="source-code prettyprint"> numberformat.format(1e10)    // or {format: &apos;standard&apos;}
  // =&gt; &quot;10.000 billion&quot;
  numberformat.format(1e10, {format: &apos;scientific&apos;})
@@ -69,12 +69,20 @@
 </code></pre><p>Of course, you can override significant figures.</p>
 <pre><code><code class="source-code prettyprint"> numberformat.formatShort(1e10, {sigfigs: 7})
  // =&gt; &quot;10.00000B&quot;</code>
-</code></pre><p>Use a formatter object instead of <code>numberformat.format()</code> / <code>numberformat.default</code> to set your own default parameters. </p>
+</code></pre><p>Use a formatter object instead of <code>numberformat.format()</code> / <code>numberformat.default</code> to set your own default parameters.</p>
 <pre><code><code class="source-code prettyprint"> var f = new numberformat.Formatter({format: &apos;engineering&apos;, sigfigs: 2})
  f.format(1.2345e10)
  // =&gt; &quot;12E9&quot;</code>
-</code></pre><p>There&apos;s support for <a href="https://github.com/MikeMcl/decimal.js/">decimal.js</a> when you need numbers bigger than <code>Number.MAX_VALUE</code> (1e308).</p>
+</code></pre><p>If you need numbers bigger than <code>Number.MAX_VALUE</code> (1e308), there&apos;s support for <a href="https://github.com/MikeMcl/decimal.js/">decimal.js</a>.</p>
 <pre><code><code class="source-code prettyprint"> numberformat.format(new Decimal(&apos;1e10000&apos;), {backend: &apos;decimal.js&apos;, format: &apos;engineering&apos;})
+ // =&gt; &quot;10e9999&quot;</code>
+</code></pre><p><a href="https://github.com/MikeMcl/decimal.js-light">decimal.js-light</a>, <a href="https://github.com/Patashu/break_infinity.js">break_infinity.js</a> and other Decimal.js-compatible number objects are supported too. Pass their constructor to your formatter.</p>
+<pre><code><code class="source-code prettyprint"> var Decimal = require(&apos;decimal.js-light&apos;) // or &lt;script src=&quot;decimal.js-light&quot;&gt;; load it in whatever way works for your app
+ numberformat.format(new Decimal(&apos;1e10000&apos;), {backend: &apos;decimal.js&apos;, format: &apos;engineering&apos;, Decimal: Decimal})
+ // =&gt; &quot;10e9999&quot;
+
+ var Decimal = require(&apos;break_infinity.js&apos;) // or &lt;script src=&quot;break_infinity.js&quot;&gt;; load it in whatever way works for your app
+ numberformat.format(new Decimal(&apos;1e10000&apos;), {backend: &apos;decimal.js&apos;, format: &apos;engineering&apos;, Decimal: Decimal})
  // =&gt; &quot;10e9999&quot;</code>
 </code></pre><p><code>numberformat</code> can parse its own output.</p>
 <pre><code><code class="source-code prettyprint"> numberformat.parse(&apos;10k&apos;)

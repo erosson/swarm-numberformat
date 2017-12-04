@@ -50,7 +50,7 @@
     "__docId__": 2,
     "kind": "file",
     "name": "src/format.js",
-    "content": "// Can't comment a .json file, but the suffixes come from these pages:\n// http://home.kpn.nl/vanadovv/BignumbyN.html\nimport standardSuffixes from '../static/standard-suffixes.json'\nimport longScaleSuffixes from '../static/long-scale-suffixes.json'\nimport {requireDecimal} from './decimal'\n\n// TODO: use this page to generate names dynamically, for even larger numbers:\n//   http://mathforum.org/library/drmath/view/59154.html\n\nfunction validate(condition, message) {\n  if (!condition) {\n    throw new Error(message)\n  }\n  return condition\n}\n\n// polyfill IE and phantomjs\nconst log10 = (() => {\n  if (!!Math.log10) {\n    return Math.log10\n  }\n  return function(val) {\n    let ret = Math.log(val) / Math.LN10;\n    // bloody stupid rounding errors\n    ret = Math.round(ret * 1e6) / 1e6\n    return ret\n  }\n})()\n\nconst backends = {\n  'native': {\n    normalize(val) {\n      return val\n    },\n    // Suffixes are a list - which index of the list do we want?\n    // _index(999) === 0\n    // _index(1000) === 1\n    // _index(1000000) === 2\n    index(val) {\n      // string length is faster but fails for length >= 20, where JS starts\n      // formatting with e\n      return Math.max(0, Math.floor(log10(Math.abs(val))/3))\n    },\n    prefix(val, index, {sigfigs}) {\n      // `sigfigs||undefined` supports sigfigs=[null|0], #15\n      return (val / Math.pow(1000, index)).toPrecision(sigfigs || undefined)\n    },\n  },\n  'decimal.js': {\n    // api docs: https://mikemcl.github.io/decimal.js/\n    _requireDecimal(config) {\n      if (!requireDecimal(config)) throw new Error('requireDecimal() failed')\n      return new requireDecimal(config)(0).constructor.clone(config)\n    },\n    normalize(val, {rounding}) {\n      const Decimal = this._requireDecimal({rounding})\n      return new Decimal(val)\n    },\n    index(val) {\n      const Decimal = this._requireDecimal()\n      // index = val.log10().dividedToIntegerBy(Decimal.log 1000)\n      // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.\n      // Lucky me, the length is used by decimal.js internally: num.e\n      // this is in the docs, so I think it's stable enough to use...\n      val = new Decimal(val)\n      return Math.floor(val.e / 3)\n    },\n    prefix(val, index, {sigfigs, rounding}) {\n      const Decimal = this._requireDecimal({rounding})\n      var div = new Decimal(1000).pow(index)\n      // `sigfigs||undefined` supports sigfigs=[null|0], #15\n      return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined)\n    },\n  },\n}\n\n// The formatting function.\nfunction _format(val, opts) {\n  const backend = validate(backends[opts.backend], `not a backend: ${opts.backend}`)\n  val = backend.normalize(val, opts)\n  const index = backend.index(val)\n  const suffix = opts.suffixFn(index)\n  // `{sigfigs: undefined|null|0}` for automatic sigfigs is supported.\n  let sigfigs = opts.sigfigs || undefined\n  // optionally format small numbers differently: show decimals without trailing zeros\n  if (Math.abs(val) < opts.maxSmall) {\n    // second param for decimal.js only, native ignores it\n    return val.toPrecision(sigfigs, opts.rounding).replace(/(\\.\\d*[1-9])0+$/, '$1')\n  }\n  // opts.minSuffix: Use JS native formatting for smallish numbers, because\n  // '99,999' is prettier than '99.9k'\n  // it's safe to let Math coerce Decimal.js to infinity here, gt/lt still work\n  if (Math.abs(val) < opts.minSuffix) {\n    val = Math.floor(val)\n    return val.toLocaleString()\n  }\n  // No suffix found: use scientific notation. JS's native toExponential is fine.\n  if (!suffix && suffix !== '') {\n    if (!!sigfigs) {\n      sigfigs -= 1\n    }\n    return val.toExponential(sigfigs).replace('e+', 'e')\n  }\n  // Found a suffix. Calculate the prefix, the number before the suffix.\n  const prefix = backend.prefix(val, index, opts)\n  return `${prefix}${suffix}`\n}\n\nconst defaultOptions = {\n  backend: 'native',\n  flavor: 'full',\n  suffixGroup: 'full',\n  suffixFn(index) {\n    var suffixes = this.suffixes || this.suffixGroups[this.suffixGroup]\n    validate(suffixes, `no such suffixgroup: ${this.suffixGroup}`)\n    if (index < suffixes.length) {\n      return suffixes[index] || ''\n    }\n    // return undefined\n  },\n  // minimum value to use any suffix, because '99,900' is prettier than '99.9k'\n  minSuffix: 1e5,\n  // don't use sigfigs for smallish numbers. #13\n  minSuffixSigfigs: false,\n  // Special formatting for numbers with a decimal point\n  maxSmall: 0,\n  sigfigs: 3, // often overridden by flavor\n  format: 'standard'\n}\n// User-visible format choices, like on swarmsim's options screen.\n// Each has a different set of options.\nexport const Formats = {\n  standard: {suffixGroups: standardSuffixes},\n  // like standard formatting, with a different set of suffixes\n  longScale: {suffixGroups: longScaleSuffixes},\n  // like standard formatting, with no suffixes at all\n  scientific: {suffixGroups: {full: [], short: []}},\n  // like standard formatting, with a smaller set of suffixes\n  hybrid: {\n    suffixGroups: {\n      full: standardSuffixes.full.slice(0, 12),\n      short: standardSuffixes.short.slice(0, 12),\n    },\n  },\n  // like standard formatting, with a different/infinite set of suffixes\n  engineering: {suffixFn: index => index === 0 ? '' : `E${index*3}`},\n}\n// A convenient way for the developer to modify formatters.\n// These are different from formats - not user-visible.\nconst Flavors = {\n  full: {suffixGroup: 'full', sigfigs: 5},\n  short: {suffixGroup: 'short', sigfigs: 3},\n}\n// Allow callers to extend formats and flavors.\ndefaultOptions.formats = Formats\ndefaultOptions.flavors = Flavors\n\nexport class Formatter {\n  /**\n   * @param {Object} opts All formatter configuration.\n   * @param {string} [opts.flavor='full'] 'full' or 'short'. Flavors can modify any number of other options here. Full is the default; short has fewer sigfigs and shorter standard-suffixes.\n   * @param {Object} [opts.flavors] Specify your own custom flavors.\n   * @param {string} [opts.backend='native'] 'native' or 'decimal.js'.\n   * @param {string} [opts.suffixGroup]\n   * @param {Function} [opts.suffixFn]\n   * @param {number} [opts.minSuffix=1e5]\n   * @param {number} [opts.maxSmall=0] Special formatting for numbers with a decimal point\n   * @param {number} [opts.sigfigs=5]\n   * @param {number} [opts.format='standard'] 'standard', 'hybrid', 'scientific', 'longScale'.\n   * @param {Object} [opts.formats] Specify your own custom formats.\n   */\n  constructor(opts = {}) {\n    /** @type Object */\n    this.opts = opts\n    // create convenience methods for each flavor\n    var flavors = Object.keys(this._normalizeOpts().flavors)\n    // the fn(i) is for stupid binding tricks with the looped fn(val, opts)\n    for (var i=0; i < flavors.length; i++) (i => {\n      var flavor = flavors[i]\n      // capitalize the first letter to camel-case method name, like formatShort\n      var key = 'format' + flavor.charAt(0).toUpperCase() + flavor.substr(1)\n      /** @ignore */\n      this[key] = (val, opts) => this.formatFlavor(val, flavor, opts)\n    })(i)\n  }\n\n  _normalizeOpts(opts={}) {\n    // all the user-specified opts, no defaults\n    opts = Object.assign({}, this.opts, opts)\n    // opts.format redefines some other opts, but should never override the user's opts\n    var format = opts && opts.format\n    var formats = (opts && opts.formats) || defaultOptions.formats\n    var formatOptions = formats[format || defaultOptions.format]\n    validate(formatOptions, `no such format: ${format}`)\n    var flavor = opts && opts.flavor\n    var flavors = (opts && opts.flavors) || defaultOptions.flavors\n    var flavorOptions = flavors[flavor || defaultOptions.flavor]\n    validate(flavorOptions, `no such flavor: ${flavor}`)\n    // finally, add the implied options: defaults and format-derived\n    return Object.assign({}, defaultOptions, formatOptions, flavorOptions, opts)\n  }\n  /**\n   * @param {number} val\n   * @param {Object} [opts]\n   * @return {number} which suffix to use for this number in a list of suffixes. You can also think of this as \"how many commas are in the number?\"\n   */\n  index(val, opts) {\n    opts = this._normalizeOpts(opts)\n    return backends[opts.backend].index(val)\n  }\n  /**\n   * @param {number} val\n   * @param {Object} [opts]\n   * @return {string} The suffix that this number would use, with no number shown.\n   * @example\n   * new Formatter().suffix(1e6)\n   * // => \" million\"\n   * @example\n   * new Formatter().suffix(1e6, {flavor: \"short\"})\n   * // => \"M\"\n   */\n  suffix(val, opts) {\n    opts = this._normalizeOpts(opts)\n    var index = backends[opts.backend].index(val)\n    return opts.suffixFn(index)\n  }\n  /**\n   * Format a number.\n   * @param {number} val\n   * @param {Object} [opts] Override the options provided to the Formatter constructor.\n   * @return {string} The formatted number.\n   * @example\n   * new Formatter().format(1e6)\n   * // => \"1.0000 million\"\n   */\n  format(val, opts) {\n    opts = this._normalizeOpts(opts)\n    return _format(val, opts)\n  }\n  /**\n   * Format a number with a specified flavor. It's very common to call the formatter with different flavors, so it has its own shortcut.\n   *\n   * `Formatter.formatFull()` and `Formatter.formatShort()` are also available.\n   * @param {number} val\n   * @param {string} flavor 'short' or 'full'. See opts.flavor.\n   * @param {Object} [opts]\n   * @return {string} The formatted number.\n   * @example\n   * new Formatter().format(1e6, 'short')\n   * // => \"1.00M\"\n   */\n  formatFlavor(val, flavor, opts) {\n    return this.format(val, Object.assign({}, opts, {flavor}))\n  }\n  /**\n   * @param {Object} [opts]\n   * @return {string[]} The complete list of formats available. Use this to build an options UI to allow your players to choose their favorite format.\n   */\n  listFormats(opts) {\n    opts = this._normalizeOpts(opts)\n    return Object.keys(opts.formats)\n  }\n}\n\nconst numberformat = new Formatter()\nnumberformat.defaultOptions = defaultOptions\nnumberformat.Formatter = Formatter\nexport default numberformat\n\n/**\n * Format a number using the default options.\n * @param {number} val\n * @param {Object} [opts]\n * @return string\n * @example\n * format(1e6)\n * // => \"1.0000 million\"\n * @example\n * format(1e6, {sigfigs: 1})\n * // => \"1 million\"\n */\nexport const format = (val, opts) => numberformat.format(val, opts)\n/**\n * Format a full-flavor number using the default options. Identical to `format()`\n * @param {number} val\n * @param {Object} [opts]\n * @return string\n * @example\n * format(1e6)\n * // => \"1.0000 million\"\n */\nexport const formatFull = (val, opts) => numberformat.formatFlavor(val, 'full', opts)\n/**\n * Format a short-flavor number using the default options.\n * @param {number} val\n * @param {Object} [opts]\n * @return string\n * @example\n * format(1e6)\n * // => \"1.00M\"\n */\nexport const formatShort = (val, opts) => numberformat.formatFlavor(val, 'short', opts)\n",
+    "content": "// Can't comment a .json file, but the suffixes come from these pages:\n// http://home.kpn.nl/vanadovv/BignumbyN.html\nimport standardSuffixes from '../static/standard-suffixes.json'\nimport longScaleSuffixes from '../static/long-scale-suffixes.json'\nimport {requireDecimal} from './decimal'\n\n// TODO: use this page to generate names dynamically, for even larger numbers:\n//   http://mathforum.org/library/drmath/view/59154.html\n\nfunction validate(condition, message) {\n  if (!condition) {\n    throw new Error(message)\n  }\n  return condition\n}\n\n// polyfill IE and phantomjs\nconst log10 = (() => {\n  if (!!Math.log10) {\n    return Math.log10\n  }\n  return function(val) {\n    let ret = Math.log(val) / Math.LN10;\n    // bloody stupid rounding errors\n    ret = Math.round(ret * 1e6) / 1e6\n    return ret\n  }\n})()\n\n// Math.floor() to a specified number of sigfigs for native JS numbers.\n// Like Decimal.floor(sigfigs).\n// Based on http://blog.magnetiq.com/post/497605344/rounding-to-a-certain-significant-figures-in\nfunction floorSigfigs(n, sig) {\n  if (!sig) return n\n  if (n < 0) return -floorSigfigs(-n, sig)\n  var mult = Math.pow(10,\n    sig - Math.floor(Math.log(n) / Math.LN10) - 1)\n  return Math.floor(n * mult) / mult\n}\nconst backends = {\n  'native': {\n    normalize(val) {\n      return val\n    },\n    // Suffixes are a list - which index of the list do we want?\n    // _index(999) === 0\n    // _index(1000) === 1\n    // _index(1000000) === 2\n    index(val) {\n      // string length is faster but fails for length >= 20, where JS starts\n      // formatting with e\n      return Math.max(0, Math.floor(log10(Math.abs(val))/3))\n    },\n    prefix(val, index, {sigfigs}) {\n      // `sigfigs||undefined` supports sigfigs=[null|0], #15\n      return floorSigfigs(val / Math.pow(1000, index), sigfigs).toPrecision(sigfigs || undefined)\n    },\n  },\n  'decimal.js': {\n    // api docs: https://mikemcl.github.io/decimal.js/\n    _requireDecimal(config) {\n      const Decimal = requireDecimal(config)\n      if (!Decimal) throw new Error('requireDecimal() failed')\n      //return Decimal.clone(config)\n      return Decimal.clone ? Decimal.clone(config) : Decimal\n    },\n    normalize(val, config) {\n      const Decimal = this._requireDecimal(config)\n      return new Decimal(val)\n    },\n    index(val, config) {\n      const Decimal = this._requireDecimal(config)\n      // index = val.log10().dividedToIntegerBy(Decimal.log 1000)\n      // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.\n      // Lucky me, the length is used by decimal.js internally: num.e\n      // this is in the docs, so I think it's stable enough to use...\n      // Actually, not quite. decimal.js, decimal.js-light, and break_infinity\n      // are all slightly different here. Not worth separate adapters yet.\n      val = new Decimal(val)\n      const e = val.exponent\n        ? typeof val.exponent === 'function'\n          // decimal.js-light\n          ? val.exponent()\n          // break_infinity.js\n          : val.exponent\n        // decimal.js\n        : val.e\n      return Math.floor(e / 3)\n    },\n    prefix(val, index, config) {\n      const {sigfigs} = config\n      const Decimal = this._requireDecimal(config)\n      var div = new Decimal(1000).pow(index)\n      // `sigfigs||undefined` supports sigfigs=[null|0], #15\n      return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined, Decimal.ROUND_DOWN)\n    },\n  },\n}\n\n// The formatting function.\nfunction _format(val, opts) {\n  const backend = validate(backends[opts.backend], `not a backend: ${opts.backend}`)\n  val = backend.normalize(val, opts)\n  const index = backend.index(val, opts)\n  const suffix = opts.suffixFn(index)\n  // `{sigfigs: undefined|null|0}` for automatic sigfigs is supported.\n  let sigfigs = opts.sigfigs || undefined\n  // optionally format small numbers differently: show decimals without trailing zeros\n  if (Math.abs(val) < opts.maxSmall) {\n    // second param for decimal.js only, native ignores it\n    return val.toPrecision(sigfigs, opts.rounding).replace(/(\\.\\d*[1-9])0+$/, '$1')\n  }\n  // opts.minSuffix: Use JS native formatting for smallish numbers, because\n  // '99,999' is prettier than '99.9k'\n  // it's safe to let Math coerce Decimal.js to infinity here, gt/lt still work\n  if (Math.abs(val) < opts.minSuffix) {\n    val = Math.floor(val)\n    return val.toLocaleString()\n  }\n  // No suffix found: use scientific notation. JS's native toExponential is fine.\n  if (!suffix && suffix !== '') {\n    if (!!sigfigs) {\n      sigfigs -= 1\n    }\n    return val.toExponential(sigfigs).replace('e+', 'e')\n  }\n  // Found a suffix. Calculate the prefix, the number before the suffix.\n  const prefix = backend.prefix(val, index, opts)\n  return `${prefix}${suffix}`\n}\n\nconst defaultOptions = {\n  backend: 'native',\n  flavor: 'full',\n  suffixGroup: 'full',\n  suffixFn(index) {\n    var suffixes = this.suffixes || this.suffixGroups[this.suffixGroup]\n    validate(suffixes, `no such suffixgroup: ${this.suffixGroup}`)\n    if (index < suffixes.length) {\n      return suffixes[index] || ''\n    }\n    // return undefined\n  },\n  // minimum value to use any suffix, because '99,900' is prettier than '99.9k'\n  minSuffix: 1e5,\n  // don't use sigfigs for smallish numbers. #13\n  minSuffixSigfigs: false,\n  // Special formatting for numbers with a decimal point\n  maxSmall: 0,\n  sigfigs: 3, // often overridden by flavor\n  format: 'standard'\n}\n// User-visible format choices, like on swarmsim's options screen.\n// Each has a different set of options.\nexport const Formats = {\n  standard: {suffixGroups: standardSuffixes},\n  // like standard formatting, with a different set of suffixes\n  longScale: {suffixGroups: longScaleSuffixes},\n  // like standard formatting, with no suffixes at all\n  scientific: {suffixGroups: {full: [], short: []}},\n  // like standard formatting, with a smaller set of suffixes\n  hybrid: {\n    suffixGroups: {\n      full: standardSuffixes.full.slice(0, 12),\n      short: standardSuffixes.short.slice(0, 12),\n    },\n  },\n  // like standard formatting, with a different/infinite set of suffixes\n  engineering: {suffixFn: index => index === 0 ? '' : `E${index*3}`},\n}\n// A convenient way for the developer to modify formatters.\n// These are different from formats - not user-visible.\nconst Flavors = {\n  full: {suffixGroup: 'full', sigfigs: 5},\n  short: {suffixGroup: 'short', sigfigs: 3},\n}\n// Allow callers to extend formats and flavors.\ndefaultOptions.formats = Formats\ndefaultOptions.flavors = Flavors\n\nexport class Formatter {\n  /**\n   * @param {Object} opts All formatter configuration.\n   * @param {string} [opts.flavor='full'] 'full' or 'short'. Flavors can modify any number of other options here. Full is the default; short has fewer sigfigs and shorter standard-suffixes.\n   * @param {Object} [opts.flavors] Specify your own custom flavors.\n   * @param {string} [opts.backend='native'] 'native' or 'decimal.js'.\n   * @param {string} [opts.suffixGroup]\n   * @param {Function} [opts.suffixFn]\n   * @param {number} [opts.minSuffix=1e5]\n   * @param {number} [opts.maxSmall=0] Special formatting for numbers with a decimal point\n   * @param {number} [opts.sigfigs=5]\n   * @param {number} [opts.format='standard'] 'standard', 'hybrid', 'scientific', 'longScale'.\n   * @param {Object} [opts.formats] Specify your own custom formats.\n   * @param {Function} [opts.Decimal] With the decimal.js backend, use this custom decimal.js constructor, like decimal.js-light or break_infinity.js. By default, we'll try to import decimal.js.\n   */\n  constructor(opts = {}) {\n    /** @type Object */\n    this.opts = opts\n    // create convenience methods for each flavor\n    var flavors = Object.keys(this._normalizeOpts().flavors)\n    // the fn(i) is for stupid binding tricks with the looped fn(val, opts)\n    for (var i=0; i < flavors.length; i++) (i => {\n      var flavor = flavors[i]\n      // capitalize the first letter to camel-case method name, like formatShort\n      var key = 'format' + flavor.charAt(0).toUpperCase() + flavor.substr(1)\n      /** @ignore */\n      this[key] = (val, opts) => this.formatFlavor(val, flavor, opts)\n    })(i)\n  }\n\n  _normalizeOpts(opts={}) {\n    // all the user-specified opts, no defaults\n    opts = Object.assign({}, this.opts, opts)\n    // opts.format redefines some other opts, but should never override the user's opts\n    var format = opts && opts.format\n    var formats = (opts && opts.formats) || defaultOptions.formats\n    var formatOptions = formats[format || defaultOptions.format]\n    validate(formatOptions, `no such format: ${format}`)\n    var flavor = opts && opts.flavor\n    var flavors = (opts && opts.flavors) || defaultOptions.flavors\n    var flavorOptions = flavors[flavor || defaultOptions.flavor]\n    validate(flavorOptions, `no such flavor: ${flavor}`)\n    // finally, add the implied options: defaults and format-derived\n    return Object.assign({}, defaultOptions, formatOptions, flavorOptions, opts)\n  }\n  /**\n   * @param {number} val\n   * @param {Object} [opts]\n   * @return {number} which suffix to use for this number in a list of suffixes. You can also think of this as \"how many commas are in the number?\"\n   */\n  index(val, opts) {\n    opts = this._normalizeOpts(opts)\n    return backends[opts.backend].index(val, opts)\n  }\n  /**\n   * @param {number} val\n   * @param {Object} [opts]\n   * @return {string} The suffix that this number would use, with no number shown.\n   * @example\n   * new Formatter().suffix(1e6)\n   * // => \" million\"\n   * @example\n   * new Formatter().suffix(1e6, {flavor: \"short\"})\n   * // => \"M\"\n   */\n  suffix(val, opts) {\n    opts = this._normalizeOpts(opts)\n    var index = backends[opts.backend].index(val, opts)\n    return opts.suffixFn(index)\n  }\n  /**\n   * Format a number.\n   * @param {number} val\n   * @param {Object} [opts] Override the options provided to the Formatter constructor.\n   * @return {string} The formatted number.\n   * @example\n   * new Formatter().format(1e6)\n   * // => \"1.0000 million\"\n   */\n  format(val, opts) {\n    opts = this._normalizeOpts(opts)\n    return _format(val, opts)\n  }\n  /**\n   * Format a number with a specified flavor. It's very common to call the formatter with different flavors, so it has its own shortcut.\n   *\n   * `Formatter.formatFull()` and `Formatter.formatShort()` are also available.\n   * @param {number} val\n   * @param {string} flavor 'short' or 'full'. See opts.flavor.\n   * @param {Object} [opts]\n   * @return {string} The formatted number.\n   * @example\n   * new Formatter().format(1e6, 'short')\n   * // => \"1.00M\"\n   */\n  formatFlavor(val, flavor, opts) {\n    return this.format(val, Object.assign({}, opts, {flavor}))\n  }\n  /**\n   * @param {Object} [opts]\n   * @return {string[]} The complete list of formats available. Use this to build an options UI to allow your players to choose their favorite format.\n   */\n  listFormats(opts) {\n    opts = this._normalizeOpts(opts)\n    return Object.keys(opts.formats)\n  }\n}\n\nconst numberformat = new Formatter()\nnumberformat.defaultOptions = defaultOptions\nnumberformat.Formatter = Formatter\nexport default numberformat\n\n/**\n * Format a number using the default options.\n * @param {number} val\n * @param {Object} [opts]\n * @return string\n * @example\n * format(1e6)\n * // => \"1.0000 million\"\n * @example\n * format(1e6, {sigfigs: 1})\n * // => \"1 million\"\n */\nexport const format = (val, opts) => numberformat.format(val, opts)\n/**\n * Format a full-flavor number using the default options. Identical to `format()`\n * @param {number} val\n * @param {Object} [opts]\n * @return string\n * @example\n * format(1e6)\n * // => \"1.0000 million\"\n */\nexport const formatFull = (val, opts) => numberformat.formatFlavor(val, 'full', opts)\n/**\n * Format a short-flavor number using the default options.\n * @param {number} val\n * @param {Object} [opts]\n * @return string\n * @example\n * format(1e6)\n * // => \"1.00M\"\n */\nexport const formatShort = (val, opts) => numberformat.formatFlavor(val, 'short', opts)\n",
     "static": true,
     "longname": "src/format.js",
     "access": null,
@@ -127,6 +127,48 @@
   },
   {
     "__docId__": 5,
+    "kind": "function",
+    "name": "floorSigfigs",
+    "memberof": "src/format.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "src/format.js~floorSigfigs",
+    "access": null,
+    "export": false,
+    "importPath": "swarm-numberformat/src/format.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 33,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "name": "n",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "sig",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 6,
     "kind": "variable",
     "name": "backends",
     "memberof": "src/format.js",
@@ -137,7 +179,7 @@
     "importPath": "swarm-numberformat/src/format.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 30,
+    "lineNumber": 40,
     "undocument": true,
     "unknown": [
       {
@@ -152,7 +194,7 @@
     }
   },
   {
-    "__docId__": 6,
+    "__docId__": 7,
     "kind": "function",
     "name": "_format",
     "memberof": "src/format.js",
@@ -165,7 +207,7 @@
     "importPath": "swarm-numberformat/src/format.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 78,
+    "lineNumber": 101,
     "undocument": true,
     "unknown": [
       {
@@ -194,7 +236,7 @@
     }
   },
   {
-    "__docId__": 7,
+    "__docId__": 8,
     "kind": "variable",
     "name": "defaultOptions",
     "memberof": "src/format.js",
@@ -205,7 +247,7 @@
     "importPath": "swarm-numberformat/src/format.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 109,
+    "lineNumber": 132,
     "undocument": true,
     "unknown": [
       {
@@ -220,7 +262,7 @@
     }
   },
   {
-    "__docId__": 8,
+    "__docId__": 9,
     "kind": "variable",
     "name": "Formats",
     "memberof": "src/format.js",
@@ -231,7 +273,7 @@
     "importPath": "swarm-numberformat/src/format.js",
     "importStyle": "{Formats}",
     "description": null,
-    "lineNumber": 132,
+    "lineNumber": 155,
     "undocument": true,
     "unknown": [
       {
@@ -246,7 +288,7 @@
     }
   },
   {
-    "__docId__": 9,
+    "__docId__": 10,
     "kind": "variable",
     "name": "Flavors",
     "memberof": "src/format.js",
@@ -257,7 +299,7 @@
     "importPath": "swarm-numberformat/src/format.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 150,
+    "lineNumber": 173,
     "undocument": true,
     "unknown": [
       {
@@ -272,7 +314,7 @@
     }
   },
   {
-    "__docId__": 10,
+    "__docId__": 11,
     "kind": "class",
     "name": "Formatter",
     "memberof": "src/format.js",
@@ -283,7 +325,7 @@
     "importPath": "swarm-numberformat/src/format.js",
     "importStyle": "{Formatter}",
     "description": null,
-    "lineNumber": 158,
+    "lineNumber": 181,
     "undocument": true,
     "unknown": [
       {
@@ -294,7 +336,7 @@
     "interface": false
   },
   {
-    "__docId__": 11,
+    "__docId__": 12,
     "kind": "constructor",
     "name": "constructor",
     "memberof": "src/format.js~Formatter",
@@ -304,7 +346,7 @@
     "longname": "src/format.js~Formatter#constructor",
     "access": null,
     "description": "",
-    "lineNumber": 172,
+    "lineNumber": 196,
     "params": [
       {
         "nullable": null,
@@ -427,11 +469,21 @@
         "optional": true,
         "name": "opts.formats",
         "description": "Specify your own custom formats."
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Function"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts.Decimal",
+        "description": "With the decimal.js backend, use this custom decimal.js constructor, like decimal.js-light or break_infinity.js. By default, we'll try to import decimal.js."
       }
     ]
   },
   {
-    "__docId__": 12,
+    "__docId__": 13,
     "kind": "member",
     "name": "opts",
     "memberof": "src/format.js~Formatter",
@@ -439,7 +491,7 @@
     "longname": "src/format.js~Formatter#opts",
     "access": null,
     "description": null,
-    "lineNumber": 174,
+    "lineNumber": 198,
     "type": {
       "nullable": null,
       "types": [
@@ -450,7 +502,7 @@
     }
   },
   {
-    "__docId__": 13,
+    "__docId__": 14,
     "kind": "member",
     "name": "[key]",
     "memberof": "src/format.js~Formatter",
@@ -458,7 +510,7 @@
     "longname": "src/format.js~Formatter#[key]",
     "access": null,
     "description": null,
-    "lineNumber": 183,
+    "lineNumber": 207,
     "ignore": true,
     "type": {
       "types": [
@@ -467,7 +519,7 @@
     }
   },
   {
-    "__docId__": 14,
+    "__docId__": 15,
     "kind": "method",
     "name": "_normalizeOpts",
     "memberof": "src/format.js~Formatter",
@@ -477,7 +529,7 @@
     "longname": "src/format.js~Formatter#_normalizeOpts",
     "access": null,
     "description": null,
-    "lineNumber": 187,
+    "lineNumber": 211,
     "undocument": true,
     "unknown": [
       {
@@ -503,7 +555,7 @@
     }
   },
   {
-    "__docId__": 15,
+    "__docId__": 16,
     "kind": "method",
     "name": "index",
     "memberof": "src/format.js~Formatter",
@@ -513,7 +565,7 @@
     "longname": "src/format.js~Formatter#index",
     "access": null,
     "description": "",
-    "lineNumber": 207,
+    "lineNumber": 231,
     "params": [
       {
         "nullable": null,
@@ -546,7 +598,7 @@
     }
   },
   {
-    "__docId__": 16,
+    "__docId__": 17,
     "kind": "method",
     "name": "suffix",
     "memberof": "src/format.js~Formatter",
@@ -560,7 +612,7 @@
       "new Formatter().suffix(1e6)\n// => \" million\"",
       "new Formatter().suffix(1e6, {flavor: \"short\"})\n// => \"M\""
     ],
-    "lineNumber": 222,
+    "lineNumber": 246,
     "params": [
       {
         "nullable": null,
@@ -593,7 +645,7 @@
     }
   },
   {
-    "__docId__": 17,
+    "__docId__": 18,
     "kind": "method",
     "name": "format",
     "memberof": "src/format.js~Formatter",
@@ -606,7 +658,7 @@
     "examples": [
       "new Formatter().format(1e6)\n// => \"1.0000 million\""
     ],
-    "lineNumber": 236,
+    "lineNumber": 260,
     "params": [
       {
         "nullable": null,
@@ -639,7 +691,7 @@
     }
   },
   {
-    "__docId__": 18,
+    "__docId__": 19,
     "kind": "method",
     "name": "formatFlavor",
     "memberof": "src/format.js~Formatter",
@@ -652,7 +704,7 @@
     "examples": [
       "new Formatter().format(1e6, 'short')\n// => \"1.00M\""
     ],
-    "lineNumber": 252,
+    "lineNumber": 276,
     "params": [
       {
         "nullable": null,
@@ -695,7 +747,7 @@
     }
   },
   {
-    "__docId__": 19,
+    "__docId__": 20,
     "kind": "method",
     "name": "listFormats",
     "memberof": "src/format.js~Formatter",
@@ -705,7 +757,7 @@
     "longname": "src/format.js~Formatter#listFormats",
     "access": null,
     "description": "",
-    "lineNumber": 259,
+    "lineNumber": 283,
     "params": [
       {
         "nullable": null,
@@ -728,7 +780,7 @@
     }
   },
   {
-    "__docId__": 20,
+    "__docId__": 21,
     "kind": "function",
     "name": "format",
     "memberof": "src/format.js",
@@ -745,56 +797,7 @@
       "format(1e6)\n// => \"1.0000 million\"",
       "format(1e6, {sigfigs: 1})\n// => \"1 million\""
     ],
-    "lineNumber": 282,
-    "params": [
-      {
-        "nullable": null,
-        "types": [
-          "number"
-        ],
-        "spread": false,
-        "optional": false,
-        "name": "val",
-        "description": ""
-      },
-      {
-        "nullable": null,
-        "types": [
-          "Object"
-        ],
-        "spread": false,
-        "optional": true,
-        "name": "opts",
-        "description": ""
-      }
-    ],
-    "return": {
-      "nullable": null,
-      "types": [
-        "*"
-      ],
-      "spread": false,
-      "description": "string"
-    }
-  },
-  {
-    "__docId__": 21,
-    "kind": "function",
-    "name": "formatFull",
-    "memberof": "src/format.js",
-    "generator": false,
-    "async": false,
-    "static": true,
-    "longname": "src/format.js~formatFull",
-    "access": null,
-    "export": true,
-    "importPath": "swarm-numberformat/src/format.js",
-    "importStyle": "{formatFull}",
-    "description": "Format a full-flavor number using the default options. Identical to `format()`",
-    "examples": [
-      "format(1e6)\n// => \"1.0000 million\""
-    ],
-    "lineNumber": 292,
+    "lineNumber": 306,
     "params": [
       {
         "nullable": null,
@@ -829,21 +832,21 @@
   {
     "__docId__": 22,
     "kind": "function",
-    "name": "formatShort",
+    "name": "formatFull",
     "memberof": "src/format.js",
     "generator": false,
     "async": false,
     "static": true,
-    "longname": "src/format.js~formatShort",
+    "longname": "src/format.js~formatFull",
     "access": null,
     "export": true,
     "importPath": "swarm-numberformat/src/format.js",
-    "importStyle": "{formatShort}",
-    "description": "Format a short-flavor number using the default options.",
+    "importStyle": "{formatFull}",
+    "description": "Format a full-flavor number using the default options. Identical to `format()`",
     "examples": [
-      "format(1e6)\n// => \"1.00M\""
+      "format(1e6)\n// => \"1.0000 million\""
     ],
-    "lineNumber": 302,
+    "lineNumber": 316,
     "params": [
       {
         "nullable": null,
@@ -877,9 +880,58 @@
   },
   {
     "__docId__": 23,
+    "kind": "function",
+    "name": "formatShort",
+    "memberof": "src/format.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "src/format.js~formatShort",
+    "access": null,
+    "export": true,
+    "importPath": "swarm-numberformat/src/format.js",
+    "importStyle": "{formatShort}",
+    "description": "Format a short-flavor number using the default options.",
+    "examples": [
+      "format(1e6)\n// => \"1.00M\""
+    ],
+    "lineNumber": 326,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "val",
+        "description": ""
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "opts",
+        "description": ""
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "*"
+      ],
+      "spread": false,
+      "description": "string"
+    }
+  },
+  {
+    "__docId__": 24,
     "kind": "file",
     "name": "src/format.test.js",
-    "content": "import numberformat from './format'\nimport Decimal from 'decimal.js'\n\ndescribe('numberformat', () => {\n  it('builds formatters', () => {\n    expect(new numberformat.Formatter({format: 'hybrid'}).opts.format).toBe('hybrid')\n  }),\n  it('formats numbers', () => {\n    const formatter = numberformat\n    expect(formatter.format(1)).not.toBe(1)\n    expect(formatter.format(1)).toBe('1')\n    //expect(formatter.format(8/9)).toBe('0.889')\n    //expect(formatter.format(1e3)).toBe('1 thousand')\n    expect(formatter.format(1e3)).toBe('1,000')\n    expect(formatter.format(1e6)).toBe('1.0000 million')\n    expect(formatter.format(1.1111e6)).toBe('1.1111 million')\n    expect(formatter.format(1.1111e9)).toBe('1.1111 billion')\n    expect(formatter.format(1.1111e12)).toBe('1.1111 trillion')\n    expect(formatter.format(1e21)).toBe('1.0000 sextillion')\n    expect(formatter.format(1e36)).toBe('1.0000 undecillion')\n  })\n  it('formats long-scale numbers', () => {\n    const formatter = new numberformat.Formatter({format: 'longScale'})\n    expect(formatter.format(1)).not.toBe(1)\n    expect(formatter.format(1)).toBe('1')\n    //expect(formatter.format(8/9)).toBe('0.889')\n    //expect(formatter.format(1e3)).toBe('1 thousand')\n    expect(formatter.format(1e3)).toBe('1,000')\n    expect(formatter.format(1e6)).toBe('1.0000 million')\n    expect(formatter.format(1.1111e6)).toBe('1.1111 million')\n    expect(formatter.format(1.1111e9)).toBe('1.1111 milliard')\n    expect(formatter.format(1.1111e12)).toBe('1.1111 billion')\n    expect(formatter.format(1e21)).toBe('1.0000 trilliard')\n    expect(formatter.format(1e36)).toBe('1.0000 sextillion')\n  })\n  it('formats hybrid', () => {\n    const formatter = new numberformat.Formatter({format: 'hybrid'})\n    expect(formatter.format(1)).not.toBe(1)\n    expect(formatter.format(1)).toBe('1')\n    //expect(formatter.format(8/9)).toBe('0.889')\n    //expect(formatter.format(1e3)).toBe('1 thousand')\n    expect(formatter.format(1e3)).toBe('1,000')\n    expect(formatter.format(1e6)).toBe('1.0000 million')\n    expect(formatter.format(1.1111e6)).toBe('1.1111 million')\n    expect(formatter.format(1e36)).toBe('1.0000e36')\n  })\n  it('formats scientificE', () => {\n    const formatter = new numberformat.Formatter({format: 'scientific'})\n    expect(formatter.format(1)).not.toBe(1)\n    expect(formatter.format(1)).toBe('1')\n    //expect(formatter.format(8/9)).toBe('0.889')\n    //expect(formatter.format(1e3)).toBe('1e3')\n    expect(formatter.format(1e3)).toBe('1,000')\n    expect(formatter.format(1e6)).toBe('1.0000e6')\n    expect(formatter.format(1.1111e6)).toBe('1.1111e6')\n    expect(formatter.format(1e36)).toBe('1.0000e36')\n  })\n  it('formats engineering', () => {\n    const formatter = new numberformat.Formatter({format: 'engineering'})\n    expect(formatter.format(1)).not.toBe(1)\n    expect(formatter.format(1)).toBe('1')\n    //expect(formatter.format(8/9)).toBe('0.889')\n    //expect(formatter.format(1e3)).toBe('1E3')\n    expect(formatter.format(1e3)).toBe('1,000')\n    expect(formatter.format(1e6)).toBe('1.0000E6')\n    expect(formatter.format(1.1111e6)).toBe('1.1111E6')\n    expect(formatter.format(1e7)).toBe('10.000E6')\n    expect(formatter.format(1.1111e7)).toBe('11.111E6')\n    expect(formatter.format(1e8)).toBe('100.00E6')\n  })\n  it('formats short numbers', () => {\n    const formatter = new numberformat.Formatter({flavor: 'short'})\n    expect(formatter.format(1)).not.toBe(1)\n    expect(formatter.format(1)).toBe('1')\n    expect(formatter.format(1e3)).toBe('1,000')\n    expect(formatter.format(1e6)).toBe('1.00M')\n    expect(formatter.format(100e3)).toBe('100K')\n    expect(formatter.format(1e9)).toBe('1.00B')\n    expect(formatter.format(1.1111e6)).toBe('1.11M')\n    expect(formatter.format(1.1111e6, {format: 'engineering'})).toBe('1.11E6')\n  })\n  it('supports `opts` as a second argument', () => {\n    const formatter = numberformat\n    expect(formatter.format(1, {flavor: 'short'})).toBe('1')\n    expect(formatter.format(1e3, {flavor: 'short'})).toBe('1,000')\n    expect(formatter.format(1e6, {flavor: 'short'})).toBe('1.00M')\n    expect(formatter.format(100e3, {flavor: 'short'})).toBe('100K')\n    expect(formatter.format(1e9, {flavor: 'short'})).toBe('1.00B')\n    expect(formatter.format(1.1111e6, {flavor: 'short'})).toBe('1.11M')\n  })\n  it('handles bogus formats', () => {\n    const formatter = numberformat\n    expect(() => formatter.format(1, {format: 'bogus'})).toThrow()\n    expect(() => formatter.format(1, {format: 'standard'})).not.toThrow()\n    expect(() => formatter.format(1, {format: null})).not.toThrow()\n  })\n  it('supports suffix-only', () => {\n    const formatter = numberformat\n    expect(formatter.suffix(1e6, {format: 'standard'})).toBe(' million')\n    expect(formatter.suffix(1e6, {format: 'standard', flavor: 'short'})).toBe('M')\n    expect(formatter.suffix(1e6, {format: 'engineering'})).toBe('E6')\n  })\n  it('supports negatives', () => {\n    const formatter = numberformat\n    expect(formatter.format(0)).toBe('0')\n    expect(formatter.format(-1)).toBe('-1')\n    expect(formatter.format(-1e3)).toBe('-1,000')\n    expect(formatter.format(-1e6)).toBe('-1.0000 million')\n    expect(formatter.format(-1e21)).toBe('-1.0000 sextillion')\n  })\n  it('supports small decimals', () => {\n    const formatter = numberformat\n    expect(formatter.format(8/9)).toBe('0')\n    expect(formatter.format(8/9, {maxSmall: 1})).toBe('0.88889')\n    expect(formatter.format(-8/9, {maxSmall: 1})).toBe('-0.88889')\n    expect(formatter.format(8/9, {sigfigs: 3, maxSmall: 1})).toBe('0.889')\n    expect(formatter.format(8/9, {sigfigs: 1, maxSmall: 1})).toBe('0.9')\n    expect(formatter.format(8/9, {flavor: 'short', maxSmall: 1})).toBe('0.889')\n    // zero-sigfigs after the decimal point are truncated\n    expect(formatter.format(0.1, {maxSmall: 1, sigfigs:9})).toBe('0.1')\n    expect(formatter.format(0.11, {maxSmall: 1, sigfigs:9})).toBe('0.11')\n    expect(formatter.format(0.111, {maxSmall: 1, sigfigs:9})).toBe('0.111')\n    expect(formatter.format(0.101, {maxSmall: 1, sigfigs:9})).toBe('0.101')\n  })\n\n  it('formats bigger numbers', () => {\n    const formatter = numberformat\n    expect(formatter.format(1e18)).toBe('1.0000 quintillion')\n    expect(formatter.format(1e18, {flavor: 'short'})).toBe('1.00Qi')\n    // 1e20 is an important breakpoint: JS's native number formatting changes\n    // from '123,456' to '1.23e21'\n    expect(formatter.format(1e21)).toBe('1.0000 sextillion')\n    expect(formatter.format(1e21, {flavor: 'short'})).toBe('1.00Sx')\n  })\n  it('supports decimal.js', () => {\n    const formatter = new numberformat.Formatter({backend: 'decimal.js'})\n    //console.log(new Decimal('1e999').toString())\n    expect(formatter.format('1e9999', {format: 'engineering'})).toBe('1.0000E9999')\n    expect(formatter.format(new Decimal('1e9999'), {format: 'engineering'})).toBe('1.0000E9999')\n    expect(formatter.format(new Decimal('1e9999'))).toBe('1.0000e9999')\n    expect(formatter.format(new Decimal('1'))).toBe('1')\n    expect(formatter.format(new Decimal('1e3'))).toBe('1,000')\n    expect(formatter.format(new Decimal('1e6'))).toBe('1.0000 million')\n    expect(formatter.format(new Decimal('1.1111e6'))).toBe('1.1111 million')\n    expect(formatter.format(new Decimal('1.1111e9'))).toBe('1.1111 billion')\n    expect(formatter.format(new Decimal('1.1111e12'))).toBe('1.1111 trillion')\n    expect(formatter.format(new Decimal('1e21'))).toBe('1.0000 sextillion')\n    expect(formatter.format(new Decimal('1e36'))).toBe('1.0000 undecillion')\n  })\n  it('has shortcuts for each flavor', () => {\n    const formatter = numberformat\n    expect(!!formatter.formatFull).toBe(true)\n    expect(!!formatter.formatShort).toBe(true)\n    expect(formatter.formatFull(1e6)).toBe('1.0000 million')\n    expect(formatter.formatShort(1e6)).toBe('1.00M')\n  })\n  it('doesn\\'t round smallish numbers by default, #13', () => {\n    const f = numberformat\n    expect(f.format(12345)).toBe('12,345')\n    expect(f.formatShort(12345)).toBe('12,345')\n  })\n  for (let backend of ['native', 'decimal.js']) {\n    let f = new numberformat.Formatter({backend})\n    it('supports undefined sigfigs, #15: standard, '+backend, () => {\n      expect(f.format(1.00e9, {format: 'standard', sigfigs: undefined})).toBe('1 billion')\n      expect(f.format(1.23e9, {format: 'standard', sigfigs: undefined})).toBe('1.23 billion')\n    })\n    it('supports undefined sigfigs, #15: hybrid, '+backend, () => {\n      expect(f.format(1.00e9, {format: 'hybrid', sigfigs: undefined})).toBe('1 billion')\n      expect(f.format(1.23e9, {format: 'hybrid', sigfigs: undefined})).toBe('1.23 billion')\n    })\n    it('supports undefined sigfigs, #15: scientific, '+backend, () => {\n      expect(f.format(1.00e9, {format: 'scientific', sigfigs: undefined})).toBe('1e9')\n      expect(f.format(1.23e9, {format: 'scientific', sigfigs: undefined})).toBe('1.23e9')\n    })\n    it('supports undefined sigfigs, #15: engineering, '+backend, () => {\n      expect(f.format(1.00e9, {format: 'engineering', sigfigs: undefined})).toBe('1E9')\n      expect(f.format(1.23e9, {format: 'engineering', sigfigs: undefined})).toBe('1.23E9')\n    })\n    it('supports undefined sigfigs, #15: longScale, '+backend, () => {\n      expect(f.format(1.00e9, {format: 'longScale', sigfigs: undefined})).toBe('1 milliard')\n      expect(f.format(1.23e9, {format: 'longScale', sigfigs: undefined})).toBe('1.23 milliard')\n    })\n    it('supports undefined sigfigs, #15: standard/short, '+backend, () => {\n      expect(f.format(1.00e9, {format: 'standard', sigfigs: undefined, flavor: 'short'})).toBe('1B')\n      expect(f.format(1.23e9, {format: 'standard', sigfigs: undefined, flavor: 'short'})).toBe('1.23B')\n    })\n    it('supports undefined sigfigs, #15: standard/null, '+backend, () => {\n      expect(f.format(1.00e9, {format: 'standard', sigfigs: null})).toBe('1 billion')\n      expect(f.format(1.23e9, {format: 'standard', sigfigs: null})).toBe('1.23 billion')\n    })\n    it('supports undefined sigfigs, #15: standard/0, '+backend, () => {\n      expect(f.format(1.00e9, {format: 'standard', sigfigs: 0})).toBe('1 billion')\n      expect(f.format(1.23e9, {format: 'standard', sigfigs: 0})).toBe('1.23 billion')\n    })\n  }\n});\n",
+    "content": "import numberformat from './format'\nimport Decimal from 'decimal.js'\nimport LDecimal from 'decimal.js-light'\nimport BDecimal from 'break_infinity.js'\n\ndescribe('numberformat', () => {\n  it('builds formatters', () => {\n    expect(new numberformat.Formatter({format: 'hybrid'}).opts.format).toBe('hybrid')\n  }),\n  it('formats numbers', () => {\n    const formatter = numberformat\n    expect(formatter.format(1)).not.toBe(1)\n    expect(formatter.format(1)).toBe('1')\n    //expect(formatter.format(8/9)).toBe('0.889')\n    //expect(formatter.format(1e3)).toBe('1 thousand')\n    expect(formatter.format(1e3)).toBe('1,000')\n    expect(formatter.format(1e6)).toBe('1.0000 million')\n    expect(formatter.format(1.1111e6)).toBe('1.1111 million')\n    expect(formatter.format(1.1111e9)).toBe('1.1111 billion')\n    expect(formatter.format(1.1111e12)).toBe('1.1111 trillion')\n    expect(formatter.format(1e21)).toBe('1.0000 sextillion')\n    expect(formatter.format(1e36)).toBe('1.0000 undecillion')\n  })\n  it('formats long-scale numbers', () => {\n    const formatter = new numberformat.Formatter({format: 'longScale'})\n    expect(formatter.format(1)).not.toBe(1)\n    expect(formatter.format(1)).toBe('1')\n    //expect(formatter.format(8/9)).toBe('0.889')\n    //expect(formatter.format(1e3)).toBe('1 thousand')\n    expect(formatter.format(1e3)).toBe('1,000')\n    expect(formatter.format(1e6)).toBe('1.0000 million')\n    expect(formatter.format(1.1111e6)).toBe('1.1111 million')\n    expect(formatter.format(1.1111e9)).toBe('1.1111 milliard')\n    expect(formatter.format(1.1111e12)).toBe('1.1111 billion')\n    expect(formatter.format(1e21)).toBe('1.0000 trilliard')\n    expect(formatter.format(1e36)).toBe('1.0000 sextillion')\n  })\n  it('formats hybrid', () => {\n    const formatter = new numberformat.Formatter({format: 'hybrid'})\n    expect(formatter.format(1)).not.toBe(1)\n    expect(formatter.format(1)).toBe('1')\n    //expect(formatter.format(8/9)).toBe('0.889')\n    //expect(formatter.format(1e3)).toBe('1 thousand')\n    expect(formatter.format(1e3)).toBe('1,000')\n    expect(formatter.format(1e6)).toBe('1.0000 million')\n    expect(formatter.format(1.1111e6)).toBe('1.1111 million')\n    expect(formatter.format(1e36)).toBe('1.0000e36')\n  })\n  it('formats scientificE', () => {\n    const formatter = new numberformat.Formatter({format: 'scientific'})\n    expect(formatter.format(1)).not.toBe(1)\n    expect(formatter.format(1)).toBe('1')\n    //expect(formatter.format(8/9)).toBe('0.889')\n    //expect(formatter.format(1e3)).toBe('1e3')\n    expect(formatter.format(1e3)).toBe('1,000')\n    expect(formatter.format(1e6)).toBe('1.0000e6')\n    expect(formatter.format(1.1111e6)).toBe('1.1111e6')\n    expect(formatter.format(1e36)).toBe('1.0000e36')\n  })\n  it('formats engineering', () => {\n    const formatter = new numberformat.Formatter({format: 'engineering'})\n    expect(formatter.format(1)).not.toBe(1)\n    expect(formatter.format(1)).toBe('1')\n    //expect(formatter.format(8/9)).toBe('0.889')\n    //expect(formatter.format(1e3)).toBe('1E3')\n    expect(formatter.format(1e3)).toBe('1,000')\n    expect(formatter.format(1e6)).toBe('1.0000E6')\n    expect(formatter.format(1.1111e6)).toBe('1.1111E6')\n    expect(formatter.format(1e7)).toBe('10.000E6')\n    expect(formatter.format(1.1111e7)).toBe('11.111E6')\n    expect(formatter.format(1e8)).toBe('100.00E6')\n  })\n  it('formats short numbers', () => {\n    const formatter = new numberformat.Formatter({flavor: 'short'})\n    expect(formatter.format(1)).not.toBe(1)\n    expect(formatter.format(1)).toBe('1')\n    expect(formatter.format(1e3)).toBe('1,000')\n    expect(formatter.format(1e6)).toBe('1.00M')\n    expect(formatter.format(100e3)).toBe('100K')\n    expect(formatter.format(1e9)).toBe('1.00B')\n    expect(formatter.format(1.1111e6)).toBe('1.11M')\n    expect(formatter.format(1.1111e6, {format: 'engineering'})).toBe('1.11E6')\n  })\n  it('supports `opts` as a second argument', () => {\n    const formatter = numberformat\n    expect(formatter.format(1, {flavor: 'short'})).toBe('1')\n    expect(formatter.format(1e3, {flavor: 'short'})).toBe('1,000')\n    expect(formatter.format(1e6, {flavor: 'short'})).toBe('1.00M')\n    expect(formatter.format(100e3, {flavor: 'short'})).toBe('100K')\n    expect(formatter.format(1e9, {flavor: 'short'})).toBe('1.00B')\n    expect(formatter.format(1.1111e6, {flavor: 'short'})).toBe('1.11M')\n  })\n  it('handles bogus formats', () => {\n    const formatter = numberformat\n    expect(() => formatter.format(1, {format: 'bogus'})).toThrow()\n    expect(() => formatter.format(1, {format: 'standard'})).not.toThrow()\n    expect(() => formatter.format(1, {format: null})).not.toThrow()\n  })\n  it('supports suffix-only', () => {\n    const formatter = numberformat\n    expect(formatter.suffix(1e6, {format: 'standard'})).toBe(' million')\n    expect(formatter.suffix(1e6, {format: 'standard', flavor: 'short'})).toBe('M')\n    expect(formatter.suffix(1e6, {format: 'engineering'})).toBe('E6')\n  })\n  it('supports negatives', () => {\n    const formatter = numberformat\n    expect(formatter.format(0)).toBe('0')\n    expect(formatter.format(-1)).toBe('-1')\n    expect(formatter.format(-1e3)).toBe('-1,000')\n    expect(formatter.format(-1e6)).toBe('-1.0000 million')\n    expect(formatter.format(-1e21)).toBe('-1.0000 sextillion')\n  })\n  it('supports small decimals', () => {\n    const formatter = numberformat\n    expect(formatter.format(8/9)).toBe('0')\n    expect(formatter.format(8/9, {maxSmall: 1})).toBe('0.88889')\n    expect(formatter.format(-8/9, {maxSmall: 1})).toBe('-0.88889')\n    expect(formatter.format(8/9, {sigfigs: 3, maxSmall: 1})).toBe('0.889')\n    expect(formatter.format(8/9, {sigfigs: 1, maxSmall: 1})).toBe('0.9')\n    expect(formatter.format(8/9, {flavor: 'short', maxSmall: 1})).toBe('0.889')\n    // zero-sigfigs after the decimal point are truncated\n    expect(formatter.format(0.1, {maxSmall: 1, sigfigs:9})).toBe('0.1')\n    expect(formatter.format(0.11, {maxSmall: 1, sigfigs:9})).toBe('0.11')\n    expect(formatter.format(0.111, {maxSmall: 1, sigfigs:9})).toBe('0.111')\n    expect(formatter.format(0.101, {maxSmall: 1, sigfigs:9})).toBe('0.101')\n  })\n\n  it('formats bigger numbers', () => {\n    const formatter = numberformat\n    expect(formatter.format(1e18)).toBe('1.0000 quintillion')\n    expect(formatter.format(1e18, {flavor: 'short'})).toBe('1.00Qi')\n    // 1e20 is an important breakpoint: JS's native number formatting changes\n    // from '123,456' to '1.23e21'\n    expect(formatter.format(1e21)).toBe('1.0000 sextillion')\n    expect(formatter.format(1e21, {flavor: 'short'})).toBe('1.00Sx')\n  })\n  it('supports decimal.js', () => {\n    const formatter = new numberformat.Formatter({backend: 'decimal.js'})\n    //console.log(new Decimal('1e999').toString())\n    expect(formatter.format('1e9999', {format: 'engineering'})).toBe('1.0000E9999')\n    expect(formatter.format(new Decimal('1e9999'), {format: 'engineering'})).toBe('1.0000E9999')\n    expect(formatter.format(new Decimal('1e9999'))).toBe('1.0000e9999')\n    expect(formatter.format(new Decimal('1'))).toBe('1')\n    expect(formatter.format(new Decimal('1e3'))).toBe('1,000')\n    expect(formatter.format(new Decimal('1e6'))).toBe('1.0000 million')\n    expect(formatter.format(new Decimal('1.1111e6'))).toBe('1.1111 million')\n    expect(formatter.format(new Decimal('1.1111e9'))).toBe('1.1111 billion')\n    expect(formatter.format(new Decimal('1.1111e12'))).toBe('1.1111 trillion')\n    expect(formatter.format(new Decimal('1e21'))).toBe('1.0000 sextillion')\n    expect(formatter.format(new Decimal('1e36'))).toBe('1.0000 undecillion')\n  })\n  it('supports decimal.js-light', () => {\n    const Decimal = LDecimal\n    const formatter = new numberformat.Formatter({backend: 'decimal.js', Decimal})\n    expect(formatter.format('1e9999', {format: 'engineering'})).toBe('1.0000E9999')\n    expect(formatter.format(new Decimal('1e9999'), {format: 'engineering'})).toBe('1.0000E9999')\n    expect(formatter.format(new Decimal('1e9999'))).toBe('1.0000e9999')\n    expect(formatter.format(new Decimal('1'))).toBe('1')\n    expect(formatter.format(new Decimal('1e3'))).toBe('1,000')\n    expect(formatter.format(new Decimal('1e6'))).toBe('1.0000 million')\n    expect(formatter.format(new Decimal('1.1111e6'))).toBe('1.1111 million')\n    expect(formatter.format(new Decimal('1.1111e9'))).toBe('1.1111 billion')\n    expect(formatter.format(new Decimal('1.1111e12'))).toBe('1.1111 trillion')\n    expect(formatter.format(new Decimal('1e21'))).toBe('1.0000 sextillion')\n    expect(formatter.format(new Decimal('1e36'))).toBe('1.0000 undecillion')\n  })\n  it('supports break_infinity.js', () => {\n    const Decimal = BDecimal\n    const formatter = new numberformat.Formatter({backend: 'decimal.js', Decimal})\n    expect(formatter.format('1e9999', {format: 'engineering'})).toBe('1.0000E9999')\n    expect(formatter.format(new Decimal('1e9999'), {format: 'engineering'})).toBe('1.0000E9999')\n    expect(formatter.format(new Decimal('1e9999'))).toBe('1.0000e9999')\n    expect(formatter.format(new Decimal('1'))).toBe('1')\n    expect(formatter.format(new Decimal('1e3'))).toBe('1,000')\n    expect(formatter.format(new Decimal('1e6'))).toBe('1.0000 million')\n    expect(formatter.format(new Decimal('1.1111e6'))).toBe('1.1111 million')\n    expect(formatter.format(new Decimal('1.1111e9'))).toBe('1.1111 billion')\n    expect(formatter.format(new Decimal('1.1111e12'))).toBe('1.1111 trillion')\n    expect(formatter.format(new Decimal('1e21'))).toBe('1.0000 sextillion')\n    expect(formatter.format(new Decimal('1e36'))).toBe('1.0000 undecillion')\n  })\n  it('has shortcuts for each flavor', () => {\n    const formatter = numberformat\n    expect(!!formatter.formatFull).toBe(true)\n    expect(!!formatter.formatShort).toBe(true)\n    expect(formatter.formatFull(1e6)).toBe('1.0000 million')\n    expect(formatter.formatShort(1e6)).toBe('1.00M')\n  })\n  it('doesn\\'t round smallish numbers by default, #13', () => {\n    const f = numberformat\n    expect(f.format(12345)).toBe('12,345')\n    expect(f.formatShort(12345)).toBe('12,345')\n  })\n  it('doesn\\'t display double suffixes: native, #20', () => {\n    const f = numberformat\n    expect(f.format(1e9-1)).toBe('999.99 million')\n    expect(f.formatShort(1e9-1)).toBe('999M')\n    expect(f.format(1e6-1)).toBe('999.99 thousand')\n    expect(f.formatShort(1e6-1)).toBe('999K')\n  })\n  it('doesn\\'t display double suffixes: decimal.js, #20', () => {\n    const f = new numberformat.Formatter({backend: 'decimal.js'})\n    expect(f.format(1e9-1)).toBe('999.99 million')\n    expect(f.formatShort(1e9-1)).toBe('999M')\n    expect(f.format(1e6-1)).toBe('999.99 thousand')\n    expect(f.formatShort(1e6-1)).toBe('999K')\n  })\n  for (let config0 of [\n    {backend: 'native'},\n    {backend: 'decimal.js'},\n    {name: 'decimal.js-light', backend: 'decimal.js', Decimal: LDecimal},\n    //{name: 'break_infinity.js', backend: 'decimal.js', Decimal: BDecimal},\n  ]) {\n    let {name, ...config} = config0\n    name = name || config.backend\n    const f = new numberformat.Formatter(config)\n    it('supports undefined sigfigs, #15: standard, '+name, () => {\n      expect(f.format(1.00e9, {format: 'standard', sigfigs: undefined})).toBe('1 billion')\n      expect(f.format(1.23e9, {format: 'standard', sigfigs: undefined})).toBe('1.23 billion')\n    })\n    it('supports undefined sigfigs, #15: hybrid, '+name, () => {\n      expect(f.format(1.00e9, {format: 'hybrid', sigfigs: undefined})).toBe('1 billion')\n      expect(f.format(1.23e9, {format: 'hybrid', sigfigs: undefined})).toBe('1.23 billion')\n    })\n    it('supports undefined sigfigs, #15: scientific, '+name, () => {\n      expect(f.format(1.00e9, {format: 'scientific', sigfigs: undefined})).toBe('1e9')\n      expect(f.format(1.23e9, {format: 'scientific', sigfigs: undefined})).toBe('1.23e9')\n    })\n    it('supports undefined sigfigs, #15: engineering, '+name, () => {\n      expect(f.format(1.00e9, {format: 'engineering', sigfigs: undefined})).toBe('1E9')\n      expect(f.format(1.23e9, {format: 'engineering', sigfigs: undefined})).toBe('1.23E9')\n    })\n    it('supports undefined sigfigs, #15: longScale, '+name, () => {\n      expect(f.format(1.00e9, {format: 'longScale', sigfigs: undefined})).toBe('1 milliard')\n      expect(f.format(1.23e9, {format: 'longScale', sigfigs: undefined})).toBe('1.23 milliard')\n    })\n    it('supports undefined sigfigs, #15: standard/short, '+name, () => {\n      expect(f.format(1.00e9, {format: 'standard', sigfigs: undefined, flavor: 'short'})).toBe('1B')\n      expect(f.format(1.23e9, {format: 'standard', sigfigs: undefined, flavor: 'short'})).toBe('1.23B')\n    })\n    it('supports undefined sigfigs, #15: standard/null, '+name, () => {\n      expect(f.format(1.00e9, {format: 'standard', sigfigs: null})).toBe('1 billion')\n      expect(f.format(1.23e9, {format: 'standard', sigfigs: null})).toBe('1.23 billion')\n    })\n    it('supports undefined sigfigs, #15: standard/0, '+name, () => {\n      expect(f.format(1.00e9, {format: 'standard', sigfigs: 0})).toBe('1 billion')\n      expect(f.format(1.23e9, {format: 'standard', sigfigs: 0})).toBe('1.23 billion')\n    })\n  }\n});\n",
     "static": true,
     "longname": "src/format.test.js",
     "access": null,
@@ -887,7 +939,7 @@
     "lineNumber": 1
   },
   {
-    "__docId__": 24,
+    "__docId__": 25,
     "kind": "file",
     "name": "src/index.js",
     "content": "export * from './format'\nexport {default as numberformat} from './format'\nexport * from './parse'\n",
@@ -898,10 +950,10 @@
     "lineNumber": 1
   },
   {
-    "__docId__": 25,
+    "__docId__": 26,
     "kind": "file",
     "name": "src/parse.js",
-    "content": "import standard from '../static/standard-suffixes.json'\nimport longScale from '../static/long-scale-suffixes.json'\nimport {requireDecimal} from './decimal.js'\n\n//const suffixGroups = {standard, longScale}\nconst suffixGroups = {standard} // TODO longscale parsing. There's a duplicate\nconst suffixGroupsToExp = {}\nfor (let groupName of Object.keys(suffixGroups)) {\n  const group = suffixGroups[groupName]\n  const suffixToExp = suffixGroupsToExp[groupName] = {}\n  for (let fkey of Object.keys(group)) {\n    const fg = group[fkey]\n    for (let index in fg) {\n      const suffix = fg[index].toLowerCase()\n      const exp = index * 3\n      if(suffixToExp[suffix] && suffixToExp[suffix].exp === exp,\n        \"duplicate parsenumber suffix with different exponents: \"+suffix)\n      suffixToExp[suffix] = {index, exp, replace:'e'+exp}\n    }\n  }\n}\n\nconst backends = {\n  'native': {\n    parseInt(text, config) {\n      const val = Math.ceil(Number(text, 10))\n      return 'default' in config && !this.isValid(val) ? config['default'] : val\n    },\n    isValid(val) {\n      return (val || val === 0) && !Number.isNaN(val)\n    },\n  },\n  'decimal.js': {\n    parseInt(text, config) {\n      if ('default' in config) {\n        try {\n          const val = requireDecimal(config)(text).ceil()\n          return this.isValid(val) ? val : config['default']\n        }\n        catch(e) {\n          return config.default\n        }\n      }\n      return requireDecimal(config)(text).ceil()\n    },\n    isValid(val) {\n      return val && !val.isNaN()\n    },\n  },\n}\n\nexport function parse(text, config={}) {\n  if (!text) return config['default'] || null\n  // TODO make this an option\n  const suffixToExp = suffixGroupsToExp[config.suffixGroup || 'standard']\n  const backend = backends[config.backend || 'native']\n  if (!backend) throw new Error('no such backend: '+config.backend)\n  // remove commas. TODO: i18n fail\n  text=text.replace(/,/g, '')\n  // replace suffixes ('billion', etc)\n  const match=/ ?[a-zA-Z]+/.exec(text)\n  if (match && match.length > 0) {\n    const exp = suffixToExp[match[0].toLowerCase()]\n    if (exp) {\n      // ceil(): buy at least this many. The default of floor() is annoying when\n      // we're trying to purchase exactly-n for an upgrade.\n      return backend.parseInt(text.replace(match[0], exp.replace), config)\n    }\n  }\n  // no/invalid suffix found\n  // note that we also get here for a suffix of 'e', like '1e3', because it's not\n  // used as a suffix. Decimal.js will parse it.\n  return backend.parseInt(text, config)\n}\n\nexport class Parser {\n  constructor(config) {\n    this.config = config\n  }\n  parse(text, config={}) {\n    return parse(text, {...this.config, ...config})\n  }\n}\n",
+    "content": "import standard from '../static/standard-suffixes.json'\nimport longScale from '../static/long-scale-suffixes.json'\nimport {requireDecimal} from './decimal.js'\n\n//const suffixGroups = {standard, longScale}\nconst suffixGroups = {standard} // TODO longscale parsing. There's a duplicate\nconst suffixGroupsToExp = {}\nfor (let groupName of Object.keys(suffixGroups)) {\n  const group = suffixGroups[groupName]\n  const suffixToExp = suffixGroupsToExp[groupName] = {}\n  for (let fkey of Object.keys(group)) {\n    const fg = group[fkey]\n    for (let index in fg) {\n      const suffix = fg[index].toLowerCase()\n      const exp = index * 3\n      if(suffixToExp[suffix] && suffixToExp[suffix].exp === exp,\n        \"duplicate parsenumber suffix with different exponents: \"+suffix)\n      suffixToExp[suffix] = {index, exp, replace:'e'+exp}\n    }\n  }\n}\n\nconst backends = {\n  'native': {\n    parseInt(text, config) {\n      const val = Math.ceil(Number(text, 10))\n      return 'default' in config && !this.isValid(val) ? config['default'] : val\n    },\n    isValid(val) {\n      return (val || val === 0) && !Number.isNaN(val)\n    },\n  },\n  'decimal.js': {\n    parseInt(text, config) {\n      try {\n        const Decimal = requireDecimal(config)\n        const val0 = new Decimal(text)\n        // decimal.js-light doesn't have ceil; use the more general rounding fn.\n        // Not yet worth a separate adapter.\n        const val = val0.ceil\n          ? val0.ceil()\n          : val0.toDecimalPlaces(0, Decimal.ROUND_UP)\n        return this.isValid(val) ? val : config['default']\n      }\n      catch(e) {\n        if ('default' in config) return config.default\n        throw e\n      }\n    },\n    isValid(val) {\n      // decimal.js-light doesn't have isNaN(), it just throws. Test for isNaN only if it exists.\n      return val && (!val.isNaN || !val.isNaN())\n    },\n  },\n}\n\nexport function parse(text, config={}) {\n  if (!text) return config['default'] || null\n  // TODO make this an option\n  const suffixToExp = suffixGroupsToExp[config.suffixGroup || 'standard']\n  const backend = backends[config.backend || 'native']\n  if (!backend) throw new Error('no such backend: '+config.backend)\n  // remove commas. TODO: i18n fail\n  text=text.replace(/,/g, '')\n  // replace suffixes ('billion', etc)\n  const match=/ ?[a-zA-Z]+/.exec(text)\n  if (match && match.length > 0) {\n    const exp = suffixToExp[match[0].toLowerCase()]\n    if (exp) {\n      // ceil(): buy at least this many. The default of floor() is annoying when\n      // we're trying to purchase exactly-n for an upgrade.\n      return backend.parseInt(text.replace(match[0], exp.replace), config)\n    }\n  }\n  // no/invalid suffix found\n  // note that we also get here for a suffix of 'e', like '1e3', because it's not\n  // used as a suffix. Decimal.js will parse it.\n  return backend.parseInt(text, config)\n}\n\nexport class Parser {\n  constructor(config) {\n    this.config = config\n  }\n  parse(text, config={}) {\n    return parse(text, {...this.config, ...config})\n  }\n}\n",
     "static": true,
     "longname": "src/parse.js",
     "access": null,
@@ -909,7 +961,7 @@
     "lineNumber": 1
   },
   {
-    "__docId__": 26,
+    "__docId__": 27,
     "kind": "variable",
     "name": "suffixGroups",
     "memberof": "src/parse.js",
@@ -935,7 +987,7 @@
     }
   },
   {
-    "__docId__": 27,
+    "__docId__": 28,
     "kind": "variable",
     "name": "suffixGroupsToExp",
     "memberof": "src/parse.js",
@@ -961,7 +1013,7 @@
     }
   },
   {
-    "__docId__": 28,
+    "__docId__": 29,
     "kind": "variable",
     "name": "backends",
     "memberof": "src/parse.js",
@@ -987,7 +1039,7 @@
     }
   },
   {
-    "__docId__": 29,
+    "__docId__": 30,
     "kind": "function",
     "name": "parse",
     "memberof": "src/parse.js",
@@ -1000,7 +1052,7 @@
     "importPath": "swarm-numberformat/src/parse.js",
     "importStyle": "{parse}",
     "description": null,
-    "lineNumber": 52,
+    "lineNumber": 57,
     "undocument": true,
     "unknown": [
       {
@@ -1032,7 +1084,7 @@
     }
   },
   {
-    "__docId__": 30,
+    "__docId__": 31,
     "kind": "class",
     "name": "Parser",
     "memberof": "src/parse.js",
@@ -1043,7 +1095,7 @@
     "importPath": "swarm-numberformat/src/parse.js",
     "importStyle": "{Parser}",
     "description": null,
-    "lineNumber": 76,
+    "lineNumber": 81,
     "undocument": true,
     "unknown": [
       {
@@ -1054,7 +1106,7 @@
     "interface": false
   },
   {
-    "__docId__": 31,
+    "__docId__": 32,
     "kind": "constructor",
     "name": "constructor",
     "memberof": "src/parse.js~Parser",
@@ -1064,7 +1116,7 @@
     "longname": "src/parse.js~Parser#constructor",
     "access": null,
     "description": null,
-    "lineNumber": 77,
+    "lineNumber": 82,
     "undocument": true,
     "unknown": [
       {
@@ -1082,7 +1134,7 @@
     ]
   },
   {
-    "__docId__": 32,
+    "__docId__": 33,
     "kind": "member",
     "name": "config",
     "memberof": "src/parse.js~Parser",
@@ -1090,7 +1142,7 @@
     "longname": "src/parse.js~Parser#config",
     "access": null,
     "description": null,
-    "lineNumber": 78,
+    "lineNumber": 83,
     "undocument": true,
     "unknown": [
       {
@@ -1105,7 +1157,7 @@
     }
   },
   {
-    "__docId__": 33,
+    "__docId__": 34,
     "kind": "method",
     "name": "parse",
     "memberof": "src/parse.js~Parser",
@@ -1115,7 +1167,7 @@
     "longname": "src/parse.js~Parser#parse",
     "access": null,
     "description": null,
-    "lineNumber": 80,
+    "lineNumber": 85,
     "undocument": true,
     "unknown": [
       {
@@ -1147,10 +1199,10 @@
     }
   },
   {
-    "__docId__": 34,
+    "__docId__": 35,
     "kind": "file",
     "name": "src/parse.test.js",
-    "content": "import {parse, Parser} from './parse'\nimport Decimal from 'decimal.js'\n\ndescribe('parse', () => {\n  it('parses suffixes from user input', () => {\n    expect(parse('10')).toBe(10)\n    expect(parse('10k')).toBe(10000)\n    expect(parse('10x')).toBeNaN()\n    expect(parse('10x', {default: 3})).toBe(3)\n    expect(parse('10,000')).toBe(10000)\n    expect(parse('10 thousand')).toBe(10000)\n    expect(parse('10e3')).toBe(10000)\n    expect(parse('')).toBeNull()\n    expect(parse('', {default: 3})).toBe(3)\n    expect(parse(null)).toBeNull()\n    expect(parse(undefined)).toBeNull()\n    expect(parse('0', {default: 3})).toBe(0)\n    expect(parse('fail')).toBeNaN()\n  })\n  it('parses decimal.js', () => {\n    const parser = new Parser({backend: 'decimal.js'})\n    const parse = (text, config) => parser.parse(text, config)\n    expect(parse('10')).toEqual(Decimal(10))\n    expect(parse('10k')).toEqual(Decimal(10000))\n    expect(() => parse('10x')).toThrow()\n    expect(parse('10x', {default: Decimal(3)})).toEqual(Decimal(3))\n    expect(parse('10,000')).toEqual(Decimal(10000))\n    expect(parse('10 thousand')).toEqual(Decimal(10000))\n    expect(parse('10e3')).toEqual(Decimal(10000))\n    expect(parse('')).toBeNull()\n    expect(parse('', {default: Decimal(3)})).toEqual(Decimal(3))\n    expect(parse(null)).toBeNull()\n    expect(parse(undefined)).toBeNull()\n    expect(parse('0', {default: Decimal(3)})).toEqual(Decimal(0))\n    expect(() => parse('fail')).toThrow()\n  })\n})\n",
+    "content": "import {parse, Parser} from './parse'\nimport Decimal from 'decimal.js'\nimport LDecimal from 'decimal.js-light'\nimport BDecimal from 'break_infinity.js'\n\ndescribe('parse', () => {\n  it('parses suffixes from user input', () => {\n    expect(parse('10')).toBe(10)\n    expect(parse('10k')).toBe(10000)\n    expect(parse('10x')).toBeNaN()\n    expect(parse('10x', {default: 3})).toBe(3)\n    expect(parse('10,000')).toBe(10000)\n    expect(parse('10 thousand')).toBe(10000)\n    expect(parse('10e3')).toBe(10000)\n    expect(parse('')).toBeNull()\n    expect(parse('', {default: 3})).toBe(3)\n    expect(parse(null)).toBeNull()\n    expect(parse(undefined)).toBeNull()\n    expect(parse('0', {default: 3})).toBe(0)\n    expect(parse('fail')).toBeNaN()\n  })\n  it('parses decimal.js', () => {\n    const parser = new Parser({backend: 'decimal.js'})\n    const parse = (text, config) => parser.parse(text, config)\n    expect(parse('10')).toEqual(new Decimal(10))\n    expect(parse('10k')).toEqual(new Decimal(10000))\n    expect(() => parse('10x')).toThrow()\n    expect(parse('10x', {default: new Decimal(3)})).toEqual(new Decimal(3))\n    expect(parse('10,000')).toEqual(new Decimal(10000))\n    expect(parse('10 thousand')).toEqual(new Decimal(10000))\n    expect(parse('10e3')).toEqual(new Decimal(10000))\n    expect(parse('')).toBeNull()\n    expect(parse('', {default: new Decimal(3)})).toEqual(new Decimal(3))\n    expect(parse(null)).toBeNull()\n    expect(parse(undefined)).toBeNull()\n    expect(parse('0', {default: new Decimal(3)})).toEqual(new Decimal(0))\n    expect(() => parse('fail')).toThrow()\n  })\n  it('parses decimal.js-light', () => {\n    const Decimal = LDecimal\n    const parser = new Parser({backend: 'decimal.js', Decimal})\n    const parse = (text, config) => parser.parse(text, config)\n    expect(parse('10')).toEqual(new Decimal(10))\n    expect(parse('10k')).toEqual(new Decimal(10000))\n    expect(() => parse('10x')).toThrow()\n    expect(parse('10x', {default: new Decimal(3)})).toEqual(new Decimal(3))\n    expect(parse('10,000')).toEqual(new Decimal(10000))\n    expect(parse('10 thousand')).toEqual(new Decimal(10000))\n    expect(parse('10e3')).toEqual(new Decimal(10000))\n    expect(parse('')).toBeNull()\n    expect(parse('', {default: new Decimal(3)})).toEqual(new Decimal(3))\n    expect(parse(null)).toBeNull()\n    expect(parse(undefined)).toBeNull()\n    expect(parse('0', {default: new Decimal(3)})).toEqual(new Decimal(0))\n    expect(() => parse('fail')).toThrow()\n  })\n  it('parses break_infinity.js', () => {\n    const Decimal = BDecimal\n    const parser = new Parser({backend: 'decimal.js', Decimal})\n    const parse = (text, config) => parser.parse(text, config)\n    expect(parse('10')).toEqual(new Decimal(10))\n    expect(parse('10k')).toEqual(new Decimal(10000))\n    //expect(() => parse('10x')).toThrow()\n    //expect(parse('10x', {default: new Decimal(3)})).toEqual(new Decimal(3))\n    expect(parse('10,000')).toEqual(new Decimal(10000))\n    expect(parse('10 thousand')).toEqual(new Decimal(10000))\n    expect(parse('10e3')).toEqual(new Decimal(10000))\n    expect(parse('')).toBeNull()\n    expect(parse('', {default: new Decimal(3)})).toEqual(new Decimal(3))\n    expect(parse(null)).toBeNull()\n    expect(parse(undefined)).toBeNull()\n    expect(parse('0', {default: new Decimal(3)})).toEqual(new Decimal(0))\n    //expect(() => parse('fail')).toThrow()\n  })\n})\n",
     "static": true,
     "longname": "src/parse.test.js",
     "access": null,
@@ -1158,7 +1210,7 @@
     "lineNumber": 1
   },
   {
-    "__docId__": 36,
+    "__docId__": 37,
     "kind": "external",
     "name": "Infinity",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity",
@@ -1170,7 +1222,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 37,
+    "__docId__": 38,
     "kind": "external",
     "name": "NaN",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN",
@@ -1182,7 +1234,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 38,
+    "__docId__": 39,
     "kind": "external",
     "name": "undefined",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined",
@@ -1194,7 +1246,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 39,
+    "__docId__": 40,
     "kind": "external",
     "name": "null",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null",
@@ -1206,7 +1258,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 40,
+    "__docId__": 41,
     "kind": "external",
     "name": "Object",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
@@ -1218,7 +1270,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 41,
+    "__docId__": 42,
     "kind": "external",
     "name": "object",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
@@ -1230,7 +1282,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 42,
+    "__docId__": 43,
     "kind": "external",
     "name": "Function",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
@@ -1242,7 +1294,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 43,
+    "__docId__": 44,
     "kind": "external",
     "name": "function",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
@@ -1254,7 +1306,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 44,
+    "__docId__": 45,
     "kind": "external",
     "name": "Boolean",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
@@ -1266,7 +1318,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 45,
+    "__docId__": 46,
     "kind": "external",
     "name": "boolean",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
@@ -1278,7 +1330,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 46,
+    "__docId__": 47,
     "kind": "external",
     "name": "Symbol",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
@@ -1290,7 +1342,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 47,
+    "__docId__": 48,
     "kind": "external",
     "name": "Error",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error",
@@ -1302,7 +1354,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 48,
+    "__docId__": 49,
     "kind": "external",
     "name": "EvalError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/EvalError",
@@ -1314,7 +1366,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 49,
+    "__docId__": 50,
     "kind": "external",
     "name": "InternalError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/InternalError",
@@ -1326,7 +1378,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 50,
+    "__docId__": 51,
     "kind": "external",
     "name": "RangeError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError",
@@ -1338,7 +1390,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 51,
+    "__docId__": 52,
     "kind": "external",
     "name": "ReferenceError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError",
@@ -1350,7 +1402,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 52,
+    "__docId__": 53,
     "kind": "external",
     "name": "SyntaxError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError",
@@ -1362,7 +1414,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 53,
+    "__docId__": 54,
     "kind": "external",
     "name": "TypeError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError",
@@ -1374,7 +1426,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 54,
+    "__docId__": 55,
     "kind": "external",
     "name": "URIError",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError",
@@ -1386,7 +1438,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 55,
+    "__docId__": 56,
     "kind": "external",
     "name": "Number",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
@@ -1398,7 +1450,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 56,
+    "__docId__": 57,
     "kind": "external",
     "name": "number",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
@@ -1410,7 +1462,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 57,
+    "__docId__": 58,
     "kind": "external",
     "name": "Date",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date",
@@ -1422,7 +1474,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 58,
+    "__docId__": 59,
     "kind": "external",
     "name": "String",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
@@ -1434,7 +1486,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 59,
+    "__docId__": 60,
     "kind": "external",
     "name": "string",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
@@ -1446,7 +1498,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 60,
+    "__docId__": 61,
     "kind": "external",
     "name": "RegExp",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp",
@@ -1458,7 +1510,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 61,
+    "__docId__": 62,
     "kind": "external",
     "name": "Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
@@ -1470,7 +1522,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 62,
+    "__docId__": 63,
     "kind": "external",
     "name": "Int8Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int8Array",
@@ -1482,7 +1534,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 63,
+    "__docId__": 64,
     "kind": "external",
     "name": "Uint8Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array",
@@ -1494,7 +1546,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 64,
+    "__docId__": 65,
     "kind": "external",
     "name": "Uint8ClampedArray",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray",
@@ -1506,7 +1558,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 65,
+    "__docId__": 66,
     "kind": "external",
     "name": "Int16Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int16Array",
@@ -1518,7 +1570,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 66,
+    "__docId__": 67,
     "kind": "external",
     "name": "Uint16Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint16Array",
@@ -1530,7 +1582,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 67,
+    "__docId__": 68,
     "kind": "external",
     "name": "Int32Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int32Array",
@@ -1542,7 +1594,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 68,
+    "__docId__": 69,
     "kind": "external",
     "name": "Uint32Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array",
@@ -1554,7 +1606,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 69,
+    "__docId__": 70,
     "kind": "external",
     "name": "Float32Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array",
@@ -1566,7 +1618,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 70,
+    "__docId__": 71,
     "kind": "external",
     "name": "Float64Array",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float64Array",
@@ -1578,7 +1630,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 71,
+    "__docId__": 72,
     "kind": "external",
     "name": "Map",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
@@ -1590,7 +1642,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 72,
+    "__docId__": 73,
     "kind": "external",
     "name": "Set",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
@@ -1602,7 +1654,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 73,
+    "__docId__": 74,
     "kind": "external",
     "name": "WeakMap",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap",
@@ -1614,7 +1666,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 74,
+    "__docId__": 75,
     "kind": "external",
     "name": "WeakSet",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet",
@@ -1626,7 +1678,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 75,
+    "__docId__": 76,
     "kind": "external",
     "name": "ArrayBuffer",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer",
@@ -1638,7 +1690,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 76,
+    "__docId__": 77,
     "kind": "external",
     "name": "DataView",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView",
@@ -1650,7 +1702,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 77,
+    "__docId__": 78,
     "kind": "external",
     "name": "JSON",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON",
@@ -1662,7 +1714,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 78,
+    "__docId__": 79,
     "kind": "external",
     "name": "Promise",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
@@ -1674,7 +1726,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 79,
+    "__docId__": 80,
     "kind": "external",
     "name": "Generator",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator",
@@ -1686,7 +1738,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 80,
+    "__docId__": 81,
     "kind": "external",
     "name": "GeneratorFunction",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GeneratorFunction",
@@ -1698,7 +1750,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 81,
+    "__docId__": 82,
     "kind": "external",
     "name": "Reflect",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect",
@@ -1710,7 +1762,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 82,
+    "__docId__": 83,
     "kind": "external",
     "name": "Proxy",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy",
@@ -1723,7 +1775,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 84,
+    "__docId__": 85,
     "kind": "external",
     "name": "CanvasRenderingContext2D",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
@@ -1735,7 +1787,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 85,
+    "__docId__": 86,
     "kind": "external",
     "name": "DocumentFragment",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment",
@@ -1747,7 +1799,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 86,
+    "__docId__": 87,
     "kind": "external",
     "name": "Element",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Element",
@@ -1759,7 +1811,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 87,
+    "__docId__": 88,
     "kind": "external",
     "name": "Event",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Event",
@@ -1771,7 +1823,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 88,
+    "__docId__": 89,
     "kind": "external",
     "name": "Node",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Node",
@@ -1783,7 +1835,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 89,
+    "__docId__": 90,
     "kind": "external",
     "name": "NodeList",
     "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/NodeList",
@@ -1795,7 +1847,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 90,
+    "__docId__": 91,
     "kind": "external",
     "name": "XMLHttpRequest",
     "externalLink": "https://developer.mozilla.org/en/docs/Web/API/XMLHttpRequest",
@@ -1807,7 +1859,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 91,
+    "__docId__": 92,
     "kind": "external",
     "name": "AudioContext",
     "externalLink": "https://developer.mozilla.org/en/docs/Web/API/AudioContext",

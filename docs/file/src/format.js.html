@@ -74,6 +74,16 @@ const log10 = (() =&gt; {
   }
 })()
 
+// Math.floor() to a specified number of sigfigs for native JS numbers.
+// Like Decimal.floor(sigfigs).
+// Based on http://blog.magnetiq.com/post/497605344/rounding-to-a-certain-significant-figures-in
+function floorSigfigs(n, sig) {
+  if (!sig) return n
+  if (n &lt; 0) return -floorSigfigs(-n, sig)
+  var mult = Math.pow(10,
+    sig - Math.floor(Math.log(n) / Math.LN10) - 1)
+  return Math.floor(n * mult) / mult
+}
 const backends = {
   &apos;native&apos;: {
     normalize(val) {
@@ -90,33 +100,46 @@ const backends = {
     },
     prefix(val, index, {sigfigs}) {
       // `sigfigs||undefined` supports sigfigs=[null|0], #15
-      return (val / Math.pow(1000, index)).toPrecision(sigfigs || undefined)
+      return floorSigfigs(val / Math.pow(1000, index), sigfigs).toPrecision(sigfigs || undefined)
     },
   },
   &apos;decimal.js&apos;: {
     // api docs: https://mikemcl.github.io/decimal.js/
     _requireDecimal(config) {
-      if (!requireDecimal(config)) throw new Error(&apos;requireDecimal() failed&apos;)
-      return new requireDecimal(config)(0).constructor.clone(config)
+      const Decimal = requireDecimal(config)
+      if (!Decimal) throw new Error(&apos;requireDecimal() failed&apos;)
+      //return Decimal.clone(config)
+      return Decimal.clone ? Decimal.clone(config) : Decimal
     },
-    normalize(val, {rounding}) {
-      const Decimal = this._requireDecimal({rounding})
+    normalize(val, config) {
+      const Decimal = this._requireDecimal(config)
       return new Decimal(val)
     },
-    index(val) {
-      const Decimal = this._requireDecimal()
+    index(val, config) {
+      const Decimal = this._requireDecimal(config)
       // index = val.log10().dividedToIntegerBy(Decimal.log 1000)
       // Decimal.log() is too slow for large numbers. Docs say performance degrades exponentially as # digits increases, boo.
       // Lucky me, the length is used by decimal.js internally: num.e
       // this is in the docs, so I think it&apos;s stable enough to use...
+      // Actually, not quite. decimal.js, decimal.js-light, and break_infinity
+      // are all slightly different here. Not worth separate adapters yet.
       val = new Decimal(val)
-      return Math.floor(val.e / 3)
+      const e = val.exponent
+        ? typeof val.exponent === &apos;function&apos;
+          // decimal.js-light
+          ? val.exponent()
+          // break_infinity.js
+          : val.exponent
+        // decimal.js
+        : val.e
+      return Math.floor(e / 3)
     },
-    prefix(val, index, {sigfigs, rounding}) {
-      const Decimal = this._requireDecimal({rounding})
+    prefix(val, index, config) {
+      const {sigfigs} = config
+      const Decimal = this._requireDecimal(config)
       var div = new Decimal(1000).pow(index)
       // `sigfigs||undefined` supports sigfigs=[null|0], #15
-      return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined)
+      return new Decimal(val).dividedBy(div).toPrecision(sigfigs || undefined, Decimal.ROUND_DOWN)
     },
   },
 }
@@ -125,7 +148,7 @@ const backends = {
 function _format(val, opts) {
   const backend = validate(backends[opts.backend], `not a backend: ${opts.backend}`)
   val = backend.normalize(val, opts)
-  const index = backend.index(val)
+  const index = backend.index(val, opts)
   const suffix = opts.suffixFn(index)
   // `{sigfigs: undefined|null|0}` for automatic sigfigs is supported.
   let sigfigs = opts.sigfigs || undefined
@@ -215,6 +238,7 @@ export class Formatter {
    * @param {number} [opts.sigfigs=5]
    * @param {number} [opts.format=&apos;standard&apos;] &apos;standard&apos;, &apos;hybrid&apos;, &apos;scientific&apos;, &apos;longScale&apos;.
    * @param {Object} [opts.formats] Specify your own custom formats.
+   * @param {Function} [opts.Decimal] With the decimal.js backend, use this custom decimal.js constructor, like decimal.js-light or break_infinity.js. By default, we&apos;ll try to import decimal.js.
    */
   constructor(opts = {}) {
     /** @type Object */
@@ -253,7 +277,7 @@ export class Formatter {
    */
   index(val, opts) {
     opts = this._normalizeOpts(opts)
-    return backends[opts.backend].index(val)
+    return backends[opts.backend].index(val, opts)
   }
   /**
    * @param {number} val
@@ -268,7 +292,7 @@ export class Formatter {
    */
   suffix(val, opts) {
     opts = this._normalizeOpts(opts)
-    var index = backends[opts.backend].index(val)
+    var index = backends[opts.backend].index(val, opts)
     return opts.suffixFn(index)
   }
   /**

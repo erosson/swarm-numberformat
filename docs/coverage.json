@@ -7,19 +7,19 @@
       "expectCount": 12,
       "actualCount": 10,
       "undocumentLines": [
-        132,
-        158
+        155,
+        181
       ]
     },
     "src/parse.js": {
       "expectCount": 5,
       "actualCount": 0,
       "undocumentLines": [
-        76,
-        78,
-        77,
-        80,
-        52
+        81,
+        83,
+        82,
+        85,
+        57
       ]
     },
     "src/decimal.js": {

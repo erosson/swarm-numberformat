@@ -47,6 +47,8 @@
 <div class="content" data-ice="content"><h1 data-ice="title">src/parse.test.js</h1>
 <pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import {parse, Parser} from &apos;./parse&apos;
 import Decimal from &apos;decimal.js&apos;
+import LDecimal from &apos;decimal.js-light&apos;
+import BDecimal from &apos;break_infinity.js&apos;
 
 describe(&apos;parse&apos;, () =&gt; {
   it(&apos;parses suffixes from user input&apos;, () =&gt; {
@@ -67,19 +69,55 @@ describe(&apos;parse&apos;, () =&gt; {
   it(&apos;parses decimal.js&apos;, () =&gt; {
     const parser = new Parser({backend: &apos;decimal.js&apos;})
     const parse = (text, config) =&gt; parser.parse(text, config)
-    expect(parse(&apos;10&apos;)).toEqual(Decimal(10))
-    expect(parse(&apos;10k&apos;)).toEqual(Decimal(10000))
+    expect(parse(&apos;10&apos;)).toEqual(new Decimal(10))
+    expect(parse(&apos;10k&apos;)).toEqual(new Decimal(10000))
     expect(() =&gt; parse(&apos;10x&apos;)).toThrow()
-    expect(parse(&apos;10x&apos;, {default: Decimal(3)})).toEqual(Decimal(3))
-    expect(parse(&apos;10,000&apos;)).toEqual(Decimal(10000))
-    expect(parse(&apos;10 thousand&apos;)).toEqual(Decimal(10000))
-    expect(parse(&apos;10e3&apos;)).toEqual(Decimal(10000))
+    expect(parse(&apos;10x&apos;, {default: new Decimal(3)})).toEqual(new Decimal(3))
+    expect(parse(&apos;10,000&apos;)).toEqual(new Decimal(10000))
+    expect(parse(&apos;10 thousand&apos;)).toEqual(new Decimal(10000))
+    expect(parse(&apos;10e3&apos;)).toEqual(new Decimal(10000))
     expect(parse(&apos;&apos;)).toBeNull()
-    expect(parse(&apos;&apos;, {default: Decimal(3)})).toEqual(Decimal(3))
+    expect(parse(&apos;&apos;, {default: new Decimal(3)})).toEqual(new Decimal(3))
     expect(parse(null)).toBeNull()
     expect(parse(undefined)).toBeNull()
-    expect(parse(&apos;0&apos;, {default: Decimal(3)})).toEqual(Decimal(0))
+    expect(parse(&apos;0&apos;, {default: new Decimal(3)})).toEqual(new Decimal(0))
     expect(() =&gt; parse(&apos;fail&apos;)).toThrow()
+  })
+  it(&apos;parses decimal.js-light&apos;, () =&gt; {
+    const Decimal = LDecimal
+    const parser = new Parser({backend: &apos;decimal.js&apos;, Decimal})
+    const parse = (text, config) =&gt; parser.parse(text, config)
+    expect(parse(&apos;10&apos;)).toEqual(new Decimal(10))
+    expect(parse(&apos;10k&apos;)).toEqual(new Decimal(10000))
+    expect(() =&gt; parse(&apos;10x&apos;)).toThrow()
+    expect(parse(&apos;10x&apos;, {default: new Decimal(3)})).toEqual(new Decimal(3))
+    expect(parse(&apos;10,000&apos;)).toEqual(new Decimal(10000))
+    expect(parse(&apos;10 thousand&apos;)).toEqual(new Decimal(10000))
+    expect(parse(&apos;10e3&apos;)).toEqual(new Decimal(10000))
+    expect(parse(&apos;&apos;)).toBeNull()
+    expect(parse(&apos;&apos;, {default: new Decimal(3)})).toEqual(new Decimal(3))
+    expect(parse(null)).toBeNull()
+    expect(parse(undefined)).toBeNull()
+    expect(parse(&apos;0&apos;, {default: new Decimal(3)})).toEqual(new Decimal(0))
+    expect(() =&gt; parse(&apos;fail&apos;)).toThrow()
+  })
+  it(&apos;parses break_infinity.js&apos;, () =&gt; {
+    const Decimal = BDecimal
+    const parser = new Parser({backend: &apos;decimal.js&apos;, Decimal})
+    const parse = (text, config) =&gt; parser.parse(text, config)
+    expect(parse(&apos;10&apos;)).toEqual(new Decimal(10))
+    expect(parse(&apos;10k&apos;)).toEqual(new Decimal(10000))
+    //expect(() =&gt; parse(&apos;10x&apos;)).toThrow()
+    //expect(parse(&apos;10x&apos;, {default: new Decimal(3)})).toEqual(new Decimal(3))
+    expect(parse(&apos;10,000&apos;)).toEqual(new Decimal(10000))
+    expect(parse(&apos;10 thousand&apos;)).toEqual(new Decimal(10000))
+    expect(parse(&apos;10e3&apos;)).toEqual(new Decimal(10000))
+    expect(parse(&apos;&apos;)).toBeNull()
+    expect(parse(&apos;&apos;, {default: new Decimal(3)})).toEqual(new Decimal(3))
+    expect(parse(null)).toBeNull()
+    expect(parse(undefined)).toBeNull()
+    expect(parse(&apos;0&apos;, {default: new Decimal(3)})).toEqual(new Decimal(0))
+    //expect(() =&gt; parse(&apos;fail&apos;)).toThrow()
   })
 })
 </code></pre>
