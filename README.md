@@ -105,6 +105,8 @@ https://www.npmjs.com/package/written-number has a lot in common with this proje
 
 Project template: https://github.com/babel/generator-babel-boilerplate
 
+I also maintain an Elm port of this project, [erosson/number-suffix](https://github.com/erosson/number-suffix).
+
 ## License
 
 MIT - use this anywhere. I'd like it if you open-sourced any changes you make to this library (send a pull request? Github fork?), but it's not required.
